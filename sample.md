@@ -52,7 +52,7 @@ Note
 ---
 # Slide2
 
-* What's the answer? Ans-><hide>there</hide>
+* What's the answer? Ans-><hide>This is the ANSWER</hide>
 
 1. test
 2. test
