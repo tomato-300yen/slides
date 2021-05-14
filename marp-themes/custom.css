@@ -1,82 +1,84 @@
 /* @theme custom */
 
-@import 'default';
+@import "default";
 
 section {
-    padding: 30px;
-    justify-content: start;
-    font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "メイリオ", "Hiragino Kaku Gothic ProN",   "Hiragino   Sans", sans-serif;
-    font-weight: 500;
+  padding: 30px;
+  justify-content: start;
+  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "メイリオ",
+    "Hiragino Kaku Gothic ProN", "Hiragino   Sans", sans-serif;
+  font-weight: 500;
 }
 section::after {
-    content: attr(data-marpit-pagination) '/' attr(data-marpit-pagination-total);
+  content: attr(data-marpit-pagination) "/" attr(data-marpit-pagination-total);
 }
 section h1 {
-    border-bottom: 1px solid;
+  border-bottom: 1px solid;
 }
 
 table {
-    /* border: 1px #000 solid; */
-    text-align: center;
-    width: 100%;
+  /* border: 1px #000 solid; */
+  text-align: center;
+  width: 100%;
 }
 table th {
-    border-color: #333;
+  border-color: #333;
 }
 table td {
-    border-color: #333;
+  border-color: #333;
 }
 
 .nowrap {
-    white-space: nowrap;
+  /* no new line */
+  white-space: nowrap;
 }
 
 /* hide */
 hide {
-    background-color: #ddd;
-    color: #ddd;
+  background-color: #ddd;
+  color: #ddd;
 }
 
 /* note */
 note {
-    position: relative;
-    bottom: 5%;
-    left: 5%;
-    right: 8%;
-    padding: 10px 0px 5px 60px;
-    box-sizing: border-box;
-    background: #efefef;
-    position: absolute;
+  position: relative;
+  bottom: 5%;
+  left: 5%;
+  right: 8%;
+  padding: 10px 0px 5px 60px;
+  box-sizing: border-box;
+  background: #efefef;
+  position: absolute;
 }
-note::before{
-    display: inline-block;
-    position: absolute;
-    top: 18px;
-    left: 15px;
-    content: "📓";
-    color: #cfcfcf;
-    font-size: 30px;
-    line-height: 1;
-    font-weight: 900;
+note::before {
+  display: inline-block;
+  position: absolute;
+  top: 18px;
+  left: 15px;
+  content: "📓";
+  color: #cfcfcf;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 900;
 }
 note p {
-    padding: 0;
-    margin: 10px 0;
-    line-height: 1.7;
+  padding: 0;
+  margin: 10px 0;
+  line-height: 1.7;
 }
 note cite {
-    display: block;
-    color: #888888;
+  display: block;
+  color: #888888;
 }
 
 red {
-    color: red;
+  color: red;
 }
 
 /* two cols */
 div.twocols {
-    margin-top: 0px;
-    column-count: 2;
+  margin-top: 0px;
+  column-count: 2;
 }
 div.twocols p:first-child,
 div.twocols h1:first-child,
@@ -84,15 +86,15 @@ div.twocols h2:first-child,
 div.twocols ul:first-child,
 div.twocols ul li:first-child,
 div.twocols ul li p:first-child {
-    margin-top: 0 !important;
+  margin-top: 0 !important;
 }
 div.twocols p.break {
-    break-before: column;
-    margin-top: 0;
+  break-before: column;
+  margin-top: 0;
 }
 
 /* title */
 section.title {
-    justify-content: center;
-    text-align: center;
+  justify-content: center;
+  text-align: center;
 }
