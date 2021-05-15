@@ -23,10 +23,13 @@ paginate: true
 
 # What you will learn in this section
 
-1. How to build your own DTA tools with `libdft`
-   - with tools that
-     - prevents remoto control-hijacking attacks
-     - automatically detects information leaks
+1. Internals of `libdft`
+   a. How `libdft` works
+   b. Data structure of `libdft`
+
+1. How to build a DTA tools with `libdft`
+   a. prevents remoto control-hijacking attacks
+   b. automatically detects information leaks
 
 ---
 
