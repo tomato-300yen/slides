@@ -24,12 +24,12 @@ paginate: true
 # What you will learn in this section
 
 1. Internals of `libdft`
-   a. How `libdft` works
-   b. Data structure of `libdft`
+   a. how `libdft` works
+   b. data structure of `libdft`
 
 1. How to build a DTA tools with `libdft`
-   a. prevents remoto control-hijacking attacks
-   b. automatically detects information leaks
+   a. a tool that prevents remoto control-hijacking attacks
+   b. a tool that automatically detects information leaks
 
 ---
 
