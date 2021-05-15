@@ -53,9 +53,9 @@ paginate: true
   - not for extended instruction sets like MMX or SSE.
 
 <note>
-libdft is based on Pin (between 2.11 and 2.13)
+<code>libdft</code> is based on Pin (between 2.11 and 2.13)
 
-64-bit version of libdft : https://github.com/AngoraFuzzer/libdft64
+64-bit version of <code>libdft</code> : https://github.com/AngoraFuzzer/libdft64
 </note>
 
 ---
