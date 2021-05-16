@@ -146,8 +146,9 @@ and <code>eax</code>
 ### API for adding callbacks and instrumentation code
 
 - `syscall_set_pre()` and `syscall_set_post()` : register callbacks for syscall events.
-- `syscall_desc[]` : store syscall pre- and post-handlers
-- You can alse register callbacks for instructions using `ins_set_pre` and `ins_set_post`.
+- `syscall_desc[]` : store syscall pre- and post-handlers.
+  - use _syscall number_ to index this array.
+- `ins_set_pre` and `ins_set_post` : register callbacks for instructions.
 
 ---
 
@@ -170,3 +171,66 @@ and <code>eax</code>
 2. <red>Using DTA to Detect Remote Control-Hijacking</red>
 3. Circumeventing DTA with implicit Flows
 4. A DTA-Based Data Exfiltration Detector
+
+---
+
+# Remote Control-Hijacking Attack
+
+- Goal is to detect attacks where data received from network is used to control the argument of `execve` call (-> arbitary code execution).
+- taint source : the network receive functions, `recv` and `recvfrom`.
+- tiant sink : `execve`
+
+---
+
+# ref) `exec` family
+
+<style type="text/css">
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-0pky"></th>
+    <th class="tg-0pky">引数の渡し方(l or v)</th>
+    <th class="tg-0pky">環境変数(e)</th>
+    <th class="tg-0pky">パス検索(p)</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky">exec<u>l</u></td>
+    <td class="tg-0pky">list</td>
+    <td class="tg-0pky">引き継ぐ</td>
+    <td class="tg-0pky">しない</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">exec<u>v</u></td>
+    <td class="tg-0pky">vector</td>
+    <td class="tg-0pky">引き継ぐ</td>
+    <td class="tg-0pky">しない</td>
+  </tr>
+  <tr>
+    <td class="tg-0lax">exec<u>le</u></td>
+    <td class="tg-0lax">list</td>
+    <td class="tg-0lax">渡す</td>
+    <td class="tg-0lax">しない</td>
+  </tr>
+  <tr>
+    <td class="tg-0lax">exec<u>ve</u></td>
+    <td class="tg-0lax">vector</td>
+    <td class="tg-0lax">渡す</td>
+    <td class="tg-0lax">しない</td>
+  </tr>
+  <tr>
+    <td class="tg-0lax">exec<u>lp</u></td>
+    <td class="tg-0lax">list</td>
+    <td class="tg-0lax">引き継ぐ</td>
+    <td class="tg-0lax">する</td>
+  </tr>
+  <tr>
+    <td class="tg-0lax">exec<u>vp</u></td>
+    <td class="tg-0lax">vector</td>
+    <td class="tg-0lax">引き継ぐ</td>
+    <td class="tg-0lax">する</td>
+  </tr>
+</tbody>
+</table>
