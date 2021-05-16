@@ -21,7 +21,7 @@ _footer: ''
 paginate: true
 -->
 
-# What you will learn in this section
+# What you will learn
 
 1. Internals of `libdft`
    a. data structure of `libdft`
@@ -35,7 +35,7 @@ paginate: true
 
 # Overview
 
-1. introducing `libdft`
+1. about `libdft`
 2. Using DTA to Detect Remote Control-Hijacking
 3. Circumeventing DTA with implicit Flows
 4. A DTA-Based Data Exfiltration Detector
@@ -63,8 +63,11 @@ paginate: true
 # Internals of libdft - Overview
 
 - Shadow Memory
+  - how to store taint info
 - Virtual CPU
+  - how to propagete taint info
 - The libdft API and I/O interface
+  - how to instrument
 
 ---
 
@@ -112,9 +115,18 @@ and <code>eax</code>
 
 # Internals of libdft - libdft API and I/O interface
 
-- To build your own DTA tools, `libdft` provides a taint tracking API.
+- `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
   - manipulate tagmap (Tagmap API)
+  - add callbacks and instrument code
+
+---
+
+# Internals of libdft - libdft API and I/O interface
+
+- `libdft` provides a taint tracking API.
+- Two import tools for building DTA tools is those that
+  - <red>manipulate tagmap (Tagmap API)</red>
   - add callbacks and instrument code
 
 ### Tagmap API
@@ -122,10 +134,20 @@ and <code>eax</code>
 - `tagmap_setb()` : sets status of tagmap
 - `tagmap_getb()` : gets status of tagmap
 
+---
+
+# Internals of libdft - libdft API and I/O interface
+
+- `libdft` provides a taint tracking API.
+- Two import tools for building DTA tools is those that
+  - manipulate tagmap (Tagmap API)
+  - <red>add callbacks and instrument code</red>
+
 ### API for adding callbacks and instrumentation code
 
 - `syscall_set_pre()` and `syscall_set_post()` : register callbacks for syscall events.
-- `syscall_desc[]` : keeps track all of syscall handllers you installed.
+- `syscall_desc[]` : store syscall pre- and post-handlers
+- You can alse register callbacks for instructions using `ins_set_pre` and `ins_set_post`.
 
 ---
 
