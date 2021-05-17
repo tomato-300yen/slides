@@ -1,8 +1,6 @@
 ---
 marp: true
 theme: custom
-# header: "header"
-# footer: "by **＠tomato-300yen**"
 ---
 
 # Practical Binary Analysis #11
@@ -234,3 +232,97 @@ and <code>eax</code>
   </tr>
 </tbody>
 </table>
+
+---
+
+# header files
+
+```c
+// dta-execve.cpp
+#include "pin.H"           // libdft uses Pin
+
+#include "branch_pred.h"   // hints for branch prediction
+#include "libdft_api.h"    // lidft base API
+#include "syscall_desc.h"
+#include "tagmap.h"
+...
+```
+
+- all `libdft` tools are just Pin tools ilnked with the `libdft` library.
+
+---
+
+# functions
+
+```c
+extern syscall_desc_t syscall_desc[SYSCALL_MAX];               // to store syscall hooks
+
+void alert(uintptr_t addr, const char *source, uint8_t tag);   // print alert and exit
+void check_string_taint(const char *str, const char *source);  // check whether tainted
+static post_socketcall_hook(syscall_ctx_t *ctx);               // taint sources
+static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sinks
+```
+
+- Details of these functions will be explained later.
+
+---
+
+# main function
+
+```c
+int main(int argc, char **argv) {
+  PIN_InitSymbols();
+
+  if (unlikely(PIN_Init(argc, argv))) {
+    return 1;
+  }
+
+  if (unlikely(libdft_init() != 0)) {
+    libdft_die();
+    return 1;
+  }
+
+  syscall_set_post(&syscall_desc[__NR_socketcall], post_socketcall_hook);
+  syscall_set_pre(&syscall_desc[__NR_execve], pre_execve_hook);
+
+  PIN_StartProgram();
+
+  return 0;
+}
+```
+
+---
+
+# main function
+
+```c
+int main(int argc, char **argv) {
+  PIN_InitSymbols();
+
+  if (unlikely(PIN_Init(argc, argv))) {
+    return 1;
+  }
+
+  if (unlikely(libdft_init() != 0)) {
+    libdft_die();
+    return 1;
+  }
+...
+```
+
+- `unlikely(hoge)` tells compiler that hoge is unlikely to be ture (= likely to be false).
+
+---
+
+# main function
+
+```c
+...
+  syscall_set_post(&syscall_desc[__NR_socketcall], post_socketcall_hook);
+  syscall_set_pre(&syscall_desc[__NR_execve], pre_execve_hook);
+
+  PIN_StartProgram();
+
+  return 0;
+}  // end of main
+```
