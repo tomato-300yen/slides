@@ -657,3 +657,142 @@ static void pre_execve_hook(syscall_ctx_t *ctx) {
 ```
 
 - Check whether `args` and `envp` are taited or not.
+
+---
+
+# Test of Control-Flow Hijacking - `main`
+
+```c
+int main(int argc, char *argv[]) {
+  char buf[4096];
+  struct sockaddr_storage addr;
+
+  int sockfd = open_socket("localhost", "9999");
+
+  socklen_t addrlen = sizeof(addr);
+  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);
+
+  int child_fd = exec_cmd(buf);
+  FILE *fp = fdopen(child_fd, "r");
+
+  while (fgets(buf, sizeof(buf), fp)) {
+    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);
+  }
+
+  return 0;
+}
+```
+
+- Some error-handling codes are omitted.
+
+---
+
+# Test of Control-Flow Hijacking - `main`
+
+```c
+int main(int argc, char *argv[]) {
+  char buf[4096];
+  struct sockaddr_storage addr;
+
+  int sockfd = open_socket("localhost", "9999");
+
+  socklen_t addrlen = sizeof(addr);
+  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);
+...
+```
+
+1. Opens a socket.
+2. Receives a meassage from the socket.
+
+---
+
+# Test of Control-Flow Hijacking - `main`
+
+```c
+...
+  int child_fd = exec_cmd(buf);
+  FILE *fp = fdopen(child_fd, "r");
+
+  while (fgets(buf, sizeof(buf), fp)) {
+    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);
+  }
+
+  return 0;
+}
+```
+
+3. Executes a command.
+4. Writes the output of the command output to network socket.
+
+- `exec_cmd` is vulnerable function.
+  - The args of `execve` can be influenced by an attacker.
+
+---
+
+# Test of Control-Flow Hijacking - `cmd`
+
+```c
+static struct __attribute__((packed)) {
+  char prefix[32];
+  char datefmt[32];
+  char cmd[64];
+} cmd = {"date: ", "\%Y-\%m-\%d \%H:\%M:\%S",
+         "/home/binary/code/chapter11/date"};
+```
+
+- `cmd` contains a `prefix` for the command output from the meassage.
+
+---
+
+# Test of Control-Flow Hijacking - `exec_cmd`
+
+```c
+int exec_cmd(char *buf) {
+  int pid;
+  int p[2];
+  size_t i;
+  char *argv[3];
+
+  for (i = 0; i < strlen(buf); i++) {  // ** Buffer overflow **
+    if (buf[i] == '\n') {
+      cmd.prefix[i] = '\0';
+      break;
+    }
+    cmd.prefix[i] = buf[i];
+  }
+
+  argv[0] = cmd.cmd;
+  argv[1] = cmd.datefmt;
+  argv[2] = NULL;
+
+  pipe(p)  // omitted error-handling
+...
+```
+
+---
+
+# Test of Control-Flow Hijacking - `exec_cmd`
+
+```c
+...
+  switch (pid = fork()) {
+  ...  // case -1:
+  case 0: /* Child */
+    printf("(execve-test/child) execv: %s %s\n", argv[0], argv[1]);
+    fflush(stdout);
+
+    close(1);
+    dup(p[1]);
+    close(p[0]);
+
+    printf("%s", cmd.prefix);
+    fflush(stdout);
+    execv(argv[0], argv);
+    ...  // error-handling
+  default: /* Parent */
+    close(p[1]);
+    return p[0];
+  }
+  return -1;
+}
+```
