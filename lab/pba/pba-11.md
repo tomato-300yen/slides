@@ -239,6 +239,7 @@ and <code>eax</code>
 
 ```c
 // dta-execve.cpp
+...
 #include "pin.H"           // libdft uses Pin
 
 #include "branch_pred.h"   // hints for branch prediction
@@ -259,10 +260,12 @@ extern syscall_desc_t syscall_desc[SYSCALL_MAX];               // to store sysca
 
 void alert(uintptr_t addr, const char *source, uint8_t tag);   // print alert and exit
 void check_string_taint(const char *str, const char *source);  // check whether tainted
-static post_socketcall_hook(syscall_ctx_t *ctx);               // taint sources
-static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sinks
+static post_socketcall_hook(syscall_ctx_t *ctx);               // taint source
+static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sink
 ```
 
+- `syscall_desc` : Index this array with `syscall` number of `syscall` you're installing
+  - such as `__NR_socketcall` or `__NR_execve`.
 - Details of these functions will be explained later.
 
 ---
@@ -297,20 +300,21 @@ int main(int argc, char **argv) {
 
 ```c
 int main(int argc, char **argv) {
-  PIN_InitSymbols();
+  PIN_InitSymbols();  // in case symbols are available
 
   if (unlikely(PIN_Init(argc, argv))) {
     return 1;
   }
 
-  if (unlikely(libdft_init() != 0)) {
-    libdft_die();
+  if (unlikely(libdft_init() != 0)) {  // init data structures such as tagmap
+    libdft_die();  // deallocat any resources libdft may have allocated
     return 1;
   }
 ...
 ```
 
 - `unlikely(hoge)` tells compiler that hoge is unlikely to be ture (= likely to be false).
+  - Better branch prediction and less cycles.
 
 ---
 
@@ -318,11 +322,258 @@ int main(int argc, char **argv) {
 
 ```c
 ...
+  // socketcall events as the taint sources
   syscall_set_post(&syscall_desc[__NR_socketcall], post_socketcall_hook);
+  // taint sink
   syscall_set_pre(&syscall_desc[__NR_execve], pre_execve_hook);
 
-  PIN_StartProgram();
+  PIN_StartProgram();  // never returns
 
-  return 0;
+  return 0;            // never reached
 }  // end of main
+```
+
+- `socketcall` events include `recv` and `recvfrom` events
+
+<note>
+On some architectures—for example, x86-64 and ARM—there is no socketcall() system call; instead socket(2), accept(2), bind(2), and so on really are implemented as separate system calls.
+(from <code>man socketcall</code>)
+</note>
+
+---
+
+# Details of func - `alert`
+
+```c
+void alert(uintptr_t addr, const char *source, uint8_t tag) {
+  fprintf(stderr,
+          "\n(dta-execve) !!!!!!! ADDRESS 0x%x IS TAINTED (%s, tag=0x%02x), "
+          "ABORTING !!!!!!!\n",
+          addr, source, tag);
+  exit(1);
+}
+```
+
+- This `alert` function
+  1. prints an alert message with the details about the tainted address.
+  2. `exit` from the application
+
+---
+
+# Details of func - `check_string_taint`
+
+```c
+void check_string_taint(const char *str, const char *source) {
+  uint8_t tag;                                   // to store "colour"
+  uintptr_t start = (uintptr_t)str;              // start of string
+  uintptr_t end = (uintptr_t)str + strlen(str);  // end of string
+
+  fprintf(stderr, "(dta-execve) checking taint on bytes 0x%x -- 0x%x (%s)... ",
+          start, end, source);
+
+  for (uintptr_t addr = start; addr <= end; addr++) {
+    tag = tagmap_getb(addr);                     // get the "colour" of addr
+    if (tag != 0)
+      alert(addr, source, tag);                  // alert if tag is tainted
+  }
+
+  fprintf(stderr, "OK\n");
+}  // end of check_string_taint
+```
+
+---
+
+# Details of func - `post_socketcall_hook`
+
+```c
+static void post_socketcall_hook(syscall_ctx_t *ctx) {
+  int fd;
+  void *buf;
+  size_t len;
+
+  int call = (int)ctx->arg[SYSCALL_ARG0];
+  unsigned long *args = (unsigned long *)ctx->arg[SYSCALL_ARG1];
+
+  switch (call) {
+  case SYS_RECV:
+  case SYS_RECVFROM:
+    // ...
+    // omitted
+    // ...
+    break;
+
+  default:
+    break;
+  }
+}
+```
+
+---
+
+# Details of func - `post_socketcall_hook`
+
+```c
+static void post_socketcall_hook(syscall_ctx_t *ctx) {
+  int fd;      // these are used in the omitted part
+  void *buf;
+  size_t len;
+
+  int call = (int)ctx->arg[SYSCALL_ARG0];  // syscall number
+  unsigned long *args = (unsigned long *)ctx->arg[SYSCALL_ARG1];
+...
+```
+
+- `ctx` : contains
+  - the arguments that were passed to the syscall
+  - the return value of syscall.
+
+---
+
+# Details of func - `post_socketcall_hook`
+
+```c
+...
+  switch (call) {
+  case SYS_RECV:
+  case SYS_RECVFROM:
+    // ...
+    // omitted
+    // ...
+    break;
+
+  default:
+    break;
+  }
+}  // end of post_socketcall_hook
+```
+
+- Ignores any cases other than `SYS_RECV` or `SYS_RECVFROM`.
+  - Thus, catching all the `socketcall` does work.
+
+---
+
+# Details of func - `post_socketcall_hook`( omitted part)
+
+```c
+... // start of omitted part
+    if (unlikely(ctx->ret <= 0)) {
+      return;
+    }
+
+    fd = (int)args[0];
+    buf = (void *)args[1];
+    len = (size_t)ctx->ret;
+
+    fprintf(stderr, "(dta-execve) recv: %zu bytes from fd %u\n", len, fd);
+
+    for (size_t i = 0; i < len; i++) {
+      if (isprint(((char *)buf)[i]))
+        fprintf(stderr, "%c", ((char *)buf)[i]);
+      else
+        fprintf(stderr, "\\x%02x", ((char *)buf)[i]);
+    }
+    fprintf(stderr, "\n");
+
+    fprintf(stderr, "(dta-execve) tainting bytes %p -- 0x%x with tag 0x%x\n",
+            buf, (uintptr_t)buf + len, 0x01);
+
+    tagmap_setn((uintptr_t)buf, len, 0x01);
+... // end of omitted part
+```
+
+---
+
+# Details of func - `post_socketcall_hook`( omitted part)
+
+```c
+... // start of omitted part
+    if (unlikely(ctx->ret <= 0)) {  // if syscall didn't receive any bytes
+      return;
+    }
+
+    fd = (int)args[0];              // socket fd
+    buf = (void *)args[1];          // buffer address
+    len = (size_t)ctx->ret;         // # of received bytes
+
+    fprintf(stderr, "(dta-execve) recv: %zu bytes from fd %u\n", len, fd);
+...
+```
+
+---
+
+# Details of func - `post_socketcall_hook`( omitted part)
+
+```c
+...
+    for (size_t i = 0; i < len; i++) {  // print each char
+      if (isprint(((char *)buf)[i]))
+        fprintf(stderr, "%c", ((char *)buf)[i]);
+      else
+        fprintf(stderr, "\\x%02x", ((char *)buf)[i]);
+    }
+    fprintf(stderr, "\n");
+
+    fprintf(stderr, "(dta-execve) tainting bytes %p -- 0x%x with tag 0x%x\n",
+            buf, (uintptr_t)buf + len, 0x01);
+
+    tagmap_setn((uintptr_t)buf, len, 0x01);
+... // end of omited part
+```
+
+<div class=twocols>
+<p>
+  <ul>
+    <li>
+    <code>isprint(hoge)</code> returns
+    </li>
+    <ul>
+      <li>
+      none-0 if hoge can be printed
+      </li>
+      <li>
+      0 if hoge can't be printed
+      </li>
+    </ul>
+  </ul>
+  </p>
+  <p class=break>
+    <ul>
+      <li>
+        <code>buf</code> : first address that will be tainted
+      </li>
+      <li>
+        <code>len</code> : # of bytes to taint
+      </li>
+      <li>
+        <code>0x01</code> : taint colour 
+      </li>
+    </ul>
+  </p.break>
+</div.twocols>
+
+---
+
+# Details of func - `post_socketcall_hook` (repeated)
+
+```c
+static void post_socketcall_hook(syscall_ctx_t *ctx) {
+  int fd;
+  void *buf;
+  size_t len;
+
+  int call = (int)ctx->arg[SYSCALL_ARG0];
+  unsigned long *args = (unsigned long *)ctx->arg[SYSCALL_ARG1];
+
+  switch (call) {
+  case SYS_RECV:
+  case SYS_RECVFROM:
+    // ...
+    // omitted, just explained
+    // ...
+    break;
+
+  default:
+    break;
+  }
+}
 ```
