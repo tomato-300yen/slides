@@ -180,7 +180,7 @@ and <code>eax</code>
 
 ---
 
-# ref) `exec` family
+# Examples of `exec` family
 
 <style type="text/css">
 </style>
@@ -232,6 +232,15 @@ and <code>eax</code>
   </tr>
 </tbody>
 </table>
+
+```c
+#include <unistd.h>
+int main(void){
+  char *argv[] = {"ls", "-l", NULL};
+  char *envp[] = {NULL};
+  execve("/bin/ls", argv, envp);
+}
+```
 
 ---
 
@@ -577,3 +586,74 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
   }
 }
 ```
+
+---
+
+# Details of func - `pre_execve_hook`
+
+```c
+static void pre_execve_hook(syscall_ctx_t *ctx) {
+  const char *filename = (const char *)ctx->arg[SYSCALL_ARG0];
+  char *const *args = (char *const *)ctx->arg[SYSCALL_ARG1];
+  char *const *envp = (char *const *)ctx->arg[SYSCALL_ARG2];
+
+  fprintf(stderr, "(dta-execve) execve: %s (@%p)\n", filename, filename);
+
+  check_string_taint(filename, "execve command");
+  while (args && *args) {
+    fprintf(stderr, "(dta-execve) arg: %s (@%p)\n", *args, *args);
+    check_string_taint(*args, "execve argument");
+    args++;
+  }
+  while (envp && *envp) {
+    fprintf(stderr, "(dta-execve) env: %s (@%p)\n", *envp, *envp);
+    check_string_taint(*envp, "execve environment parameter");
+    envp++;
+  }
+}
+```
+
+---
+
+# Details of func - `pre_execve_hook`
+
+```c
+static void pre_execve_hook(syscall_ctx_t *ctx) {
+  const char *filename = (const char *)ctx->arg[SYSCALL_ARG0];
+  char *const *args = (char *const *)ctx->arg[SYSCALL_ARG1];
+  char *const *envp = (char *const *)ctx->arg[SYSCALL_ARG2];
+
+  fprintf(stderr, "(dta-execve) execve: %s (@%p)\n", filename, filename);
+  check_string_taint(filename, "execve command");
+...
+```
+
+- taint sink
+
+- `ctx` : contains
+
+  - the arguments that were passed to the syscall
+  - the return value of syscall.
+
+- Check whether `filename` is tainted or not.
+
+---
+
+# Details of func - `pre_execve_hook`
+
+```c
+...
+  while (args && *args) {
+    fprintf(stderr, "(dta-execve) arg: %s (@%p)\n", *args, *args);
+    check_string_taint(*args, "execve argument");
+    args++;
+  }
+  while (envp && *envp) {
+    fprintf(stderr, "(dta-execve) env: %s (@%p)\n", *envp, *envp);
+    check_string_taint(*envp, "execve environment parameter");
+    envp++;
+  }
+}
+```
+
+- Check whether `args` and `envp` are taited or not.
