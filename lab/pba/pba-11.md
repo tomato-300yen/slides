@@ -837,6 +837,63 @@ prefix!!!!: 2021-05-19 06:48:45
 ^C[1]+ Done                      ./execve-test-overflow
 ```
 
+1. Start server. (localhost(=127.0.0.1), port 9999)
+2. Send prefix to localhost:9999 using `nc`.
+
 <note>
 <code>-u</code> option : Use UDP instead of TCP.
 </note>
+
+---
+
+# Test of Control-Flow Hijacking - test of overflow
+
+#### Buffer-Overflow
+
+```sh
+$ ./execve-test-overflow &
+[1] 2061
+$ uc -u 127.0.0.1 9999
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/home/binary/code/chapter11/echo
+(execve-test/child) execv: /home/binary/code/chapter11/echo bb...bb/home/binary/.../echo
+aa...aabb...bb/home/binary/code/chapter11/echo bb...bb/home/binary/code/chapter11/echo
+^C[1]+ Done                      ./execve-test-overflow
+```
+
+<note>
+<code>-u</code> option : Use UDP instead of TCP.
+</note>
+
+```c
+static struct __attribute__((packed)) {
+  char prefix[32];   // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  char datefmt[32];  // bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  char cmd[64];      // /home/binary/code/chapter11/echo <- This command is executed.
+} cmd;
+```
+
+---
+
+# Test of Control-Flow Hijacking - Detect Hijacking
+
+#### Using DTA to Detect Hijacking Attempt
+
+```sh
+$ cd /home/binary/lidft/pin-2.13-61206-gcc.4.4.7-linux/
+$ ./pin.sh -follow_execv -t /home/binary/code/chapter11/dta-execve.so \
+        -- /home/binary/code/chapter11/execve-test-overflow &
+[1] 2994
+$ nc -u 127.0.0.1 9999
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/home/binary/code/chapter11/echo
+(dta-execve) recv: 97 bytes from fd 4
+aa...aabb...bb/home/binary/code/chapter11/echo\x0a
+(dta-execve) taintin bytes 0xfff9499c -- 0xfff949fd with tag 0x1  # taints all the bytes received
+(execve-test/child) execv: /home/binary/code/chapter11/echo bb...bb/home/binary/.../echo
+(dta-execve) execve: /home/binary/code/chapter11/echo (@0x804b100)
+(dta-execve) checking taint on bytes 0x804b100 -- 0x804b120 (execve command)...
+(dta-execve) !!!!!!! ADDRESS 0x804b100 IS TAINTED (execve command, tag=0x01), ABORTING !!!!!!!
+```
+
+1. Check whether argments of `execve` are taitned.
+2. `dta-execve` notices that the command is tainted with taint colour `0x01`.
+3. Raises an alert and then stops the child process.
