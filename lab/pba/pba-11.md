@@ -748,17 +748,14 @@ static struct __attribute__((packed)) {
 
 ```c
 int exec_cmd(char *buf) {
-  int pid;
-  int p[2];
-  size_t i;
-  char *argv[3];
+  int pid; int p[2]; char *argv[3];
 
-  for (i = 0; i < strlen(buf); i++) {  // ** Buffer overflow **
+  for (i = 0; i < strlen(buf); i++) {  // [1]
     if (buf[i] == '\n') {
       cmd.prefix[i] = '\0';
       break;
     }
-    cmd.prefix[i] = buf[i];
+    cmd.prefix[i] = buf[i];  // ** Buffer overflow **
   }
 
   argv[0] = cmd.cmd;
@@ -768,6 +765,8 @@ int exec_cmd(char *buf) {
   pipe(p)  // omitted error-handling
 ...
 ```
+
+- [1] lacks propper bound check, allowing attackers to overwrite the `cmd` field.
 
 ---
 
@@ -796,3 +795,48 @@ int exec_cmd(char *buf) {
   return -1;
 }
 ```
+
+---
+
+# Test of Control-Flow Hijacking - `main` (repeated)
+
+```c
+int main(int argc, char *argv[]) {
+  char buf[4096];
+  struct sockaddr_storage addr;
+
+  int sockfd = open_socket("localhost", "9999");
+
+  socklen_t addrlen = sizeof(addr);
+  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);
+
+  int child_fd = exec_cmd(buf);
+  FILE *fp = fdopen(child_fd, "r");
+
+  while (fgets(buf, sizeof(buf), fp)) {
+    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);
+  }
+
+  return 0;
+}
+```
+
+---
+
+# Test of Control-Flow Hijacking - test of overflow
+
+#### No Buffer-Overflow
+
+```sh
+$ ./execve-test-overflow &
+[1] 1913
+$ uc -u 127.0.0.1 9999
+prefix!!!!:
+(execve-test/child) execv: /home/binary/code/chapter11/date %Y-%m-%d %H:%M:%S
+prefix!!!!: 2021-05-19 06:48:45
+^C[1]+ Done                      ./execve-test-overflow
+```
+
+<note>
+<code>-u</code> option : Use UDP instead of TCP.
+</note>
