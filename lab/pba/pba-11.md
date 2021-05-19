@@ -897,3 +897,46 @@ aa...aabb...bb/home/binary/code/chapter11/echo\x0a
 1. Check whether argments of `execve` are taitned.
 2. `dta-execve` notices that the command is tainted with `0x01`.
 3. Raises an alert and then stops the child process.
+
+---
+
+# Overview
+
+1. about `libdft`
+2. Using DTA to Detect Remote Control-Hijacking
+3. <red>Circumeventing DTA with implicit Flows</red>
+4. A DTA-Based Data Exfiltration Detector
+
+---
+
+# Circumeventing DTA with Implicit Flows
+
+```c
+int exec_cmd(char *buf) {
+...
+  for (i = 0; i < strlen(buf); i++) {
+    if (buf[i] == '\n') {
+      cmd.prefix[i] = '\0';
+      break;
+    }
+    c = 0;
+    while (c < buf[i]) c++;  // increment c until c == b[i]
+    cmd.prefix[i] = c;       // c == b[i], but c is not tainted
+  }
+...  // Set up argv and continue with execv
+}
+```
+
+- Without explicitly copying `b[i]` to `c`, `c` has the same value as `b[i]`.
+- We call this _implicit flow_.
+  - `libdft` cannot track this kind of flow, causing undertainting.
+- Malware may contain implicit flow to confuse taint analysis.
+
+---
+
+# Overview
+
+1. about `libdft`
+2. Using DTA to Detect Remote Control-Hijacking
+3. Circemeventing DTA with implicit Flows
+4. <red>A DTA-Based Data Exfiltration Detector</red>
