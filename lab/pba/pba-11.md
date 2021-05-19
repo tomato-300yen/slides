@@ -895,5 +895,5 @@ aa...aabb...bb/home/binary/code/chapter11/echo\x0a
 ```
 
 1. Check whether argments of `execve` are taitned.
-2. `dta-execve` notices that the command is tainted with taint colour `0x01`.
+2. `dta-execve` notices that the command is tainted with `0x01`.
 3. Raises an alert and then stops the child process.
