@@ -1187,7 +1187,7 @@ static void post_read_hook(syscall_ctx_t *ctx) {
 }
 ```
 
-- Taint bytes
+- Taint bytes using `tagmap_setn()`
   - if the `fd` is colored.
-- Clear taint on bytes
+- Clear taint on bytes using `tagmap_clrn()`
   - if the `fd` is not colored.
