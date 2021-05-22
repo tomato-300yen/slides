@@ -71,18 +71,18 @@ paginate: true
 
 # Internals of libdft - Shadow Memory
 
-### Bitmap (1 colour)
+### Bitmap (1 color)
 
-- Supports only 1 taint colour.
+- Supports only 1 taint color.
 - Slightly faster and less memory than STAB.
 
 ---
 
 # Internals of libdft - Shadow Memory
 
-### STAB : Segment Translation Table (8 colour)
+### STAB : Segment Translation Table (8 color)
 
-- Supports 8 taint colour.
+- Supports 8 taint color.
 - Contains one entry for every memory page.
 - Each entry contains an _addend_ value,
   - which is a 32-bit offset from a virtual memory address.
@@ -373,7 +373,7 @@ void alert(uintptr_t addr, const char *source, uint8_t tag) {
 
 ```c
 void check_string_taint(const char *str, const char *source) {
-  uint8_t tag;                                   // to store "colour"
+  uint8_t tag;                                   // to store "color"
   uintptr_t start = (uintptr_t)str;              // start of string
   uintptr_t end = (uintptr_t)str + strlen(str);  // end of string
 
@@ -381,7 +381,7 @@ void check_string_taint(const char *str, const char *source) {
           start, end, source);
 
   for (uintptr_t addr = start; addr <= end; addr++) {
-    tag = tagmap_getb(addr);                     // get the "colour" of addr
+    tag = tagmap_getb(addr);                     // get the "color" of addr
     if (tag != 0)
       alert(addr, source, tag);                  // alert if tag is tainted
   }
@@ -554,7 +554,7 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
         <code>len</code> : # of bytes to taint
       </li>
       <li>
-        <code>0x01</code> : taint colour 
+        <code>0x01</code> : taint color 
       </li>
     </ul>
   </p.break>
