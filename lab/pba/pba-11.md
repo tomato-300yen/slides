@@ -940,3 +940,191 @@ int exec_cmd(char *buf) {
 2. Using DTA to Detect Remote Control-Hijacking
 3. Circemeventing DTA with implicit Flows
 4. <red>A DTA-Based Data Exfiltration Detector</red>
+
+---
+
+# A DTA-Based Data Exfiltration Detector
+
+- We use multiple taint color so that we can tell _which_ file is leaking.
+  - In the previous example, single taint color is enough to detect bytes are attacker-controlled or not.
+- Taint settings
+  - Taint source : `open` and `read`
+  - Taint sink : execve
+
+---
+
+# A DTA-Based Data Exfiltration Detector - header files
+
+```c
+#include "pin.H"
+
+#include "branch_pred.h"
+#include "libdft_api.h"
+#include "syscall_desc.h"
+#include "tagmap.h"
+```
+
+- all `libdft` tools are just Pin tools ilnked with the `libdft` library.
+- This is same as the previous example.
+
+---
+
+# A DTA-Based Data Exfiltration Detector - array, map
+
+```c
+extern syscall_desc_t syscall_desc[SYSCALL_MAX];    // to hook syscalls
+static std::map<int, uint8_t> fd2color;
+static std::map<uint8_t, std::string> color2fname;  // colors -> filenames
+
+#define MAX_COLOR 0x80  // possible maximum color value
+```
+
+- `fd2color` : maps file discriptors to colors
+- `color2fname` : maps taint colors to filenames
+
+---
+
+# A DTA-Based Data Exfiltration Detector - functions
+
+```c
+void alert(uintptr_t addr, uint8_t tag);
+static void post_open_hook(syscall_ctx_t *ctx);
+static void post_read_hook(syscall_ctx_t *ctx);
+static void pre_socketcall_hook(syscall_ctx_t *ctx);
+```
+
+- `post_open_hook`/`post_read_hook` runs after `open`/`read` syscall respectively.
+- `pre_socketcall_hook` runs before the socketcall syscall such as `recv` or `recvfrom`.
+
+---
+
+# A DTA-Based Data Exfiltration Detector - `main`
+
+```c
+int main(int argc, char **argv) {
+  PIN_InitSymbols();
+  if (unlikely(PIN_Init(argc, argv))) {
+    return 1;
+  }
+  if (unlikely(libdft_init() != 0)) {
+    libdft_die();
+    return 1;
+  }
+
+  syscall_set_post(&syscall_desc[__NR_open], post_open_hook);
+  syscall_set_post(&syscall_desc[__NR_read], post_read_hook);
+  syscall_set_pre(&syscall_desc[__NR_socketcall], pre_socketcall_hook);
+  PIN_StartProgram();
+
+  return 0;
+}
+```
+
+- `main` func is almost identical to that of the previous example.
+
+---
+
+# A DTA-Based Data Exfiltration Detector - `alert`
+
+```c
+void alert(uintptr_t addr, uint8_t tag) {
+  fprintf(stderr,
+          "\n(dta-dataleak) !!!!!!! ADDRESS 0x%x IS TAINTED (tag=0x%02x), "
+          "ABORTING !!!!!!!\n",
+          addr, tag);
+
+  for (unsigned c = 0x01; c <= MAX_COLOR; c <<= 1) {
+    if (tag & c) {
+      fprintf(stderr, "  tainted by color = 0x%02x (%s)\n", c,
+              color2fname[c].c_str());
+    }
+  }
+  exit(1);
+}
+```
+
+- Alert which address is tainted and with which color.
+- It's possible that the data is tainted with multiple color (= multiple files).
+
+---
+
+# A Data Exfiltration Detector - `post_open_hook`
+
+```c
+static void post_open_hook(syscall_ctx_t *ctx) {
+  static uint8_t next_color = 0x01;
+  uint8_t color;
+  int fd = (int)ctx->ret;  // return value of syscall open
+  const char *fname = (const char *)ctx->arg[SYSCALL_ARG0];  // filename to open
+  ...
+}
+```
+
+- `ctx->ret` : contains return value of syscall.
+  - In this case, return value is the file discriptor that was opened.
+- `fname` : filename that was opened.
+
+---
+
+# A Data Exfiltration Detector - `post_open_hook`
+
+```c
+static void post_open_hook(syscall_ctx_t *ctx) {
+  ...
+  if (unlikely((int)ctx->ret < 0)) {
+    return;
+  }
+  if (strstr(fname, ".so") || strstr(fname, ".so.")) {
+    return;
+  }
+  ...
+}
+```
+
+1. Checks whether the return value is not smaller than 0.
+   - You don't need to taint if `open` is failed.
+2. Filters out undertainting files such as shared libraries.
+   - Shared libraries don't have any secret informations.
+   - In a real-world DTA tool, you should filter out some more files.
+
+---
+
+# A Data Exfiltration Detector - `post_open_hook`
+
+```c
+static void post_open_hook(syscall_ctx_t *ctx) {
+  ...
+  if (!fd2color[fd]) {
+    color = next_color;
+    fd2color[fd] = color;
+    if (next_color < MAX_COLOR) next_color <<= 1;  // static variable
+  } else {
+    color = fd2color[fd];  // reuse color of a file with the same fd
+  }
+  ...
+}
+```
+
+- "color" can be reused
+  - if a file discriptor is closed and then the same file discriptor is reused.
+- `MAX_COLOR` can be assigned to many `fd`
+  - if we run out of "color".
+  - We only supports 8 colors (because `color` is 8-bit wise).
+
+---
+
+# A Data Exfiltration Detector - `post_open_hook`
+
+```c
+static void post_open_hook(syscall_ctx_t *ctx) {
+  ...
+  if (color2fname[color].empty())
+    color2fname[color] = std::string(fname);
+  else
+    color2fname[color] += " | " + std::string(fname);
+}
+```
+
+- Update the `color2fname` map with just opened filename.
+- Filename is concatinated with " | "
+  - if taint color is reused for multiple files.
