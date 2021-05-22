@@ -1083,7 +1083,7 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 
 1. Checks whether the return value is not smaller than 0.
    - You don't need to taint if `open` is failed.
-2. Filters out undertainting files such as shared libraries.
+2. Filters out uninteresting files such as shared libraries.
    - Shared libraries don't have any secret informations.
    - In a real-world DTA tool, you should filter out some more files.
 
@@ -1128,3 +1128,66 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 - Update the `color2fname` map with just opened filename.
 - Filename is concatinated with " | "
   - if taint color is reused for multiple files.
+
+---
+
+# A Data Exfiltration Detector - `post_read_hook`
+
+```c
+static void post_read_hook(syscall_ctx_t *ctx) {
+  int fd     =    (int)ctx->arg[SYSCALL_ARG0];
+  void *buf  =  (void*)ctx->arg[SYSCALL_ARG1];
+  size_t len = (size_t)ctx->ret;
+  uint8_t color;
+  ...
+}
+```
+
+- `fd` : file discriptor that's being read
+- `buf` : buffer into which bytes are read
+- `len` : length of buffer that was read.
+
+---
+
+# A Data Exfiltration Detector - `post_read_hook`
+
+```c
+static void post_read_hook(syscall_ctx_t *ctx) {
+  ...
+  if(unlikely(len <= 0)) {
+    return;
+  }
+
+  fprintf(stderr, "(dta-dataleak) read: %zu bytes from fd %u\n", len, fd);
+  ...
+}
+```
+
+- You don't need to taint if nothing was read, that is when...
+  1. 0 byte was read(, when return value is 0).
+  2. `read` failed (, when return value is negative).
+
+---
+
+# A Data Exfiltration Detector - `post_read_hook`
+
+```c
+static void post_read_hook(syscall_ctx_t *ctx) {
+  ...
+  color = fd2color[fd];
+  if(color) {
+    fprintf(stderr, "(dta-dataleak) tainting bytes %p -- 0x%x with color 0x%x\n",
+            buf, (uintptr_t)buf+len, color);
+    tagmap_setn((uintptr_t)buf, len, color);
+  } else {
+    fprintf(stderr, "(dta-dataleak) clearing taint on bytes %p -- 0x%x\n",
+            buf, (uintptr_t)buf+len);
+    tagmap_clrn((uintptr_t)buf, len);
+  }
+}
+```
+
+- Taint bytes
+  - if the `fd` is colored.
+- Clear taint on bytes
+  - if the `fd` is not colored.
