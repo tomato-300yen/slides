@@ -953,7 +953,7 @@ int exec_cmd(char *buf) {
 
 ---
 
-# A DTA-Based Data Exfiltration Detector - header files
+# Header files
 
 ```c
 #include "pin.H"
@@ -969,7 +969,7 @@ int exec_cmd(char *buf) {
 
 ---
 
-# A DTA-Based Data Exfiltration Detector - array, map
+# Data Structure
 
 ```c
 extern syscall_desc_t syscall_desc[SYSCALL_MAX];    // to hook syscalls
@@ -984,7 +984,7 @@ static std::map<uint8_t, std::string> color2fname;  // colors -> filenames
 
 ---
 
-# A DTA-Based Data Exfiltration Detector - functions
+# Functions
 
 ```c
 void alert(uintptr_t addr, uint8_t tag);
@@ -998,7 +998,7 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx);
 
 ---
 
-# A DTA-Based Data Exfiltration Detector - `main`
+# `main`
 
 ```c
 int main(int argc, char **argv) {
@@ -1024,7 +1024,7 @@ int main(int argc, char **argv) {
 
 ---
 
-# A DTA-Based Data Exfiltration Detector - `alert`
+# Details of func `alert`
 
 ```c
 void alert(uintptr_t addr, uint8_t tag) {
@@ -1048,7 +1048,7 @@ void alert(uintptr_t addr, uint8_t tag) {
 
 ---
 
-# A Data Exfiltration Detector - `post_open_hook`
+# Details of func - `post_open_hook`
 
 ```c
 static void post_open_hook(syscall_ctx_t *ctx) {
@@ -1066,7 +1066,7 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_open_hook`
+# Details of func - `post_open_hook`
 
 ```c
 static void post_open_hook(syscall_ctx_t *ctx) {
@@ -1089,7 +1089,7 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_open_hook`
+# Details of func - `post_open_hook`
 
 ```c
 static void post_open_hook(syscall_ctx_t *ctx) {
@@ -1113,7 +1113,7 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_open_hook`
+# Details of func - `post_open_hook`
 
 ```c
 static void post_open_hook(syscall_ctx_t *ctx) {
@@ -1131,7 +1131,7 @@ static void post_open_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_read_hook`
+# Details of func - `post_read_hook`
 
 ```c
 static void post_read_hook(syscall_ctx_t *ctx) {
@@ -1149,7 +1149,7 @@ static void post_read_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_read_hook`
+# Details of func - `post_read_hook`
 
 ```c
 static void post_read_hook(syscall_ctx_t *ctx) {
@@ -1169,19 +1169,15 @@ static void post_read_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# A Data Exfiltration Detector - `post_read_hook`
+# Details of func - `post_read_hook`
 
 ```c
 static void post_read_hook(syscall_ctx_t *ctx) {
   ...
   color = fd2color[fd];
   if(color) {
-    fprintf(stderr, "(dta-dataleak) tainting bytes %p -- 0x%x with color 0x%x\n",
-            buf, (uintptr_t)buf+len, color);
     tagmap_setn((uintptr_t)buf, len, color);
   } else {
-    fprintf(stderr, "(dta-dataleak) clearing taint on bytes %p -- 0x%x\n",
-            buf, (uintptr_t)buf+len);
     tagmap_clrn((uintptr_t)buf, len);
   }
 }
@@ -1191,3 +1187,93 @@ static void post_read_hook(syscall_ctx_t *ctx) {
   - if the `fd` is colored.
 - Clear taint on bytes using `tagmap_clrn()`
   - if the `fd` is not colored.
+
+---
+
+# Details of func - `pre_socketcall_hook`
+
+```c
+static void pre_socketcall_hook(syscall_ctx_t *ctx) {
+  int fd;
+  void *buf;
+  size_t i, len;
+  uint8_t tag;
+  uintptr_t start, end, addr;
+
+  int call            =            (int)ctx->arg[SYSCALL_ARG0];
+  unsigned long *args = (unsigned long*)ctx->arg[SYSCALL_ARG1];
+
+  switch(call) {
+  case SYS_SEND:
+  case SYS_SENDTO:
+    ...
+    break;
+
+  default:
+    break;
+  }
+}
+```
+
+---
+
+# Details of func - `pre_socketcall_hook`
+
+```c
+static void pre_socketcall_hook(syscall_ctx_t *ctx) {
+  ...
+  int call            =            (int)ctx->arg[SYSCALL_ARG0];
+  unsigned long *args = (unsigned long*)ctx->arg[SYSCALL_ARG1];
+...
+}
+```
+
+- `call` : type(number) of socketcall
+  - such as `recv`, `recvfrom`, `send`, `sendto`.
+- `args` : arguments that was passed to socketcall
+
+---
+
+# Details of func - `pre_socketcall_hook`
+
+```c
+static void pre_socketcall_hook(syscall_ctx_t *ctx) {
+  ...
+  switch(call) {
+  case SYS_SEND:
+  case SYS_SENDTO:
+    ...  // omitted
+    break;
+
+  default:
+    break;
+  }
+}
+```
+
+- Check the tagmap, if the socketcall is `send` or `sendto`.
+
+---
+
+# Details of func - `pre_socketcall_hook`(omitted part)
+
+```c
+static void pre_socketcall_hook(syscall_ctx_t *ctx) {
+  ...
+    fd  =    (int)args[0];
+    buf =  (void*)args[1];
+    len = (size_t)args[2];
+
+    start = (uintptr_t)buf;
+    end   = (uintptr_t)buf+len;
+    for(addr = start; addr <= end; addr++) {
+      tag = tagmap_getb(addr);
+      if(tag != 0) alert(addr, tag);
+    }
+  ...
+  }
+}
+```
+
+- Loops over all of bytes in the send buffer and check whether they are tainted of not.
+- If tainted, alert and exit the application.
