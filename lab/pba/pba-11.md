@@ -544,20 +544,20 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
       </li>
     </ul>
   </ul>
-  </p>
-  <p class=break>
-    <ul>
-      <li>
-        <code>buf</code> : first address that will be tainted
-      </li>
-      <li>
-        <code>len</code> : # of bytes to taint
-      </li>
-      <li>
-        <code>0x01</code> : taint color 
-      </li>
-    </ul>
-  </p.break>
+</p>
+<p class=break>
+  <ul>
+    <li>
+      <code>buf</code> : first address that will be tainted
+    </li>
+    <li>
+      <code>len</code> : # of bytes to taint
+    </li>
+    <li>
+      <code>0x01</code> : taint color 
+    </li>
+  </ul>
+</p.break>
 </div.twocols>
 
 ---
@@ -1277,3 +1277,73 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx) {
 
 - Loops over all of bytes in the send buffer and check whether they are tainted of not.
 - If tainted, alert and exit the application.
+
+---
+
+# Test of Dataleak - `main`
+
+```c
+int main(int argc, char *argv[]) {
+  size_t i, j, k;
+  FILE *fp[10];
+  char buf1[4096], buf2[4096], *filenames[10];
+  struct sockaddr_storage addr;
+
+  srand(time(NULL));  // set seed
+
+  int sockfd = open_socket("localhost", "9999");
+
+  socklen_t addrlen = sizeof(addr);
+  recvfrom(sockfd, buf1, sizeof(buf1), 0, (struct sockaddr*)&addr, &addrlen);
+...
+}
+```
+
+1. Open a socket.
+2. Read filenames from the socket.
+
+---
+
+# Test of Dataleak - `main`
+
+```c
+int main(int argc, char *argv[]) {
+...
+  size_t fcount = split_filenames(buf1, filenames, 10);
+  for(i = 0; i < fcount; i++) {
+    fp[i] = fopen(filenames[i], "r");
+  }
+  i = rand() % fcount;
+  do { j = rand() % fcount; } while(j == i);
+
+  memset(buf1, '\0', sizeof(buf1));
+  memset(buf2, '\0', sizeof(buf2));
+  ...
+}
+```
+
+1. Gets each filenames.
+2. Opens all the requested files.
+3. Choses two of the opened files at random.
+
+---
+
+# Test of Dataleak - `main`
+
+```c
+int main(int argc, char *argv[]) {
+  ...
+  while(fgets(buf1, sizeof(buf1), fp[i]) && fgets(buf2, sizeof(buf2), fp[j])) {
+
+    for(k = 0; k < sizeof(buf1)-1 && k < sizeof(buf2)-1; k++) {
+      buf1[k] ^= buf2[k];
+    }
+    sendto(sockfd, buf1, strlen(buf1)+1, 0, (struct sockaddr*)&addr, addrlen);
+  }
+
+  return 0;
+}
+```
+
+- Reads each files line by line, concatinating each pair of lines by operating XOR and sending to the socket.
+- `buf[sizeof(buf) - 1]` would be a NULL character, so you should loop over from `0` to `sizeof(buf) - 2`.
