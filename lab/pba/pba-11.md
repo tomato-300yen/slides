@@ -949,7 +949,7 @@ int exec_cmd(char *buf) {
   - In the previous example, single taint color is enough to detect bytes are attacker-controlled or not.
 - Taint settings
   - Taint source : `open` and `read`
-  - Taint sink : execve
+  - Taint sink : `socketcall`, such as `send`, `sendto`
 
 ---
 
@@ -1280,7 +1280,7 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# Test of Dataleak - `main`
+# Test of Data Exfiltration - `main`
 
 ```c
 int main(int argc, char *argv[]) {
@@ -1291,11 +1291,11 @@ int main(int argc, char *argv[]) {
 
   srand(time(NULL));  // set seed
 
-  int sockfd = open_socket("localhost", "9999");
+  int sockfd = open_socket("localhost", "9999");  // 1
 
   socklen_t addrlen = sizeof(addr);
-  recvfrom(sockfd, buf1, sizeof(buf1), 0, (struct sockaddr*)&addr, &addrlen);
-...
+  recvfrom(sockfd, buf1, sizeof(buf1), 0, (struct sockaddr*)&addr, &addrlen);  // 2
+  ...
 }
 ```
 
@@ -1304,19 +1304,19 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Test of Dataleak - `main`
+# Test of Data Exfiltration - `main`
 
 ```c
 int main(int argc, char *argv[]) {
-...
-  size_t fcount = split_filenames(buf1, filenames, 10);
+  ...
+  size_t fcount = split_filenames(buf1, filenames, 10);  // 1
   for(i = 0; i < fcount; i++) {
-    fp[i] = fopen(filenames[i], "r");
+    fp[i] = fopen(filenames[i], "r");  // 2
   }
-  i = rand() % fcount;
+  i = rand() % fcount;  // 3
   do { j = rand() % fcount; } while(j == i);
 
-  memset(buf1, '\0', sizeof(buf1));
+  memset(buf1, '\0', sizeof(buf1));  // initialize buffer
   memset(buf2, '\0', sizeof(buf2));
   ...
 }
@@ -1328,7 +1328,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Test of Dataleak - `main`
+# Test of Data Exfiltration - `main`
 
 ```c
 int main(int argc, char *argv[]) {
@@ -1347,3 +1347,30 @@ int main(int argc, char *argv[]) {
 
 - Reads each files line by line, concatinating each pair of lines by operating XOR and sending to the socket.
 - `buf[sizeof(buf) - 1]` would be a NULL character, so you should loop over from `0` to `sizeof(buf) - 2`.
+
+---
+
+# Test of Data Exfiltration - Detect Data Exfiltration
+
+```sh
+$ ./pin.sh -follow-execv -t ~/code/chapter11/dta-dataleak.so -- ~/code/chapter11/dataleak-test-xor &
+(dta-dataleak) read: 512 bytes from fd 4
+(dta-dataleak) clearing taint on bytes 0xffb4aa80 -- 0xffb4ac80
+$ nc -u 127.0.0.1 9999
+/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+(dta-dataleak) opening /home/binary/code/chapter11/dta-execve.cpp at fd 5 with color 0x01
+(dta-dataleak) opening /home/binary/code/chapter11/dta-dataleak.cpp at fd 6 with color 0x02
+(dta-dataleak) opening /home/binary/code/chapter11/date.c at fd 7 with color 0x04
+(dta-dataleak) opening /home/binary/code/chapter11/echo.c at fd 8 with color 0x08
+(dta-dataleak) read: 4096 bytes from fd 6
+(dta-dataleak) tainting bytes 0x9b775c0 -- 0x9b785c0 with color 0x2
+(dta-dataleak) read: 155 bytes from fd 8
+(dta-dataleak) tainting bytes 0x9b785c8 -- 0x9b67663 with color 0x8
+(dta-dataleak) send: 20 bytes from fd 4
+...
+(dta-dataleak) checking taint on bytes 0xffb48f7c -- 0xffb48f90...
+(dta-dataleak) !!!!!!! ADDRESS 0xffb48f7c IS TANTED (tag=0x0a), ABORTING !!!!!!!
+  tainted by color = 0x02 (/home/binary/code/chapter11/dta-dataleak.cpp)
+  tainted by color = 0x08 (/home/binary/code/chapter11/echo.c)
+^C
+```
