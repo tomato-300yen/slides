@@ -1280,7 +1280,7 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx) {
 
 ---
 
-# Test of Data Exfiltration - `main`
+# Test of Data Exfiltration - `dataleak-test-xor`-`main`
 
 ```c
 int main(int argc, char *argv[]) {
@@ -1304,7 +1304,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Test of Data Exfiltration - `main`
+# Test of Data Exfiltration - `dataleak-test-xor`-`main`
 
 ```c
 int main(int argc, char *argv[]) {
@@ -1328,7 +1328,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Test of Data Exfiltration - `main`
+# Test of Data Exfiltration - `dataleak-test-xor`-`main`
 
 ```c
 int main(int argc, char *argv[]) {
@@ -1350,23 +1350,65 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Test of Data Exfiltration - Detect Data Exfiltration
+# Test of Data Exfiltration
 
 ```sh
 $ ./pin.sh -follow-execv -t ~/code/chapter11/dta-dataleak.so -- ~/code/chapter11/dataleak-test-xor &
 (dta-dataleak) read: 512 bytes from fd 4
 (dta-dataleak) clearing taint on bytes 0xffb4aa80 -- 0xffb4ac80
+
+$ nc -u 127.0.0.1 9999
+/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+```
+
+1. Runs `dataleak-test-xor` server with `dta-dataleak` as Pin tool,
+   - immeediately loading `dataleak-test-xor` itself.
+2. Starts `netcat` session to connect to the server.
+3. Sends a list of filenames to open.
+
+---
+
+# Test of Data Exfiltration
+
+```sh
 $ nc -u 127.0.0.1 9999
 /home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 (dta-dataleak) opening /home/binary/code/chapter11/dta-execve.cpp at fd 5 with color 0x01
 (dta-dataleak) opening /home/binary/code/chapter11/dta-dataleak.cpp at fd 6 with color 0x02
 (dta-dataleak) opening /home/binary/code/chapter11/date.c at fd 7 with color 0x04
 (dta-dataleak) opening /home/binary/code/chapter11/echo.c at fd 8 with color 0x08
+...
+```
+
+1. Assigns each of files with a taint color.
+
+---
+
+# Test of Data Exfiltration
+
+```sh
+$ nc -u 127.0.0.1 9999
+/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+...
 (dta-dataleak) read: 4096 bytes from fd 6
 (dta-dataleak) tainting bytes 0x9b775c0 -- 0x9b785c0 with color 0x2
 (dta-dataleak) read: 155 bytes from fd 8
 (dta-dataleak) tainting bytes 0x9b785c8 -- 0x9b67663 with color 0x8
 (dta-dataleak) send: 20 bytes from fd 4
+...
+```
+
+1. Randomly chooses two files to leak,
+   - that is, 6 and 8.
+2. Intercepts the server's attempt to send the contents of files.
+
+---
+
+# Test of Data Exfiltration
+
+```sh
+$ nc -u 127.0.0.1 9999
+/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ...
 (dta-dataleak) checking taint on bytes 0xffb48f7c -- 0xffb48f90...
 (dta-dataleak) !!!!!!! ADDRESS 0xffb48f7c IS TANTED (tag=0x0a), ABORTING !!!!!!!
@@ -1374,3 +1416,6 @@ $ nc -u 127.0.0.1 9999
   tainted by color = 0x08 (/home/binary/code/chapter11/echo.c)
 ^C
 ```
+
+1. Checks the taint color of the contents,
+   - detecting that they're tainted.
