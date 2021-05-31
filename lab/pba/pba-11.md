@@ -25,7 +25,7 @@ paginate: true
    a. data structure of `libdft`
    b. how `libdft` works
 
-1. How to build a DTA tools with `libdft`
+1. How to use `libdft` to build DTA-tools
    a. a tool that prevents remoto control-hijacking attacks
    b. a tool that automatically detects information leaks
 
@@ -33,7 +33,7 @@ paginate: true
 
 # Overview
 
-1. about `libdft`
+1. Internals of `libdft`
 2. Using DTA to Detect Remote Control-Hijacking
 3. Circumeventing DTA with implicit Flows
 4. A DTA-Based Data Exfiltration Detector
@@ -51,6 +51,8 @@ paginate: true
   - not for extended instruction sets like MMX or SSE.
 
 <note>
+taint : the effect of something bad or unpleasant.
+
 <code>libdft</code> is based on Pin (between 2.11 and 2.13)
 
 64-bit version of <code>libdft</code> : https://github.com/AngoraFuzzer/libdft64
@@ -58,14 +60,20 @@ paginate: true
 
 ---
 
-# Internals of libdft - Overview
+# Overview
 
-- Shadow Memory
-  - how to store taint info
-- Virtual CPU
-  - how to propagete taint info
-- The libdft API and I/O interface
-  - how to instrument
+1. Internals of `libdft`
+
+   - Shadow Memory
+     - how to store taint info
+   - Virtual CPU
+     - how to propagete taint info
+   - The libdft API and I/O interface
+     - how to instrument
+
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
 
 ---
 
@@ -74,7 +82,9 @@ paginate: true
 ### Bitmap (1 color)
 
 - Supports only 1 taint color.
-- Slightly faster and less memory than STAB.
+- Slightly faster and use less memory than STAB.
+
+![bg right:25% contain](./fig/bitmap.png)
 
 ---
 
@@ -82,11 +92,19 @@ paginate: true
 
 ### STAB : Segment Translation Table (8 color)
 
-- Supports 8 taint color.
+- Supports 8 taint color (because we use 8 bits to contain color).
 - Contains one entry for every memory page.
-- Each entry contains an _addend_ value,
-  - which is a 32-bit offset from a virtual memory address.
-- Obtained address ( VMA + offset ) contains the correcponding shadow byte.
+- Shadow memory is allocatd in page-sezed chunks.
+- Input and Output of STAB
+  - input : some upper bits of virtual memory address
+    - 16 bit if each page size is $2^{16}$B(= 64KB)
+  - output : some upper bits of shadow memory address
+    - 16 bit if each page size is $2^{16}$B(= 64KB)
+- Lower bits can be used to access each shadow memory.
+- Shadow memory pages is adjacent if the corresponding virutual memory is adjacent.
+
+![bg vertical right:25% contain](./fig/stab.png)
+![bg vertical right:25% contain](./fig/stab_page.svg)
 
 ---
 
@@ -96,6 +114,7 @@ paginate: true
   - This is stored in memory as a special data structure.
 - Virtual CPU is a kind of shadow memory.
   - for each of 32-bit general-purpose CPU registers.
+![bg vertical right:25% contain](./fig/vcpu.png)
 
 <note>
 32-bit general purpose register of x86:
@@ -124,13 +143,17 @@ and <code>eax</code>
 
 - `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
-  - <red>manipulate tagmap (Tagmap API)</red>
-  - add callbacks and instrument code
+  - manipulate tagmap (Tagmap API)
+  - <gray>add callbacks and instrument code</gray>
 
 ### Tagmap API
 
-- `tagmap_setb()` : sets status of tagmap
-- `tagmap_getb()` : gets status of tagmap
+- `tagmap_setb()` : sets status of tagmap in byte granularity.
+  - `tagmap_setn()` : taints arbitary number of bytes.
+- `tagmap_getb()` : gets status of tagmap in byte granularity.
+  - `tagmap_getn()` : checks arbitary number of bytes.
+
+
 
 ---
 
@@ -138,8 +161,8 @@ and <code>eax</code>
 
 - `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
-  - manipulate tagmap (Tagmap API)
-  - <red>add callbacks and instrument code</red>
+  - <gray>manipulate tagmap (Tagmap API)</gray>
+  - add callbacks and instrument code
 
 ### API for adding callbacks and instrumentation code
 
@@ -554,7 +577,7 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
       <code>len</code> : # of bytes to taint
     </li>
     <li>
-      <code>0x01</code> : taint color 
+      <code>0x01</code> : taint color
     </li>
   </ul>
 </p.break>

@@ -75,6 +75,10 @@ red {
   color: red;
 }
 
+gray {
+  color: #b7b7b7;
+}
+
 /* two cols */
 div.twocols {
   margin-top: 0px;
