@@ -40,6 +40,15 @@ paginate: true
 
 ---
 
+# Overview
+
+1. Internals of `libdft`
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
+
+---
+
 # What is `libdft`
 
 - Open source binary-level taint tracking library
@@ -88,6 +97,8 @@ taint : the effect of something bad or unpleasant.
 
 ---
 
+<!-- paginate: false -->
+
 # Internals of libdft - Shadow Memory
 
 ### STAB : Segment Translation Table (8 color)
@@ -108,12 +119,15 @@ taint : the effect of something bad or unpleasant.
 
 ---
 
+<!-- paginate: false -->
+
 # Internals of libdft - Virtual CPU
 
 - _Virtual CPU_ keeps track of the taint status of CPU register.
   - This is stored in memory as a special data structure.
 - Virtual CPU is a kind of shadow memory.
   - for each of 32-bit general-purpose CPU registers.
+
 ![bg vertical right:25% contain](./fig/vcpu.png)
 
 <note>
@@ -130,6 +144,8 @@ and <code>eax</code>
 
 ---
 
+<!-- paginate: true -->
+
 # Internals of libdft - libdft API and I/O interface
 
 - `libdft` provides a taint tracking API.
@@ -143,7 +159,7 @@ and <code>eax</code>
 
 - `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
-  - manipulate tagmap (Tagmap API)
+  - manipulate tagmap (Tagmap API) ←
   - <gray>add callbacks and instrument code</gray>
 
 ### Tagmap API
@@ -153,23 +169,25 @@ and <code>eax</code>
 - `tagmap_getb()` : gets status of tagmap in byte granularity.
   - `tagmap_getn()` : checks arbitary number of bytes.
 
-
-
 ---
 
-# Internals of libdft - libdft API and I/O interface
+# libdft API and I/O interface
 
 - `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
   - <gray>manipulate tagmap (Tagmap API)</gray>
-  - add callbacks and instrument code
+  - add callbacks and instrument code ←
 
 ### API for adding callbacks and instrumentation code
 
-- `syscall_set_pre()` and `syscall_set_post()` : register callbacks for syscall events.
+- `syscall_set_pre()` : register callbacks for syscall events.
+- `syscall_set_post()` : same as above
 - `syscall_desc[]` : store syscall pre- and post-handlers.
   - use _syscall number_ to index this array.
-- `ins_set_pre` and `ins_set_post` : register callbacks for instructions.
+- `ins_set_pre` : register callbacks for instructions.
+- `ins_set_post` : same as above
+
+![bg vertical right:25% contain](./fig/libdft_api.png)
 
 ---
 
@@ -188,10 +206,16 @@ and <code>eax</code>
 
 # Overview
 
-1. introducing `libdft`
-2. <red>Using DTA to Detect Remote Control-Hijacking</red>
-3. Circumeventing DTA with implicit Flows
-4. A DTA-Based Data Exfiltration Detector
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - Examples of `exec` family
+   - Header files
+   - Functions
+   - `main` function
+   - Details of funcs
+   - Test of Control-Flow Hijacking
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
 
 ---
 
@@ -267,7 +291,7 @@ int main(void){
 
 ---
 
-# header files
+# Header files
 
 ```c
 // dta-execve.cpp
@@ -285,7 +309,7 @@ int main(void){
 
 ---
 
-# functions
+# Functions
 
 ```c
 extern syscall_desc_t syscall_desc[SYSCALL_MAX];               // to store syscall hooks
@@ -302,7 +326,7 @@ static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sink
 
 ---
 
-# main function
+# `main` function
 
 ```c
 int main(int argc, char **argv) {
@@ -328,7 +352,7 @@ int main(int argc, char **argv) {
 
 ---
 
-# main function
+# `main` function
 
 ```c
 int main(int argc, char **argv) {
@@ -350,7 +374,7 @@ int main(int argc, char **argv) {
 
 ---
 
-# main function
+# `main` function
 
 ```c
 ...
@@ -925,10 +949,10 @@ aa...aabb...bb/home/binary/code/chapter11/echo\x0a
 
 # Overview
 
-1. about `libdft`
-2. Using DTA to Detect Remote Control-Hijacking
-3. <red>Circumeventing DTA with implicit Flows</red>
-4. A DTA-Based Data Exfiltration Detector
+1. <gray>Internals of `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. Circumeventing DTA with implicit Flows
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
 
 ---
 
@@ -959,10 +983,16 @@ int exec_cmd(char *buf) {
 
 # Overview
 
-1. about `libdft`
-2. Using DTA to Detect Remote Control-Hijacking
-3. Circemeventing DTA with implicit Flows
-4. <red>A DTA-Based Data Exfiltration Detector</red>
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - Header files
+   - Data structure
+   - Functions
+   - `main` function
+   - Details of func
+   - Test of Data Exfiltration
 
 ---
 
@@ -1021,7 +1051,7 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx);
 
 ---
 
-# `main`
+# `main` function
 
 ```c
 int main(int argc, char **argv) {
