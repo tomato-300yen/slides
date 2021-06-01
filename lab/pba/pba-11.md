@@ -60,11 +60,20 @@ paginate: true
   - not for extended instruction sets like MMX or SSE.
 
 <note>
-taint : the effect of something bad or unpleasant.
+<ul>
+<li>
+taint : the effect of something bad or unpleasant.(OALD)
+</li>
 
+<li>
 <code>libdft</code> is based on Pin (between 2.11 and 2.13)
+</li>
 
+<li>
 64-bit version of <code>libdft</code> : https://github.com/AngoraFuzzer/libdft64
+</li>
+
+</ul>
 </note>
 
 ---
