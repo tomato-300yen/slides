@@ -88,6 +88,7 @@ taint : the effect of something bad or unpleasant.(OALD)
      - how to propagete taint info
    - The libdft API and I/O interface
      - how to instrument
+   - Taint Policy
 
 2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
 3. <gray>Circumeventing DTA with implicit Flows</gray>
@@ -159,8 +160,14 @@ and <code>eax</code>
 
 - `libdft` provides a taint tracking API.
 - Two import tools for building DTA tools is those that
-  - manipulate tagmap (Tagmap API)
+  - manipulate shadow memory (Tagmap API)
   - add callbacks and instrument code
+
+<note>
+<ul>
+tagmap : shadow memory
+</ul>
+</note>
 
 ---
 
