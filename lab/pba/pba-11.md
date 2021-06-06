@@ -115,7 +115,7 @@ taint : the effect of something bad or unpleasant.(OALD)
 
 - Supports 8 taint color (because we use 8 bits to contain color).
 - Contains one entry for every memory page.
-- Shadow memory is allocatd in page-sezed chunks.
+  - and is allocatd in page-sized chunks
 - Input and Output of STAB
   - input : some upper bits of virtual memory address
     - 16 bit if each page size is $2^{16}$B(= 64KB)
@@ -243,6 +243,21 @@ tagmap : shadow memory
 
 ---
 
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - Examples of `exec` family
+   - <gray>Header files</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of funcs</gray>
+   - <gray>Test of Control-Flow Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
+
+---
+
 # Examples of `exec` family
 
 <style type="text/css">
@@ -307,6 +322,21 @@ int main(void){
 
 ---
 
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - <gray>Examples of `exec` family</gray>
+   - Header files
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of funcs</gray>
+   - <gray>Test of Control-Flow Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
+
+---
+
 # Header files
 
 ```c
@@ -325,6 +355,21 @@ int main(void){
 
 ---
 
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - <gray>Examples of `exec` family</gray>
+   - <gray>Header files</gray>
+   - Functions
+   - <gray>`main` function</gray>
+   - <gray>Details of funcs</gray>
+   - <gray>Test of Control-Flow Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
+
+---
+
 # Functions
 
 ```c
@@ -339,6 +384,21 @@ static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sink
 - `syscall_desc` : Index this array with `syscall` number of `syscall` you're installing
   - such as `__NR_socketcall` or `__NR_execve`.
 - Details of these functions will be explained later.
+
+---
+
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - <gray>Examples of `exec` family</gray>
+   - <gray>Header files</gray>
+   - <gray>Functions</gray>
+   - `main` function
+   - <gray>Details of funcs</gray>
+   - <gray>Test of Control-Flow Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
 
 ---
 
@@ -414,6 +474,21 @@ On some architectures—for example, x86-64 and ARM—there is no socketcall() s
 
 ---
 
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - <gray>Examples of `exec` family</gray>
+   - <gray>Header files</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - Details of funcs
+   - <gray>Test of Control-Flow Hijacking</gray>
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
+
+---
+
 # Details of func - `alert`
 
 ```c
@@ -439,9 +514,6 @@ void check_string_taint(const char *str, const char *source) {
   uint8_t tag;                                   // to store "color"
   uintptr_t start = (uintptr_t)str;              // start of string
   uintptr_t end = (uintptr_t)str + strlen(str);  // end of string
-
-  fprintf(stderr, "(dta-execve) checking taint on bytes 0x%x -- 0x%x (%s)... ",
-          start, end, source);
 
   for (uintptr_t addr = start; addr <= end; addr++) {
     tag = tagmap_getb(addr);                     // get the "color" of addr
@@ -496,8 +568,8 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
 ```
 
 - `ctx` : contains
-  - the arguments that were passed to the syscall
-  - the return value of syscall.
+  1. the arguments that were passed to the syscall
+  2. the return value of syscall.
 
 ---
 
@@ -536,8 +608,6 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
     buf = (void *)args[1];
     len = (size_t)ctx->ret;
 
-    fprintf(stderr, "(dta-execve) recv: %zu bytes from fd %u\n", len, fd);
-
     for (size_t i = 0; i < len; i++) {
       if (isprint(((char *)buf)[i]))
         fprintf(stderr, "%c", ((char *)buf)[i]);
@@ -545,9 +615,6 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
         fprintf(stderr, "\\x%02x", ((char *)buf)[i]);
     }
     fprintf(stderr, "\n");
-
-    fprintf(stderr, "(dta-execve) tainting bytes %p -- 0x%x with tag 0x%x\n",
-            buf, (uintptr_t)buf + len, 0x01);
 
     tagmap_setn((uintptr_t)buf, len, 0x01);
 ... // end of omitted part
@@ -566,8 +633,6 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
     fd = (int)args[0];              // socket fd
     buf = (void *)args[1];          // buffer address
     len = (size_t)ctx->ret;         // # of received bytes
-
-    fprintf(stderr, "(dta-execve) recv: %zu bytes from fd %u\n", len, fd);
 ...
 ```
 
@@ -584,9 +649,6 @@ static void post_socketcall_hook(syscall_ctx_t *ctx) {
         fprintf(stderr, "\\x%02x", ((char *)buf)[i]);
     }
     fprintf(stderr, "\n");
-
-    fprintf(stderr, "(dta-execve) tainting bytes %p -- 0x%x with tag 0x%x\n",
-            buf, (uintptr_t)buf + len, 0x01);
 
     tagmap_setn((uintptr_t)buf, len, 0x01);
 ... // end of omited part
@@ -660,8 +722,6 @@ static void pre_execve_hook(syscall_ctx_t *ctx) {
   char *const *args = (char *const *)ctx->arg[SYSCALL_ARG1];
   char *const *envp = (char *const *)ctx->arg[SYSCALL_ARG2];
 
-  fprintf(stderr, "(dta-execve) execve: %s (@%p)\n", filename, filename);
-
   check_string_taint(filename, "execve command");
   while (args && *args) {
     fprintf(stderr, "(dta-execve) arg: %s (@%p)\n", *args, *args);
@@ -686,17 +746,14 @@ static void pre_execve_hook(syscall_ctx_t *ctx) {
   char *const *args = (char *const *)ctx->arg[SYSCALL_ARG1];
   char *const *envp = (char *const *)ctx->arg[SYSCALL_ARG2];
 
-  fprintf(stderr, "(dta-execve) execve: %s (@%p)\n", filename, filename);
   check_string_taint(filename, "execve command");
 ...
 ```
 
-- taint sink
-
 - `ctx` : contains
 
-  - the arguments that were passed to the syscall
-  - the return value of syscall.
+  1. the arguments that were passed to the syscall
+  2. the return value of syscall.
 
 - Check whether `filename` is tainted or not.
 
@@ -720,6 +777,21 @@ static void pre_execve_hook(syscall_ctx_t *ctx) {
 ```
 
 - Check whether `args` and `envp` are taited or not.
+
+---
+
+# Overview
+
+1. <gray>introducing `libdft`</gray>
+2. Using DTA to Detect Remote Control-Hijacking
+   - <gray>Examples of `exec` family</gray>
+   - <gray>Header files</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of funcs</gray>
+   - Test of Control-Flow Hijacking
+3. <gray>Circumeventing DTA with implicit Flows</gray>
+4. <gray>A DTA-Based Data Exfiltration Detector</gray>
 
 ---
 
@@ -757,10 +829,10 @@ int main(int argc, char *argv[]) {
   char buf[4096];
   struct sockaddr_storage addr;
 
-  int sockfd = open_socket("localhost", "9999");
+  int sockfd = open_socket("localhost", "9999");  // 1
 
   socklen_t addrlen = sizeof(addr);
-  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);
+  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);  // 2
 ...
 ```
 
@@ -773,11 +845,11 @@ int main(int argc, char *argv[]) {
 
 ```c
 ...
-  int child_fd = exec_cmd(buf);
+  int child_fd = exec_cmd(buf);  // 3
   FILE *fp = fdopen(child_fd, "r");
 
   while (fgets(buf, sizeof(buf), fp)) {
-    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);
+    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);  // 4
   }
 
   return 0;
@@ -803,7 +875,10 @@ static struct __attribute__((packed)) {
          "/home/binary/code/chapter11/date"};
 ```
 
-- `cmd` contains a `prefix` for the command output from the meassage.
+- `cmd` contains:
+  - `prefix` for the command output
+  - `datefmt` for the output of `date` command
+  - `cmd`, `date` itself
 
 ---
 
@@ -893,7 +968,7 @@ int main(int argc, char *argv[]) {
 ```sh
 $ ./execve-test-overflow &
 [1] 1913
-$ uc -u 127.0.0.1 9999
+$ nc -u 127.0.0.1 9999
 prefix!!!!:
 (execve-test/child) execv: /home/binary/code/chapter11/date %Y-%m-%d %H:%M:%S
 prefix!!!!: 2021-05-19 06:48:45
@@ -916,7 +991,7 @@ prefix!!!!: 2021-05-19 06:48:45
 ```sh
 $ ./execve-test-overflow &
 [1] 2061
-$ uc -u 127.0.0.1 9999
+$ nc -u 127.0.0.1 9999
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/home/binary/code/chapter11/echo
 (execve-test/child) execv: /home/binary/code/chapter11/echo bb...bb/home/binary/.../echo
 aa...aabb...bb/home/binary/code/chapter11/echo bb...bb/home/binary/code/chapter11/echo
@@ -1022,6 +1097,21 @@ int exec_cmd(char *buf) {
 
 ---
 
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - Header files
+   - <gray>Data structure</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of func</gray>
+   - <gray>Test of Data Exfiltration</gray>
+
+---
+
 # Header files
 
 ```c
@@ -1035,6 +1125,21 @@ int exec_cmd(char *buf) {
 
 - all `libdft` tools are just Pin tools ilnked with the `libdft` library.
 - This is same as the previous example.
+
+---
+
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - <gray>Header files</gray>
+   - Data structure
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of func</gray>
+   - <gray>Test of Data Exfiltration</gray>
 
 ---
 
@@ -1053,6 +1158,21 @@ static std::map<uint8_t, std::string> color2fname;  // colors -> filenames
 
 ---
 
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - <gray>Header files</gray>
+   - <gray>Data structure</gray>
+   - Functions
+   - <gray>`main` function</gray>
+   - <gray>Details of func</gray>
+   - <gray>Test of Data Exfiltration</gray>
+
+---
+
 # Functions
 
 ```c
@@ -1064,6 +1184,21 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx);
 
 - `post_open_hook`/`post_read_hook` runs after `open`/`read` syscall respectively.
 - `pre_socketcall_hook` runs before the socketcall syscall such as `recv` or `recvfrom`.
+
+---
+
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - <gray>Header files</gray>
+   - <gray>Data structure</gray>
+   - <gray>Functions</gray>
+   - `main` function
+   - <gray>Details of func</gray>
+   - <gray>Test of Data Exfiltration</gray>
 
 ---
 
@@ -1090,6 +1225,21 @@ int main(int argc, char **argv) {
 ```
 
 - `main` func is almost identical to that of the previous example.
+
+---
+
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - <gray>Header files</gray>
+   - <gray>Data structure</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - Details of func
+   - <gray>Test of Data Exfiltration</gray>
 
 ---
 
@@ -1346,6 +1496,21 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx) {
 
 - Loops over all of bytes in the send buffer and check whether they are tainted of not.
 - If tainted, alert and exit the application.
+
+---
+
+# Overview
+
+1. <gray>about `libdft`</gray>
+2. <gray>Using DTA to Detect Remote Control-Hijacking</gray>
+3. <gray>Circemeventing DTA with implicit Flows</gray>
+4. A DTA-Based Data Exfiltration Detector
+   - <gray>Header files</gray>
+   - <gray>Data structure</gray>
+   - <gray>Functions</gray>
+   - <gray>`main` function</gray>
+   - <gray>Details of func</gray>
+   - Test of Data Exfiltration
 
 ---
 
