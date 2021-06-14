@@ -373,10 +373,10 @@ int main(void){
 # Functions
 
 ```c
-extern syscall_desc_t syscall_desc[SYSCALL_MAX];               // to store syscall hooks
+extern syscall_desc_t syscall_desc[SYSCALL_MAX];         // store syscall hooks
 
-void alert(uintptr_t addr, const char *source, uint8_t tag);   // print alert and exit
-void check_string_taint(const char *str, const char *source);  // check whether tainted
+void alert(uintptr_t addr, const char *source, uint8_t tag);   // alert and exit
+void check_string_taint(const char *str, const char *source);  // check color
 static post_socketcall_hook(syscall_ctx_t *ctx);               // taint source
 static pre_execve_hook(syscall_ctx_t *ctx);                    // taint sink
 ```
@@ -832,11 +832,12 @@ int main(int argc, char *argv[]) {
   int sockfd = open_socket("localhost", "9999");  // 1
 
   socklen_t addrlen = sizeof(addr);
-  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);  // 2
+  // 2
+  recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &addrlen);
 ...
 ```
 
-1. Opens a socket.
+1. Open a socket.
 2. Receives a meassage from the socket.
 
 ---
@@ -849,7 +850,8 @@ int main(int argc, char *argv[]) {
   FILE *fp = fdopen(child_fd, "r");
 
   while (fgets(buf, sizeof(buf), fp)) {
-    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);  // 4
+    // 4
+    sendto(sockfd, buf, strlen(buf) + 1, 0, (struct sockaddr *)&addr, addrlen);
   }
 
   return 0;
@@ -992,9 +994,9 @@ prefix!!!!: 2021-05-19 06:48:45
 $ ./execve-test-overflow &
 [1] 2061
 $ nc -u 127.0.0.1 9999
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/home/binary/code/chapter11/echo
-(execve-test/child) execv: /home/binary/code/chapter11/echo bb...bb/home/binary/.../echo
-aa...aabb...bb/home/binary/code/chapter11/echo bb...bb/home/binary/code/chapter11/echo
+aa..aabb..bb/home/binary/code/chapter11/echo
+(execve-test/child) execv: /.../code/chapter11/echo bb...bb/home/binary/.../echo
+aa...aabb...bb/home/binary/code/chapter11/echo bb...bb/home/.../chapter11/echo
 ^C[1]+ Done                      ./execve-test-overflow
 ```
 
@@ -1006,7 +1008,7 @@ aa...aabb...bb/home/binary/code/chapter11/echo bb...bb/home/binary/code/chapter1
 static struct __attribute__((packed)) {
   char prefix[32];   // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   char datefmt[32];  // bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-  char cmd[64];      // /home/binary/code/chapter11/echo <- This command is executed.
+  char cmd[64];      // /home/binary/code/chapter11/echo <- This is executed.
 } cmd;
 ```
 
@@ -1020,16 +1022,16 @@ static struct __attribute__((packed)) {
 $ cd /home/binary/lidft/pin-2.13-61206-gcc.4.4.7-linux/
 $ ./pin.sh -follow_execv -t /home/binary/code/chapter11/dta-execve.so \
         -- /home/binary/code/chapter11/execve-test-overflow &
-[1] 2994
 $ nc -u 127.0.0.1 9999
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/home/binary/code/chapter11/echo
+aa..aabb..bb/home/binary/code/chapter11/echo
 (dta-execve) recv: 97 bytes from fd 4
 aa...aabb...bb/home/binary/code/chapter11/echo\x0a
-(dta-execve) taintin bytes 0xfff9499c -- 0xfff949fd with tag 0x1  # taints all the bytes received
-(execve-test/child) execv: /home/binary/code/chapter11/echo bb...bb/home/binary/.../echo
+(dta-execve) taintin bytes 0xfff9499c -- 0xfff949fd with tag 0x1
+(execve-test/child) execv: /home/binary/../echo bb...bb/home/binary/.../echo
 (dta-execve) execve: /home/binary/code/chapter11/echo (@0x804b100)
 (dta-execve) checking taint on bytes 0x804b100 -- 0x804b120 (execve command)...
-(dta-execve) !!!!!!! ADDRESS 0x804b100 IS TAINTED (execve command, tag=0x01), ABORTING !!!!!!!
+(dta-execve)
+!!!!! ADDRESS 0x804b100 IS TAINTED (execve command, tag=0x01), ABORTING !!!!!
 ```
 
 1. Check whether argments of `execve` are taitned.
@@ -1528,7 +1530,8 @@ int main(int argc, char *argv[]) {
   int sockfd = open_socket("localhost", "9999");  // 1
 
   socklen_t addrlen = sizeof(addr);
-  recvfrom(sockfd, buf1, sizeof(buf1), 0, (struct sockaddr*)&addr, &addrlen);  // 2
+  // 2
+  recvfrom(sockfd, buf1, sizeof(buf1), 0, (struct sockaddr*)&addr, &addrlen);
   ...
 }
 ```
@@ -1587,12 +1590,13 @@ int main(int argc, char *argv[]) {
 # Test of Data Exfiltration
 
 ```sh
-$ ./pin.sh -follow-execv -t ~/code/chapter11/dta-dataleak.so -- ~/code/chapter11/dataleak-test-xor &
+$ ./pin.sh -follow-execv -t ~/code/chapter11/dta-dataleak.so -- \
+    ~/code/chapter11/dataleak-test-xor &
 (dta-dataleak) read: 512 bytes from fd 4
 (dta-dataleak) clearing taint on bytes 0xffb4aa80 -- 0xffb4ac80
 
 $ nc -u 127.0.0.1 9999
-/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+/home/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ```
 
 1. Runs `dataleak-test-xor` server with `dta-dataleak` as Pin tool,
@@ -1606,11 +1610,11 @@ $ nc -u 127.0.0.1 9999
 
 ```sh
 $ nc -u 127.0.0.1 9999
-/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
-(dta-dataleak) opening /home/binary/code/chapter11/dta-execve.cpp at fd 5 with color 0x01
-(dta-dataleak) opening /home/binary/code/chapter11/dta-dataleak.cpp at fd 6 with color 0x02
-(dta-dataleak) opening /home/binary/code/chapter11/date.c at fd 7 with color 0x04
-(dta-dataleak) opening /home/binary/code/chapter11/echo.c at fd 8 with color 0x08
+/home/binary/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+(dta-dataleak) opening /home/binary/.../dta-execve.cpp at fd 5 with color 0x01
+(dta-dataleak) opening /home/binary/.../dta-dataleak.cpp at fd 6 with color 0x02
+(dta-dataleak) opening /home/binary/.../date.c at fd 7 with color 0x04
+(dta-dataleak) opening /home/binary/.../echo.c at fd 8 with color 0x08
 ...
 ```
 
@@ -1622,7 +1626,7 @@ $ nc -u 127.0.0.1 9999
 
 ```sh
 $ nc -u 127.0.0.1 9999
-/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+/home/binary/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ...
 (dta-dataleak) read: 4096 bytes from fd 6
 (dta-dataleak) tainting bytes 0x9b775c0 -- 0x9b785c0 with color 0x2
@@ -1642,7 +1646,7 @@ $ nc -u 127.0.0.1 9999
 
 ```sh
 $ nc -u 127.0.0.1 9999
-/home/binary/code/chapter11/dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+/home/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ...
 (dta-dataleak) checking taint on bytes 0xffb48f7c -- 0xffb48f90...
 (dta-dataleak) !!!!!!! ADDRESS 0xffb48f7c IS TANTED (tag=0x0a), ABORTING !!!!!!!
