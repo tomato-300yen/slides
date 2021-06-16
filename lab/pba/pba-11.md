@@ -238,8 +238,9 @@ tagmap : shadow memory
 # Remote Control-Hijacking Attack
 
 - Goal is to detect attacks where data received from network is used to control the argument of `execve` call (-> arbitary code execution).
-- taint source : the network receive functions, `recv` and `recvfrom`.
-- tiant sink : `execve`
+- Taint settings
+  - taint source : the network receive functions, `recv` and `recvfrom`.
+  - tiant sink : `execve`
 
 ---
 
@@ -870,7 +871,7 @@ int main(int argc, char *argv[]) {
 
 ```c
 static struct __attribute__((packed)) {
-  char prefix[32];
+  char prefix[32];  // <- read from the Network
   char datefmt[32];
   char cmd[64];
 } cmd = {"date: ", "\%Y-\%m-\%d \%H:\%M:\%S",
@@ -1026,7 +1027,7 @@ $ nc -u 127.0.0.1 9999
 aa..aabb..bb/home/binary/code/chapter11/echo
 (dta-execve) recv: 97 bytes from fd 4
 aa...aabb...bb/home/binary/code/chapter11/echo\x0a
-(dta-execve) taintin bytes 0xfff9499c -- 0xfff949fd with tag 0x1
+(dta-execve) tainting bytes 0xfff9499c -- 0xfff949fd with tag 0x1
 (execve-test/child) execv: /home/binary/../echo bb...bb/home/binary/.../echo
 (dta-execve) execve: /home/binary/code/chapter11/echo (@0x804b100)
 (dta-execve) checking taint on bytes 0x804b100 -- 0x804b120 (execve command)...
@@ -1034,7 +1035,7 @@ aa...aabb...bb/home/binary/code/chapter11/echo\x0a
 !!!!! ADDRESS 0x804b100 IS TAINTED (execve command, tag=0x01), ABORTING !!!!!
 ```
 
-1. Check whether argments of `execve` are taitned.
+1. Check whether argments of `execve` are tainted.
 2. `dta-execve` notices that the command is tainted with `0x01`.
 3. Raises an alert and then stops the child process.
 
@@ -1501,6 +1502,20 @@ static void pre_socketcall_hook(syscall_ctx_t *ctx) {
 
 ---
 
+# Functions
+
+```c
+void alert(uintptr_t addr, uint8_t tag);
+static void post_open_hook(syscall_ctx_t *ctx);
+static void post_read_hook(syscall_ctx_t *ctx);
+static void pre_socketcall_hook(syscall_ctx_t *ctx);
+```
+
+- `post_open_hook`/`post_read_hook` runs after `open`/`read` syscall respectively.
+- `pre_socketcall_hook` runs before the socketcall syscall such as `recv` or `recvfrom`.
+
+---
+
 # Overview
 
 1. <gray>about `libdft`</gray>
@@ -1600,7 +1615,7 @@ $ nc -u 127.0.0.1 9999
 ```
 
 1. Runs `dataleak-test-xor` server with `dta-dataleak` as Pin tool,
-   - immeediately loading `dataleak-test-xor` itself.
+   - immeediately starting `dataleak-test-xor` itself.
 2. Starts `netcat` session to connect to the server.
 3. Sends a list of filenames to open.
 
@@ -1609,8 +1624,7 @@ $ nc -u 127.0.0.1 9999
 # Test of Data Exfiltration
 
 ```sh
-$ nc -u 127.0.0.1 9999
-/home/binary/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
+...
 (dta-dataleak) opening /home/binary/.../dta-execve.cpp at fd 5 with color 0x01
 (dta-dataleak) opening /home/binary/.../dta-dataleak.cpp at fd 6 with color 0x02
 (dta-dataleak) opening /home/binary/.../date.c at fd 7 with color 0x04
@@ -1625,14 +1639,12 @@ $ nc -u 127.0.0.1 9999
 # Test of Data Exfiltration
 
 ```sh
-$ nc -u 127.0.0.1 9999
-/home/binary/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ...
 (dta-dataleak) read: 4096 bytes from fd 6
 (dta-dataleak) tainting bytes 0x9b775c0 -- 0x9b785c0 with color 0x2
 (dta-dataleak) read: 155 bytes from fd 8
 (dta-dataleak) tainting bytes 0x9b785c8 -- 0x9b67663 with color 0x8
-(dta-dataleak) send: 20 bytes from fd 4
+(dta-dataleak) send: 20 bytes to fd 4
 ...
 ```
 
@@ -1645,8 +1657,6 @@ $ nc -u 127.0.0.1 9999
 # Test of Data Exfiltration
 
 ```sh
-$ nc -u 127.0.0.1 9999
-/home/.../dta-execve.cpp .../dta-dataleak.cpp .../date.c .../echo.c
 ...
 (dta-dataleak) checking taint on bytes 0xffb48f7c -- 0xffb48f90...
 (dta-dataleak) !!!!!!! ADDRESS 0xffb48f7c IS TANTED (tag=0x0a), ABORTING !!!!!!!
@@ -1657,3 +1667,16 @@ $ nc -u 127.0.0.1 9999
 
 1. Checks the taint color of the contents,
    - detecting that they're tainted.
+
+---
+
+# Summary
+
+1. Internal of `libdft`
+   - shadow memory, virtual CPU, tracking API, taint policy
+2. Detect remote control flor hijacking
+   - taint source : <hide>recv</hide>, <hide>recvfrom</hide>
+   - taint sink : <hide>execve</hide>
+3. Detect data exfiltration
+   - taint source : <hide>open</hide>, <hide>read</hide>
+   - taint sin : <hide>send</hide>, <hide>sendto</hide>
