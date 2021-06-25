@@ -34,7 +34,7 @@ paginate: true
 
 ---
 
-# Path Coverage - `main`
+# Path Coverage - `main` (1/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`
+# Path Coverage - `main`(2/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`
+# Path Coverage - `main`(3/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`
+# Path Coverage - `main`(4/4)
 
 ```c
 int main(int argc, char *argv[]) {
