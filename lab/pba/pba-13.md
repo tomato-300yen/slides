@@ -264,7 +264,7 @@ x < 5 && y == 10  # new path!!
 
 ---
 
-# Exploiting a Vulerability
+# Exploiting a Vulnerability
 
 - Automatically generate inputs that exploit vulnerability,
   - hijacking an indirect call site
@@ -282,7 +282,7 @@ x < 5 && y == 10  # new path!!
 
 ---
 
-# Exploiting a Vulerability - The Vulnerable Program
+# Exploiting a Vulnerability - The Vulnerable Program
 
 - See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#The-vulernable-program
 
@@ -297,7 +297,7 @@ x < 5 && y == 10  # new path!!
 
 ---
 
-# Exploiting a Vulerability - The Vulnerable Program
+# Exploiting a Vulnerability - The Vulnerable Program
 
 ### Normal Execution
 
@@ -323,13 +323,13 @@ Segmentation fault (core dumped)
 
 ---
 
-# Exploiting a Vulerability - The Vulnerable Program
+# Exploiting a Vulnerability - The Vulnerable Program
 
 ### Question : How we can exploit this vulnerability?
 
 ---
 
-# Exploiting a Vulerability - The Vulnerable Program
+# Exploiting a Vulnerability - The Vulnerable Program
 
 ### Solution
 
@@ -339,7 +339,7 @@ Segmentation fault (core dumped)
 
 ---
 
-# Exploiting a Vulerability - Key Point
+# Exploiting a Vulnerability - Key Point
 
 There're two key information:
 
@@ -348,19 +348,19 @@ There're two key information:
 
 ---
 
-# Exploiting a Vulerability - Key Point
+# Exploiting a Vulnerability - Key Point
 
 There're two key information:
 
 1. The address of vulernable indirect call site : `0x400bef`
 2. The address to which you want to redirect : `0x400b3b`
 
-Because disassembly is not our purpose, we won't see here.
+Because disassembly/DTA is not our purpose, we won't see here.
 (You may want to check the Book.)
 
 ---
 
-# Exploiting a Vulerability - How to execute
+# Exploiting a Vulnerability - How to execute
 
 ### Question (Review)
 
@@ -369,7 +369,7 @@ Because disassembly is not our purpose, we won't see here.
 
 ---
 
-# Exploiting a Vulerability - How to execute
+# Exploiting a Vulnerability - How to execute
 
 ### Question (Review)
 
@@ -385,3 +385,19 @@ We use **Concolic Execution** here because:
    - which is slow in Symbolic Execution
 
 2. it is easy to experiment multiple inputs
+
+---
+
+# Exploiting a Vulnerability - Insert Points
+
+|Insert Point|Callback moment|Arguments|Callback arguments|
+|AFTER|After instruction executes|||
+|BEFORE|Before instruction executes|||
+|BEFORE_SYMPROC|Before symbolic processing|||
+|FINI||||
+|||||
+|||||
+|||||
+|||||
+|||||
+|||||
