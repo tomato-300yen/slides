@@ -250,5 +250,138 @@ New inputs
 
 ```
 $ ./branch 0 0xa
-x < 5 && y == 10  // new path!!
+x < 5 && y == 10  # new path!!
 ```
+
+---
+
+# Overview
+
+1. Increase Path Coverage
+   - `main` function
+   - `find_new_input` function
+2. Automatically exploit vulnerability
+
+---
+
+# Exploiting a Vulerability
+
+- Automatically generate inputs that exploit vulnerability,
+  - hijacking an indirect call site
+  - redirecting to an arbitary address
+
+### Assumption
+
+- We already know there is a vulnerability,
+- but don't know how to exploit.
+
+### Workflow
+
+1. Randomly Generated Inputs + Taint Analysis
+2. Symbol Execution to find new inputs that exploit vulnerability.
+
+---
+
+# Exploiting a Vulerability - The Vulnerable Program
+
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#The-vulernable-program
+
+### Goal
+
+- To jump to the admin area **_without_** knowing password.
+
+### Vulnerability
+
+- No verification of `index`,
+  - so you can use data **_outside_** the `ical.functions` as a indirect call target.
+
+---
+
+# Exploiting a Vulerability - The Vulnerable Program
+
+### Normal Execution
+
+```sh
+$ ./icall 1 foo
+Calling 0x400974
+reverse: 22295079
+```
+
+### Anormal Execution
+
+```sh
+$ ./icall 1 foo
+Calling 0x22295079  # hash, little endian
+Segmentation fault (core dumped)
+```
+
+### that is...
+
+- We can use `hash` as a target of indirect call. (`hash` if hashed from `string`)
+- The challenge is:
+  - to find a `string` which is hashed into the address of secret admin area.
+
+---
+
+# Exploiting a Vulerability - The Vulnerable Program
+
+### Question : How we can exploit this vulnerability?
+
+---
+
+# Exploiting a Vulerability - The Vulnerable Program
+
+### Solution
+
+1. Brute Force
+2. Reverse Engineering
+3. Symbex <-- !!!
+
+---
+
+# Exploiting a Vulerability - Key Point
+
+There're two key information:
+
+1. The address of vulernable indirect call site
+2. The address to which you want to redirect
+
+---
+
+# Exploiting a Vulerability - Key Point
+
+There're two key information:
+
+1. The address of vulernable indirect call site : `0x400bef`
+2. The address to which you want to redirect : `0x400b3b`
+
+Because disassembly is not our purpose, we won't see here.
+(You may want to check the Book.)
+
+---
+
+# Exploiting a Vulerability - How to execute
+
+### Question (Review)
+
+- Symbolic Execution : <hide>doesn't realy run a program but rather emualte it.</hide>
+- Concolic Execution : <hide>does run a program and track symbolic state as metadata.</hide>
+
+---
+
+# Exploiting a Vulerability - How to execute
+
+### Question (Review)
+
+- Symbolic Execution : doesn't realy run a program but rather emualte it.
+- Concolic Execution : does run a program and track symbolic state as metadata.
+
+### Symbolic Execution vs Concolic Execution
+
+We use **Concolic Execution** here because:
+
+1. generating the exploit requires tracing the symbolic state through a whole program
+
+   - which is slow in Symbolic Execution
+
+2. it is easy to experiment multiple inputs
