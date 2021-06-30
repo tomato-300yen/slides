@@ -388,16 +388,37 @@ We use **Concolic Execution** here because:
 
 ---
 
-# Exploiting a Vulnerability - Insert Points
+# Exploiting a Vulnerability - `main`
 
-|Insert Point|Callback moment|Arguments|Callback arguments|
-|AFTER|After instruction executes|||
-|BEFORE|Before instruction executes|||
-|BEFORE_SYMPROC|Before symbolic processing|||
-|FINI||||
-|||||
-|||||
-|||||
-|||||
-|||||
-|||||
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main1
+- All user inputs(command line arguments) will be:
+  - converted into symbolic variables
+  - set as concrete state in Triton's context
+
+---
+
+# Exploiting a Vulnerability - `symbolize_inputs`
+
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#functions
+- All user inputs(command line arguments) will be:
+  - converted into symbolic variables
+  - set as concrete state in Triton's context
+
+---
+
+# Exploiting a Vulnerability - `hook_ical`
+
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#functions
+- Call `exploit_icall` if:
+  - instruction : control flow instruction
+  - addr of instruction : tainted call site
+  - operand : register
+
+---
+
+# Exploiting a Vulnerability - `exploit_icall`
+
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#functions
+- 2 goals(constraints):
+  - register (of `call`) : `target`(start of admin area)
+  - register value : printable ASCII character
