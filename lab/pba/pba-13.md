@@ -21,7 +21,7 @@ paginate: true
 
 # Overview
 
-1. Increase Path Coverage
+1. Increase Code Coverage
    - `main` function
    - `find_new_input` function
 2. Automatically exploit vulnerability
@@ -34,7 +34,7 @@ paginate: true
 
 ---
 
-# Path Coverage - `main` (1/4)
+# Code Coverage - `main` (1/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`(2/4)
+# Code Coverage - `main`(2/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`(3/4)
+# Code Coverage - `main`(3/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `main`(4/4)
+# Code Coverage - `main`(4/4)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `find_new_input`(1/3)
+# Code Coverage - `find_new_input`(1/3)
 
 - Branch Constraints
   - (flag, src, dst, AST)
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Path Coverage - `find_new_input`(2/3)
+# Code Coverage - `find_new_input`(2/3)
 
 ```cpp
 static void
@@ -151,7 +151,7 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 
 ---
 
-# Path Coverage - `find_new_input`(3/3)
+# Code Coverage - `find_new_input`(3/3)
 
 ```cpp
 static void
@@ -176,7 +176,7 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 
 ---
 
-# Path Coverage - test program
+# Code Coverage - test program
 
 - See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#branchc
 - `x` and `y` are the user inputs.
@@ -191,7 +191,7 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 
 ---
 
-# Path Coverage - config file
+# Code Coverage - config file
 
 We can symbolize registers as below.
 
@@ -207,7 +207,7 @@ We can symbolize registers as below.
 
 ---
 
-# Path Coverage - Generating New Input(1/2)
+# Code Coverage - Generating New Input(1/2)
 
 As we can see the code below, arguments to pass to `code_coverage` is...
 
@@ -225,7 +225,7 @@ As we can see the code below, arguments to pass to `code_coverage` is...
 
 ---
 
-# Path Coverage - Generating New Input(2/2)
+# Code Coverage - Generating New Input(2/2)
 
 Results
 
@@ -257,7 +257,7 @@ x < 5 && y == 10  # new path!!
 
 # Overview
 
-1. Increase Path Coverage
+1. Increase Code Coverage
    - `main` function
    - `find_new_input` function
 2. Automatically exploit vulnerability
