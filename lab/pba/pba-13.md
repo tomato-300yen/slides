@@ -34,6 +34,29 @@ paginate: true
 
 ---
 
+# Code Coverage - Example
+
+```c
+void branch(int x, int y) {
+  if(x < 5) {
+    if(y == 10) printf("x < 5 && y == 10\n");  // branch1
+    else        printf("x < 5 && y != 10\n");
+  } else {
+    printf("x >= 5\n");
+  }
+}
+```
+
+- input : x=1, y=10
+  - branch1 : `taken`
+
+If you want to make branch1 `not taken`...
+
+- input : x=1, y=9
+  - branch1 : `not taken`
+
+---
+
 # Code Coverage - `main` (1/4)
 
 ```c
