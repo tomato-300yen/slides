@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
   - (flag, src, dst, AST)
     - flag : whether this constraint was used (!= taken)
     - src/dst : source/destination address
-    - AST : AST encoding branch constraint
+    - AST : AST encoding the branch constraint
 
 ![bg right:29% contain](./fig/path-constraints.svg)
 
@@ -296,7 +296,7 @@ x < 5 && y == 10  # new path!!
 ### Assumption
 
 - We already know there is a vulnerability,
-- but don't know how to exploit.
+  - but don't know how to exploit.
 
 ### Workflow
 
