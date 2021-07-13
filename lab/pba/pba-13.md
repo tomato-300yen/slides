@@ -57,7 +57,7 @@ If you want to make branch1 `not taken`...
 
 ---
 
-# Code Coverage - `main` (1/4)
+# Code Coverage - `main` (1/4) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Code Coverage - `main`(2/4)
+# Code Coverage - `main`(2/4) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -91,14 +91,14 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-- Difference between this and previous example
-  - Create Symbolic Variable
-    - Symbolize all memory locatinos and regisnters that contain user input.
+- Difference between this and previous example is...
+  - Create symbolic variable
+    - Symbolize all memory locatinos and registers that contain user input.
     - `parse_sym_config` writes to `symregs`/`symmem` where/which to symbolize.
 
 ---
 
-# Code Coverage - `main`(3/4)
+# Code Coverage - `main`(3/4) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Code Coverage - `main`(4/4)
+# Code Coverage - `main`(4/4) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main)
 
 ```c
 int main(int argc, char *argv[]) {
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 
 ---
 
-# Code Coverage - `find_new_input`(2/3)
+# Code Coverage - `find_new_input`(2/3) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#find_new_input)
 
 ```cpp
 static void
@@ -169,12 +169,12 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 }}}}
 ```
 
-- Add constraint which is used,
-  - if the branch we're looking is not the target branch.
+- Add the constraint
+  - if the branch we're looking **is not** the target branch.
 
 ---
 
-# Code Coverage - `find_new_input`(3/3)
+# Code Coverage - `find_new_input`(3/3) [code](https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#find_new_input)
 
 ```cpp
 static void
@@ -194,8 +194,8 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 }}}}}}
 ```
 
-- Add constraint which is not used,
-  - if the branch we're looking is the target branch.
+- Add the constraint,
+  - if the branch we're looking **is** the target branch.
 
 ---
 
@@ -216,7 +216,7 @@ find_new_input(triton::API &api, Section *sec, uint64_t branch_addr) {
 
 # Code Coverage - config file
 
-We can symbolize registers as below.
+We can symbolize registers like this:
 
 ```
 %rdi=$
@@ -307,7 +307,7 @@ x < 5 && y == 10  # new path!!
 
 # Exploiting a Vulnerability - The Vulnerable Program
 
-- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#The-vulernable-program
+- See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#135-Exploiting-Vulnerability
 
 ### Goal
 
@@ -315,7 +315,7 @@ x < 5 && y == 10  # new path!!
 
 ### Vulnerability
 
-- No verification of `index`,
+- No check of `index`,
   - so you can use data **_outside_** the `ical.functions` as a indirect call target.
 
 ---
@@ -330,17 +330,17 @@ Calling 0x400974
 reverse: 22295079
 ```
 
-### Anormal Execution
+### Not Normal Execution
 
 ```sh
-$ ./icall 1 foo
+$ ./icall 2 foo
 Calling 0x22295079  # hash, little endian
 Segmentation fault (core dumped)
 ```
 
 ### that is...
 
-- We can use `hash` as a target of indirect call. (`hash` if hashed from `string`)
+- We can use `hash` as a target of indirect call. (`hash` is hashed from `string`)
 - The challenge is:
   - to find a `string` which is hashed into the address of secret admin area.
 
@@ -348,7 +348,7 @@ Segmentation fault (core dumped)
 
 # Exploiting a Vulnerability - The Vulnerable Program
 
-### Question : How we can exploit this vulnerability?
+### Question : How can we exploit this vulnerability?
 
 ---
 
@@ -378,7 +378,7 @@ There're two key information:
 1. The address of vulernable indirect call site : `0x400bef`
 2. The address to which you want to redirect : `0x400b3b`
 
-Because disassembly/DTA is not our purpose, we won't see here.
+Because disassembly/DTA is not our purpose, we won't see the detail here.
 (You may want to check the Book.)
 
 ---
@@ -387,7 +387,7 @@ Because disassembly/DTA is not our purpose, we won't see here.
 
 ### Question (Review)
 
-- Symbolic Execution : <hide>doesn't realy run a program but rather emualte it.</hide>
+- Symbolic Execution : <hide>doesn't really run a program but rather emualte it.</hide>
 - Concolic Execution : <hide>does run a program and track symbolic state as metadata.</hide>
 
 ---
@@ -396,14 +396,14 @@ Because disassembly/DTA is not our purpose, we won't see here.
 
 ### Question (Review)
 
-- Symbolic Execution : doesn't realy run a program but rather emualte it.
-- Concolic Execution : does run a program and track symbolic state as metadata.
+- Symbolic Execution : doesn't really run a program but rather emualte it.
+- Concolic Execution : **does** run a program and track symbolic state as metadata.
 
 ### Symbolic Execution vs Concolic Execution
 
 We use **Concolic Execution** here because:
 
-1. generating the exploit requires tracing the symbolic state through a whole program
+1. generating the exploit requires tracking the symbolic state through a whole program
 
    - which is slow in Symbolic Execution
 
@@ -414,9 +414,7 @@ We use **Concolic Execution** here because:
 # Exploiting a Vulnerability - `main`
 
 - See https://hackmd.io/@C5FCqN8cSSO75WvPfrj9aw/SJurj-Q2O#main1
-- All user inputs(command line arguments) will be:
-  - converted into symbolic variables
-  - set as concrete state in Triton's context
+- Triton's concolic mode only allows you to use Python API.
 
 ---
 
