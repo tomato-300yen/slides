@@ -407,7 +407,7 @@ We use **Concolic Execution** here because:
 
    - which is slow in Symbolic Execution
 
-2. it is easy to experiment multiple inputs
+2. it is easy to experiment with different length of multiple inputs
 
 ---
 
