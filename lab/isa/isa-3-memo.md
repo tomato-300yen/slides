@@ -66,3 +66,24 @@ e.g.:
 > C := C_1; C_2
 
 Semantics of C can be defined by that of C_1 and C_2.
+
+### Memory States (Control States can be ignored)
+
+In general, __program state__ should capture the configuration of the computer.
+Therefore it should include a __memory state__ and __control state__.
+
+- memory state : contents of the memory
+- control state : a value of "program counter" (or next command to be executed)
+
+In this chapter, we define an input-output semantics, so control states can be safely ignored.
+Because input(output) state is fully determined by the memory state, a state is defined as a memory state.
+
+In out language, memory state $$M$$ is defined by:
+```math
+\mathbb{M} = \mathbb{X} \longrightarrow \mathbb{V}
+```
+
+If we map `x` to 2 and `y` to 7:
+```math
+\{ ¥mathrm{x} ¥mapsto 2, ¥mathrm{y} ¥mapsto 7\}
+```
