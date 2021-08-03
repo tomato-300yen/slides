@@ -87,3 +87,17 @@ If we map `x` to 2 and `y` to 7:
 ```math
 \{ ¥mathrm{x} ¥mapsto 2, ¥mathrm{y} ¥mapsto 7\}
 ```
+
+### Semantics of Scalar Expressions
+
+- Scalar Expressions --(evaluation)--> Scalar Value
+
+e.g.:
+
+- `n` : constant
+- `x` : variable
+
+> `n` ----> `n`
+> `x` ----> value of `x` in the memory state
+
+See figure 3.2
