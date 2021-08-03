@@ -29,3 +29,29 @@ Checking reachability properties would be:
 
 Focusing the post-condition would be enough.
 
+### An Input-Output Semantics
+
+Input-output semantics, which characterize the effect of executing a program using a mathematical function that maps input states into corresponding output state.
+
+> program semantics : set of input states -> set of output states
+
+Note that `input` is non-deterministic execution( we bay observe infinitely many output states, so output is a set of states).
+Input is also a set of states for compositionality.
+
+This is a very basic form of __denotational__ semantics. This behaves like __interpreter__.
+
+Definition of interpreter would be:
+
+> program and input state -> output state
+
+This definition is very close to that of input-output semantics.
+The main difference is that interpreter inputs single state and output single state.
+Besides this point, the interpreter essentially implements the input-output semantics.
+
+**compositional** : the semantics of a command composed of several sub-commands(e.g. sequence or conditional) can be defined simply by composing the semantics of the sub-commands.
+
+e.g.:
+
+> C := C_1; C_2
+
+Semantics of C can be defined by that of C_1 and C_2.
