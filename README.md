@@ -1,6 +1,6 @@
 # slides
 
-## List of slides
+## List of Slides
 
 ### Practical Binary Analysis
 
@@ -14,3 +14,6 @@
 - [chapter 3](lab/isa/isa-3.md)
    - [memo file](lab/isa/isa-3-memo.md)
 
+## Useful Material
+
+- [KaTeX online manual](https://katex.org/docs/supported.html)
