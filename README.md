@@ -12,4 +12,5 @@
 ### Introduction to Static Analysis
 
 - [chapter 3](lab/isa/isa-3.md)
+   - [memo file](lab/isa/isa-3-memo.md)
 
