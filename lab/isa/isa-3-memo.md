@@ -68,14 +68,16 @@ In this chapter, we define an input-output semantics, so control states can be s
 Because input(output) state is fully determined by the memory state, a state is defined as a memory state.
 
 In out language, memory state $$M$$ is defined by:
-```math
+$$
 \mathbb{M} = \mathbb{X} \longrightarrow \mathbb{V}
-```
+$$
 
 If we map `x` to 2 and `y` to 7:
-```math
+$$
 \{ ¥mathrm{x} ¥mapsto 2, ¥mathrm{y} ¥mapsto 7\}
-```
+$$
+
+> ここで言うmemory stateとは変数と値のマッピングのこと
 
 ### Semantics of Scalar Expressions
 
@@ -90,3 +92,37 @@ e.g.:
 > `x` ----> value of `x` in the memory state
 
 See figure 3.2
+
+$$
+\llbracket E \rrbracket : \mathbb{M} \longrightarrow \mathbb{V} \\
+\\
+\llbracket n \rrbracket (m) = n \\
+\llbracket \mathrm{ x } \rrbracket (m) = m(\mathrm{ x }) \\
+\llbracket E_0 \odot E_1 \rrbracket (m) = f_{\odot}(\llbracket E_0 \rrbracket (m), \llbracket E_1 \rrbracket (m)) \\
+$$
+
+### Semantics of Scalar Expressions
+
+See figure 3.3
+
+$$
+\llbracket B \rrbracket = \mathbb{M} \longrightarrow \mathbb{B} \\
+\llbracket \mathrm{x} < n \rrbracket = f_{<}(m(\mathrm{x}), n)
+$$
+
+### Semantics of Commands
+
+- $$\llbracket C \rrbracket_{\mathscr{P}}$$ : semantics of a command $$C$$
+   - a set of input states to a set of output states( which is observed __after__ the command )
+      - non-terminating executions are not observed
+- $$\wp(\mathbb{ M })$$ : power set of memory states
+   - $$\mathbb{M}$$ : an element of $$\wp(\mathbb{ M })$$.
+
+Semantics of commands is:
+
+- $$\llbracket \texttt{slip} \rrbracket_{\mathscr{P}}(M) = M$$
+   - identity function
+- $$\llbracket C_0 ; C_1 \rrbracket_{\mathscr{P}}(M) = \llbracket C_1 \rrbracket_{\mathscr{P}}(\llbracket C_0 \rrbracket_{\mathscr{P}}(M))$$
+   - composition of the semantics of each commands
+- $$\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)]\}$$
+   - the evaluation of assignment updates the value of $$\mathrm{x}$$ in the memory states with the result of the evaluation of $$E$$.
