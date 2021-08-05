@@ -111,7 +111,7 @@ Semantics of each scalar expression is as follows:
 - $\llbracket \mathrm{ x } \rrbracket (m) = m(\mathrm{ x })$
    - $m(\mathrm{x})$ : value of x in the memory state $m$
 - $\llbracket E_0 \odot E_1 \rrbracket (m) = f_{\odot}(\llbracket E_0 \rrbracket (m), \llbracket E_1 \rrbracket (m))$
-   - $f_{\odot}$ : mathematical function associated to the operater $\odot$
+   - $f_{\odot}$ : mathematical function associated to the operator $\odot$
 
 ### Semantics of Boolean Expressions
 
