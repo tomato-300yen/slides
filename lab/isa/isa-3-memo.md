@@ -6,7 +6,7 @@
 
 - $\mathbb{V}$ : a set of scalar value
 - $\mathbb{X}$ : a finite set of variable( which is fixed )
-- $\mathbb{B} = \{ \mathbf(true), \mathbf(false) \}$
+- $\mathbb{B} = \{ \mathbf{true}, \mathbf{false} \}$
 
 For other syntax see figure 3.1.
 
