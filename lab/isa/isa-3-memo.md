@@ -76,17 +76,17 @@ Therefore it should include a __memory state__ and __control state__.
 In this chapter, we define an input-output semantics, so control states can be safely ignored.
 Because input(output) state is fully determined by the memory state, a state is defined as a memory state.
 
-In out language, memory state $$M$$ is defined by:
+In our language, memory state $M$ is defined by:
 $$
 \mathbb{M} = \mathbb{X} \longrightarrow \mathbb{V}
 $$
 
-If we map `x` to 2 and `y` to 7:
+If we map `x` to 2 and `y` to 7 in a memory state $m$:
 $$
-\{ ¥mathrm{x} ¥mapsto 2, ¥mathrm{y} ¥mapsto 7\}
+m = \{ \mathrm{x} \mapsto 2, \mathrm{y} \mapsto 7\}
 $$
 
-> ここで言うmemory stateとは変数と値のマッピングのこと
+> ここで言うmemory stateとは変数からスカラー値のマッピングのこと
 
 ### Semantics of Scalar Expressions
 
@@ -94,87 +94,90 @@ $$
 
 e.g.:
 
-- `n` : constant
-- `x` : variable
+- $n$ : constant
+- $\mathrm{x}$ : variable
 
 > `n` ----> `n`
 > `x` ----> value of `x` in the memory state
 
 See figure 3.2
 
-$$
-\llbracket E \rrbracket : \mathbb{M} \longrightarrow \mathbb{V} \\
-\\
-\llbracket n \rrbracket (m) = n \\
-\llbracket \mathrm{ x } \rrbracket (m) = m(\mathrm{ x }) \\
-\llbracket E_0 \odot E_1 \rrbracket (m) = f_{\odot}(\llbracket E_0 \rrbracket (m), \llbracket E_1 \rrbracket (m)) \\
-$$
+- $\llbracket E \rrbracket(m)$ : semantics of expression $E$, in the memory state $m$.
+   - $\llbracket E \rrbracket : \mathbb{M} \longrightarrow \mathbb{V}$
+      - This is a function from memory states to scalar values
 
-### Semantics of Scalar Expressions
+Semantics of each scalar expression is as follows:
+- $\llbracket n \rrbracket (m) = n$
+- $\llbracket \mathrm{ x } \rrbracket (m) = m(\mathrm{ x })$
+   - $m(\mathrm{x})$ : value of x in the memory state $m$
+- $\llbracket E_0 \odot E_1 \rrbracket (m) = f_{\odot}(\llbracket E_0 \rrbracket (m), \llbracket E_1 \rrbracket (m))$
+   - $f_{\odot}$ : mathematical function associated to the operater $\odot$
+
+### Semantics of Boolean Expressions
 
 See figure 3.3
 
-$$
-\llbracket B \rrbracket = \mathbb{M} \longrightarrow \mathbb{B} \\
-\llbracket \mathrm{x} < n \rrbracket = f_{<}(m(\mathrm{x}), n)
-$$
+- $\llbracket B \rrbracket = \mathbb{M} \longrightarrow \mathbb{B}$
+   - This is a function from memory states to boolean values
+- $\llbracket \mathrm{x} < n \rrbracket = f_{<}(m(\mathrm{x}), n)$
+   - $ < $ : denote comparison operators (Couldn't find the symbol in the book)
 
 ### Semantics of Commands
 
-- $$\llbracket C \rrbracket_{\mathscr{P}}$$ : semantics of a command $$C$$
+- $\llbracket C \rrbracket_{\mathscr{P}}$ : semantics of a command $C$
    - a set of input states to a set of output states( which is observed __after__ the command )
       - non-terminating executions are not observed
-- $$\wp(\mathbb{ M })$$ : power set of memory states
-   - $$\mathbb{M}$$ : an element of $$\wp(\mathbb{ M })$$.
+- $\wp(\mathbb{ M })$ : power set of memory states
+   - $\mathbb{M}$ : an element of $\wp(\mathbb{ M })$.
 
 Semantics of commands is:
 
-- $$\llbracket \texttt{slip} \rrbracket_{\mathscr{P}}(M) = M$$
+- $\llbracket \texttt{slip} \rrbracket_{\mathscr{P}}(M) = M$
    - identity function
-- $$\llbracket C_0 ; C_1 \rrbracket_{\mathscr{P}}(M) = \llbracket C_1 \rrbracket_{\mathscr{P}}(\llbracket C_0 \rrbracket_{\mathscr{P}}(M))$$
+- $\llbracket C_0 ; C_1 \rrbracket_{\mathscr{P}}(M) = \llbracket C_1 \rrbracket_{\mathscr{P}}(\llbracket C_0 \rrbracket_{\mathscr{P}}(M))$
    - composition of the semantics of each commands
-- $$\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)]\}$$
-   - the evaluation of assignment updates the value of $$\mathrm{x}$$ in the memory states with the result of the evaluation of $$E$$.
-- $$\llbracket \texttt{input} (\mathrm{x}) \rrbracket_{\mathscr{P}}(M) = \{ m[ \mathrm{x} \mapsto n ] | m \in M, n \in \mathbb{V} \}$$
-   - replace the value of $$x$$ with any possible scalar value.
+- $\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)]\}$
+   - the evaluation of assignment updates the value of $\mathrm{x}$ in the memory states with the result of the evaluation of $E$.
+- $\llbracket \texttt{input} (\mathrm{x}) \rrbracket_{\mathscr{P}}(M) = \{ m[ \mathrm{x} \mapsto n ] | m \in M, n \in \mathbb{V} \}$
+   - replace the value of $x$ with any possible scalar value.
 
 Quite easy, isn't it ?
 The semantics below is a little bit complicated.
 
-First, we need to define a filtering function $$\mathscr{F}_B$$.
-This function filter out memory states.
+First, we need to define a filtering function $\mathscr{F}_B$. This function filter out memory states.
 
 Def:
 $$
 \mathscr{F}_{B}(M) = \{m \in M | \llbracket B\rrbracket(m) = \mathbf{true}\}
 $$
 
-Intuitive explanation : this function filter out memory states $$m$$ in which $$B$$ doesn't hold or can't be defined.
+Intuitive explanation : this function filter out memory states $m$ in which $B$ doesn't hold or can't be defined.
 
-- $$\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket_{\mathscr{P}}(M) = \llbracket C_0 \rrbracket_{\mathscr{P}}(\mathscr{F}_{B}(M)) \cup \llbracket C_1 \rrbracket_{\mathscr{P}}(\mathscr{F}_{\neg B}(M))$$
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket_{\mathscr{P}}(M) = \llbracket C_0 \rrbracket_{\mathscr{P}}(\mathscr{F}_{B}(M)) \cup \llbracket C_1 \rrbracket_{\mathscr{P}}(\mathscr{F}_{\neg B}(M))$
+   - union of the results of each branch
 
-- $$\llbracket \texttt(while) (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$$
+- $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
    - complicated...
 
-Let $$M_i$$ be a state produced by program execution that repeated the loop $$i$$ times.
+Let $M_i$ be a state produced by program execution that repeated the loop $i$ times.
 
-$$M_i$$ is defined as follows:
+$M_i$ is defined as follows:
 
 $$
 M_i = \mathscr{F}_{\neg B} \big( ( \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B )^i (M) \big)
 $$
 
-Intuitive explanation : $$B$$ evaluates to __true__ $$i$$ times and to __false__ for the last(i+1-th test).
+Intuitive explanation : $B$ evaluates to __true__ $i$ times and to __false__ for the last(i+1-th test).
 
-- $$\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$$ : filter memory states, then execute the command.
+- $\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$ : filter memory states, then execute the command.
 
-The set of output states would be $$M_0 \cup M_1 \cup M_2 \dots$$, that is :
+The set of output states would be $M_0 \cup M_1 \cup M_2 \dots$, that is :
 
 $$
 \cup_{i \geq 0} M_i = \cup_{i \geq 0} \mathscr{F}_{\neg B} \big( (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^i (M) \big)
 $$
 
-\mathscr{F}_B commutes with the union, this,
+$\mathscr{F}_B$ commutes with the union, thus,
 
 $$
 \cup_{i \geq 0} M_i = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^i (M) \Big)
@@ -182,4 +185,4 @@ $$
 
 Therefore,
 
-- $$\llbracket \texttt(while) (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$$
+> - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
