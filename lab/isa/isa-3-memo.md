@@ -12,8 +12,9 @@ For other syntax see figure 3.1.
 
 ## 3.1.2
 
-There're several kind of semantics( also called concrete semantics in the rest of this chapter ).
-For instance, __trace semantics__, __denotational semantics__.
+There're several kind of semantics( also called concrete semantics in the rest of this chapter ). For instance, __trace semantics__, __denotational semantics__.
+> __trace semantics__ : describes program execution as a sequence of program state
+> __denotational semantics__ : describes only input-output relation
 
 Before we can select which semantics to use, we discuss the family of properties of interest.
 
@@ -33,7 +34,7 @@ Checking reachability properties would be:
 1. pre-condition -> post-condition
 2. check post-condition
 
-Focusing the post-condition would be enough.
+Focusing the post-condition is enough.
 
 ### An Input-Output Semantics
 
