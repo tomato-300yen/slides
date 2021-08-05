@@ -4,6 +4,12 @@
 
 > To illustrate the concepts of static analysis, we do not require a language with a very large set of features.
 
+- $$\mathbb{V}$$ : a set of scalar value
+- $$\mathbb{X}$$ : a finite set of variable( which is fixed )
+- $$\mathbb{B} = \{ \mathbf(true), \mathbf(false) \}$$
+
+For other syntax see figure 3.1.
+
 ## 3.1.2
 
 There're several kind of semantics( also called concrete semantics in the rest of this chapter ).
