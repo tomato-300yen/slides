@@ -21,8 +21,8 @@ paginate: true
 
 # Goal of This Chapter
 
-- The construction of a static analysis framework.
-   - feature : general and can be used with different abstraction.
+- The construction of a _static analysis framework_.
+   - feature : general, can be used with different abstraction.
    - goal    : compute program invariants by static abstraction
 - How to construct a static analysis step by step.
    - We use basic programming language that operates over numerical states.
@@ -53,7 +53,7 @@ paginate: true
 
 ---
 
-# A Simple Programming Language (1/4)
+# A Simple Programming Language (1/2)
 
 We use simple programming language to illustrate the concepts of static analysis.
 
@@ -66,7 +66,7 @@ Some preparations:
 
 ---
 
-# A Simple Programming Language (2/4)
+# A Simple Programming Language (2/2)
 
 Syntax of our language is:
 
@@ -81,7 +81,7 @@ Syntax of our language is:
 - $P \quad \coloncolonequals \quad C$
 ---
 
-# A Simple Programming Language (3/4)
+# A Simple Programming Language (3/2)
 
 - $n \quad \in\quad  \mathbb{V}$
    - scalar values
@@ -95,7 +95,7 @@ Syntax of our language is:
    - scalar expressions
 ---
 
-# A Simple Programming Language (4/4)
+# A Simple Programming Language (4/2)
 
 - $B \quad \coloncolonequals \quad \mathrm{x} \lessdot n$
    - returns an element of $\mathbb{B}(= \{\mathbf{true}, \mathbf{false}\})$
