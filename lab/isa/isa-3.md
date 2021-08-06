@@ -241,7 +241,7 @@ How Boolean expressions are evaluated.
 
 ---
 
-# Semantics of Commands
+# Semantics of Commands (1/6)
 
 - $\llbracket C \rrbracket_{\mathscr{P}}$ : semantics of a command $C$
    - a set of input states to a set of output states( which is observed __after__ the command )
@@ -257,7 +257,7 @@ As a result, semantics of commands can be written as follows:
 
 ---
 
-# Semantics of Commands
+# Semantics of Commands (2/6)
 
 Semantics of commands is:
 
@@ -274,7 +274,7 @@ Quite easy.
 
 ---
 
-# Semantics of Commands
+# Semantics of Commands (3/6)
 
 Before we define semantics of $\texttt{if-else}$ or $\texttt{while}$, we need some preparations.
 - $\mathscr{F}_B$ : filtering function. We need to define this first.
@@ -286,7 +286,7 @@ Definition is as follows:
 
 ---
 
-# Semantics of Commands
+# Semantics of Commands (4/6)
 
 Semantics of $\texttt{if-else}$:
 - $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket_{\mathscr{P}}(M) = \llbracket C_0 \rrbracket_{\mathscr{P}}(\mathscr{F}_{B}(M)) \cup \llbracket C_1 \rrbracket_{\mathscr{P}}(\mathscr{F}_{\neg B}(M))$
@@ -294,7 +294,7 @@ Semantics of $\texttt{if-else}$:
 
 ---
 
-# Semantics of Commands
+# Semantics of Commands (5/6)
 
 Semantics of $\texttt{while}$:
 - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
@@ -306,7 +306,7 @@ Let $M_i$ be as follows:
    - $\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$ : filter memory states with $B$, then execute the command.
 ---
 
-# Semantics of Commands
+# Semantics of Commands (6/6)
 
 > Semantics of $\texttt{while}$:
 > - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
