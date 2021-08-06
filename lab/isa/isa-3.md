@@ -304,6 +304,7 @@ Let $M_i$ be as follows:
 - $M_i = \mathscr{F}_{\neg B} \big( ( \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B )^i (M) \big)$
    - intuitive explanation : $B$ evaluates to __true__ $i$ times and to __false__ for the last.
    - $\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$ : filter memory states with $B$, then execute the command.
+
 ---
 
 # Semantics of Commands (6/6)
