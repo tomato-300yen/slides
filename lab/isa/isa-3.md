@@ -261,7 +261,7 @@ As a result, semantics of commands can be written as follows:
 
 Semantics of commands is:
 
-- $\llbracket \texttt{slip} \rrbracket_{\mathscr{P}}(M) = M$
+- $\llbracket \texttt{skip} \rrbracket_{\mathscr{P}}(M) = M$
    - identity function
 - $\llbracket C_0 ; C_1 \rrbracket_{\mathscr{P}}(M) = \llbracket C_1 \rrbracket_{\mathscr{P}}(\llbracket C_0 \rrbracket_{\mathscr{P}}(M))$
    - composition of the semantics of each commands
