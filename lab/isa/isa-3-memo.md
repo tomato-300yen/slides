@@ -186,3 +186,74 @@ $$
 Therefore,
 
 > - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
+
+## 3.2.1
+
+We will see definition of:
+- abstract domains
+- concretization function
+
+### Intuition Gathered from the Previous Chapter
+
+Abstractions based on signs, intervals, and convex polyhedra are meaningful for our language introduced in chapter 3.1.
+The analysis we will see also behaves like the intuitive analysis in chapter 2.
+
+### Concrete Elements, Abstract Elements and Abstraction Relation
+
+We carefully distinguish between these:
+- abstract domain that is used for the analysis of program ($\longrightarrow$ "___abstract___" qualifier for this)
+- domain the program is defined ($\longrightarrow$ "___concrete___" qualifier for this)
+
+Definition 3.1 (Concrete Domain) :
+
+- concrete domain : a set $\mathbb{C}$ used to describe concrete behaviors
+   - $\subseteq$ : order relation that compare program behaviors in the logical point of view
+      - $x \subseteq y$ means that $x$ implies behavior y, that is:
+         - $x$ expresses a stronger property than $y$.
+
+Example (Concrete Domain) :
+
+- $\mathbb{C} = \wp (\mathbb{M})$
+   - choose $\wp (\mathbb{M})$ as the concrete domain to study the sets of reachability states.
+
+Some preparations:
+
+- A way to interpret elements of an abstract domain with respect to the concrete level.
+   - $c$ : concrete element
+   - $a$ : abstract element
+   - $c \vDash a$ : $c$ satisfies the logical properties expressed by $a$
+
+Definition 3.2 (Abstract domain and abstract relation):
+
+- abstract domain : a pair of a set $\mathbb{A}$ and an ordering relation $\sqsubseteq$ over that set.
+
+Given a concrete domain $(\mathbb{C}, \subseteq)$, abstraction is defined by:
+- $(\mathbb{A}, \sqsubseteq$)$
+- an abstract relation $\vDash$ such that:
+   - $for all c \in \mathbb{C}, a_0, a_1 \in \mathbb{A}, if c \vDash a_0 and a_0 \sqsubseteq$ a_1, then c \vDash a_1; and$
+   - $for all c_0, c_1 i \mathbb{C}, a \in \mathbb{A}, if c_0 \subseteq c_1 and c_1 \vDash a, then c_0 \vDash a$.
+
+Example of abstraction :
+1. for the first one :
+   - $c$ : $x = 1$
+   - $a_0$ : $x > 1$
+   - $a_1$ : $x > 0$
+2. for the second one :
+   - $c_0$ : $x = 1, y = 1$
+   - $c_1$ : $x = 1$
+   - $a$ : $x > 0$
+
+I might make a graph.
+
+Example 3.2 (Abstraction) :
+- concrete domain : $\wp (\mathbb{M})$
+- variable : $\mathrm{x}, \mathrm{y}$
+
+Elements of concrete domain :
+- $M_0 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x}) m(\mathrm{y}) \leq 8}$
+- $M_1 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x})}$
+
+An element of abstract domain :
+- $M^{\sharp}$ : over-approximates each value
+   - $\mathrm{x}$ : [0, 10]
+   - $\mathrm{y}$ : [0, 100]
