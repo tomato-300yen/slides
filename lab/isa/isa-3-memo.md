@@ -204,14 +204,14 @@ We carefully distinguish between these:
 - abstract domain that is used for the analysis of program ($\longrightarrow$ "___abstract___" qualifier for this)
 - domain the program is defined ($\longrightarrow$ "___concrete___" qualifier for this)
 
-Definition 3.1 (Concrete Domain) :
+#### Definition 3.1 (Concrete Domain) :
 
 - concrete domain : a set $\mathbb{C}$ used to describe concrete behaviors
    - $\subseteq$ : order relation that compare program behaviors in the logical point of view
       - $x \subseteq y$ means that $x$ implies behavior y, that is:
          - $x$ expresses a stronger property than $y$.
 
-Example (Concrete Domain) :
+#### Example 3.1 (Concrete Domain) :
 
 - $\mathbb{C} = \wp (\mathbb{M})$
    - choose $\wp (\mathbb{M})$ as the concrete domain to study the sets of reachability states.
@@ -223,37 +223,117 @@ Some preparations:
    - $a$ : abstract element
    - $c \vDash a$ : $c$ satisfies the logical properties expressed by $a$
 
-Definition 3.2 (Abstract domain and abstract relation):
+#### Definition 3.2 (Abstract domain and abstract relation):
 
 - abstract domain : a pair of a set $\mathbb{A}$ and an ordering relation $\sqsubseteq$ over that set.
 
 Given a concrete domain $(\mathbb{C}, \subseteq)$, abstraction is defined by:
-- $(\mathbb{A}, \sqsubseteq$)$
-- an abstract relation $\vDash$ such that:
-   - $for all c \in \mathbb{C}, a_0, a_1 \in \mathbb{A}, if c \vDash a_0 and a_0 \sqsubseteq$ a_1, then c \vDash a_1; and$
-   - $for all c_0, c_1 i \mathbb{C}, a \in \mathbb{A}, if c_0 \subseteq c_1 and c_1 \vDash a, then c_0 \vDash a$.
+- $(\mathbb{A}, \sqsubseteq)$
+- an abstract relation "$\vDash$" such that:
+   - for all $c \in \mathbb{C}, a_0, a_1 \in \mathbb{A},$ if $c \vDash a_0$ and $a_0 \sqsubseteq a_1,$ then $c \vDash a_1;$ and
+   - for all $c_0, c_1 \in \mathbb{C}, a \in \mathbb{A},$ if $c_0 \subseteq c_1$ and $c_1 \vDash a,$ then $c_0 \vDash a$.
 
-Example of abstraction :
-1. for the first one :
-   - $c$ : $x = 1$
-   - $a_0$ : $x > 1$
-   - $a_1$ : $x > 0$
-2. for the second one :
-   - $c_0$ : $x = 1, y = 1$
-   - $c_1$ : $x = 1$
-   - $a$ : $x > 0$
+<!-- Example of abstraction : -->
+<!-- 1. for the first one : -->
+<!--    - $c$ : $x = 1$ -->
+<!--    - $a_0$ : $x > 1$ -->
+<!--    - $a_1$ : $x > 0$ -->
+<!-- 2. for the second one : -->
+<!--    - $c_0$ : $x = 1, y = 1$ -->
+<!--    - $c_1$ : $x = 1$ -->
+<!--    - $a$ : $x > 0$ -->
 
-I might make a graph.
+<!-- I might make a graph. -->
 
-Example 3.2 (Abstraction) :
+#### Example 3.2 (Abstraction) :
+
+I might make some graph.
+
 - concrete domain : $\wp (\mathbb{M})$
 - variable : $\mathrm{x}, \mathrm{y}$
 
 Elements of concrete domain :
-- $M_0 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x}) m(\mathrm{y}) \leq 8}$
+- $M_0 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x}) < m(\mathrm{y}) \leq 8}$
 - $M_1 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x})}$
 
 An element of abstract domain :
 - $M^{\sharp}$ : over-approximates each value
    - $\mathrm{x}$ : [0, 10]
    - $\mathrm{y}$ : [0, 100]
+
+Then,
+- $M_0 \vDash M^{\sharp}$ : any memory state in $M_0$ is included in $M^{\sharp}$.
+- $M_1 \nvDash M^{\sharp}$ : $(11,0)$ is an element of $M_1$, but doesn't satisfy $M^{\sharp}$
+
+#### Concretization Function
+
+Sometimes, $"\vDash"$ is not useful. Thus, we define concretization function.
+
+#### Definition 3.3 (Concretization function)
+
+A concretization function (or, for short, concretization) :
+- $\gamma : \mathbb{A} \rightarrow \mathbb{C}$
+   - for any abstract element $a$, $\gamma (a)$ satisfies $a$. ($\gamma (a) \vDash a$)
+   - $\gamma (a)$ is the maximum element of $\mathbb{C}$ that satisfies $a$
+
+******
+
+A concretization function fully describe the abstraction relation, because of the following equivalence:
+
+- $\forall c \in \mathbb{C}, a \in \mathbb{A}$
+   - $\enspace c \vDash a \iff c \subseteq \gamma (a)$
+
+Concretization function is also monotone.
+
+#### Example 3.3 (Concretization function)
+
+- same notion as example 3.2. ($M^{\sharp}, M_0, M_1$)
+- There are memory states in $\gamma (M^{\sharp})$ that are not in $M_1$
+
+#### Abstraction Function and Galois Connection
+
+#### Definition 3.4 (Abstraction function)
+
+Let $c$ be a concrete element. $c$ has a **best abstraction** if and only if there exists an abstract element such that:
+- $a$ is an abstraction of $c$
+- any other abstraction of $c$ is greater than $c$.
+
+Abstraction function is a function $\alpha : \mathbb{C} \rightarrow \mathbb{A}$ that:
+- maps each concrete element to its best abstraction
+
+An abstraction function is:
+- dual of concretization function
+- monotone
+
+#### Example 3.4 (Abstraction function)
+- same notion as example 3.2 and 3.3
+- $M^{\sharp}$ is not a best abstraction of $M_0$
+   - Best abstraction of $M_0$ is smaller than $M^{\sharp}$
+
+******
+
+Note:
+- The existence of a best abstraction is not guaranteed in general
+- Abstract relations such that no concretization function can be defined will not arise in this book.
+
+When an abstraction relation defines both a concretization function and abstraction function, they are tightly related to each other (which we call *Galois connection*).
+
+Definition 3.5 (Galois connection):
+
+Galois connection is a pair made of a concretization function $\gamma $and an abstraction function $\alpha$ such that:
+- $\forall c \in \mathbb{C}, \forall a \in \mathbb{A}$
+   - $\enspace \alpha (c) \sqsubseteq a \iff c \subseteq \gamma (a)$
+
+We write such a pair as follows:
+- $(\mathbb{C}, \subseteq) \xtofrom[\alpha]{\gamma}(\mathbb{A}, \sqsubseteq)$
+
+Some interesting properties (proof is in B.1):
+- $\alpha$ and $\gamma$ are monotone function.
+- $\forall c \in \mathbb{C}$
+   - $c \subseteq \gamma (\alpha (c))$
+   - applying the abstraction function and concretizing the result back yield a less precise result
+- $\forall a \in \mathbb{A}$
+   - $\alpha (\gamma (a)) \sqsubseteq a$
+   - concretizing an abstract element and abstracting the result back refines the information available in the initial abstract element (which is known as *reduction*)
+
+## 3.2.2 Non-Relational Abstraction
