@@ -337,3 +337,23 @@ Some interesting properties (proof is in B.1):
    - concretizing an abstract element and abstracting the result back refines the information available in the initial abstract element (which is known as *reduction*)
 
 ## 3.2.2 Non-Relational Abstraction
+
+non-relational abstraction : does not treat relations among program variable.
+This abstraction proceeds in two step :
+1. For each variable, it collects the values that the variable may take.
+2. Then, over-approximates each of these set of values with one abstract element per variable.
+
+
+#### Definition 3.6 (Value abstraction)
+
+A value abstraction is an abstraction of $(\wp (\mathbb{V}), \subseteq)$
+
+As we saw in chapter 2, interval and sign constraints define value abstractions.
+
+#### Example 3.5 (Signs)
+
+- sign abstraction domain $\mathbb{A}_{\mathscr{S}}$ : $[\geq 0]$, $[\leq 0]$, $[= 0]$
+   - $\top$ : any set of values
+   - $\bot$ : empty set of values
+- concretization function $\gamma_{\mathscr{S}}$ :
+   - 
