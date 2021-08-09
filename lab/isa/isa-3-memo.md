@@ -355,5 +355,71 @@ As we saw in chapter 2, interval and sign constraints define value abstractions.
 - sign abstraction domain $\mathbb{A}_{\mathscr{S}}$ : $[\geq 0]$, $[\leq 0]$, $[= 0]$
    - $\top$ : any set of values
    - $\bot$ : empty set of values
-- concretization function $\gamma_{\mathscr{S}}$ :
-   - 
+- concretization function
+   - $\gamma_{\mathscr{S}}$ :
+      - $[\geq 0]\enspace \longmapsto \enspace \{ n \in \mathbb{V} \enspace | \enspace n \geq 0\}$
+      - $[\leq 0]\enspace \longmapsto \enspace \{ n \in \mathbb{V} \enspace | \enspace n \leq 0\}$
+      - $[= 0]\enspace \longmapsto \enspace \{ 0 \}$
+      - $\top \enspace \longmapsto \enspace \mathbb{V}$
+      - $\bot \enspace \longmapsto \enspace \empty$
+
+I need to make the diagram.
+- node : abstract elements
+- edge : link neighbors in the ordering relation
+
+In the convention:
+- "smaller" abstract elements are lower than "bigger" abstract element.
+
+#### Example 3.6 (A variation on the lattice of sign, with no abstraction function)
+
+- If we remove $[= 0]$ from the abstract domain above, it doesn't have best abstract function.
+- concrete set $\{ 0 \}$
+   - we can't define abstraction function of this
+   - $[\leq]$ and $[\geq]$ are incomparable
+
+As a consequence:
+- in general, it is impossible to identify one element as a most precise (sound) one.
+
+> Provided the analysis designer and user are aware of this fact, it is not a serious limitation, however.
+
+#### Example 3.7 (Intervals)
+
+- intervals value abstract domain $\mathbb{A}_{\mathscr{S}}$ :
+   - $\bot$ : the empty set of values
+   - $(n_0, n_1)$ : 
+      - $n_0$ : either $- \infty$ or a value
+      - $n_1$ : either $\infty$ or a value
+      - $n_0 \leq n_1$
+- concretization function :
+   - $\gamma_{\mathscr{S}}$ :
+      - $\bot \longmapsto \empty$
+      - $[n_0, n_1]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n_0 \leq n \leq n_1\}$
+      - $[n_0, + \infty]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n_0 \leq n\}$
+      - $[- \infty, n_1]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n \leq n_1\}$
+      - $(- \infty, + \infty) \longmapsto \mathbb{V}$
+
+The order relation is defined by the inclusion of concrete interval.
+
+#### Example 3.8 (Congruences)
+
+- abstract domain of congruences :
+   - describes sets of values using congruence relations
+- abstract element :
+   - $\bot$ : empty set of values
+   - $(n, p)$ : set of values that are equal to $n$ modulo $p$.
+      - $p = 0$ or $0 \leq n \lt p$
+- concretization function :
+   - $\gamma_{\mathscr{C}}$ :
+      - $\bot \enspace \longmapsto \enspace \empty$
+      - $(n, p) \enspace \longmapsto \enspace \{n + kp \enspace | \enspace k \in \mathbb{Z}\}$
+
+Also,
+- $\mathbb{A}_{\mathscr{C}}$ : set of abstract elements
+- $\sqsubseteq_{\mathscr{C}}$ : ordering relation defined by
+   - $a_0 \sqsubseteq_{\mathscr{C}} a_1 \iff \gamma_{\mathscr{C}} (a_0) \subseteq \gamma_{\mathscr{C}} (a_1)$
+
+Note:
+- This domain has abstraction function $\alpha_{\mathscr{C}}$.
+- $(0, 1)$ : represents all integers.
+- $(n, 0)$ : represents $n$.
+
