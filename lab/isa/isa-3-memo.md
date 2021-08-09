@@ -423,3 +423,74 @@ Note:
 - $(0, 1)$ : represents all integers.
 - $(n, 0)$ : represents $n$.
 
+******
+ここでのお気持ちをまとめておく。
+Value Abstractionは一つの変数に関するabstraction。(Non-)relational abstractionは複数の変数をまとめた時のabstraction。
+
+複数の変数を扱えるようになっている。
+******
+
+#### Definition 3.7 (Non-relational abstraction)
+
+Assume that a value abstraction is given, that is
+- a value abstraction : $(\mathbb{A}_{\mathscr{V}}, \sqsubseteq)$
+   - concretization function $\gamma_{\mathscr{V}}$ : $\mathbb{A}_{\mathscr{V}} \rightarrow \wp (\mathbb{V})$
+   - a least element : $\bot_{\mathscr{V}}$
+   - a greatest element : $\top_{\mathscr{V}}$
+
+Then, non-relational abstraction is is defined by
+- set of abstract elements $\mathbb{A}_{\mathscr{N}}$ = $\mathbb{X} \rightarrow \mathbb{A}_{\mathscr{V}}$
+- order relation $\sqsubseteq_{\mathscr{A}}$ : defined by
+   - point-wise extension of $\sqsubseteq_{\mathscr{V}}$
+   - $M_0^{\sharp} \sqsubseteq_{\mathscr{N}} M_1^{\sharp}$ if and only if $\forall \mathrm{x} \in \mathbb{X}$, $M_0^{\sharp}(\mathrm{x}) \sqsubseteq_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
+- concretization function $\gamma_{\mathscr{N}}$ defined by
+   - $\gamma_{\mathscr{N}} : \quad M^{\sharp} \enspace \longmapsto \enspace \{m \in \mathbb{M} \enspace | \enspace \forall \mathrm{x} \in \mathbb{X}, m(\mathrm{x}) \in \gamma_{\mathscr{V}} (M^{\sharp}(\mathrm{x}))\}$
+
+End of definition.
+
+Intuitive explanation:
+- treats each variable independently
+- applies the value abstraction to each variable separately from the other
+- order relation is point-wise
+
+The least element of the non-relational abstract domain is
+- the function that maps each variable to the least element $\bot_{\mathscr{V}}$ :
+   - $\forall \mathrm{x} \in \mathbb{X}, \bot_{\mathscr{N}} (\mathrm{x}) = \bot_{\mathscr{V}}$
+
+The greatest element $\top_{\mathscr{N}}$ can be defined similarly.
+
+When the value abstraction has an abstraction function $\alpha_{\mathscr{V}}$, the non-relational abstraction also has one.
+
+It is defined as follows:
+- $\alpha_{\mathscr{N}}$ : $M \longmapsto \Big( (\mathrm{x} \in \mathbb{X}) \longmapsto \alpha_{\mathscr{V}} (\{ m(\mathrm{x}) \enspace | \enspace m \in M\}) \Big)$
+
+Note:
+- $\bot_{\mathscr{N}}$ is the best abstraction of $\empty$
+
+#### Example 3.9 (Non-relational abstraction)
+
+Assumption:
+- $\mathbb{X} = \{\mathrm{x}, \mathrm{y}, \mathrm{z}\}$
+- memory states
+   - $m_0$ : $\quad \mathrm{x} \mapsto 25 \quad \mathrm{y} \mapsto 7 \quad \mathrm{z} \mapsto -12$
+   - $m_1$ : $\quad \mathrm{x} \mapsto 28 \quad \mathrm{y} \mapsto -7 \quad \mathrm{z} \mapsto -11$
+   - $m_2$ : $\quad \mathrm{x} \mapsto 20 \quad \mathrm{y} \mapsto 0 \quad \mathrm{z} \mapsto -10$
+   - $m_3$ : $\quad \mathrm{x} \mapsto 35 \quad \mathrm{y} \mapsto 8 \quad \mathrm{z} \mapsto -9$
+
+The best abstraction of $\{m_0, m_1, m_2, m_3\}$ can be defined as follows :
+- With the signs abstraction :
+   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto [\geq 0] \quad \mathrm{y} \mapsto \top \quad \mathrm{z} \mapsto [\leq 0]$
+- With the intervals abstraction :
+   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto [25, 35] \quad \mathrm{y} \mapsto [-7, 8] \quad \mathrm{z} \mapsto [-12, -9]$
+
+### 3.2.3 Relational Abstraction
+
+Such as *convex polyhedra*.
+
+#### Definition 3.8 (Linear equalities)
+
+- The elements of abstract domain of linear equalities :
+   - $\bot$ : empty set
+   - conjunctions of linear equality constraints over the program variables : to constrain sets of memory states.
+
+I might make some graph.
