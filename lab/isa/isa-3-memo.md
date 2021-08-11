@@ -543,3 +543,50 @@ This abstraction has both :
 - concretization function
 
 In general, choice of an efficient computer representation for abstract domains that describe relational constraints is more difficult than in the case of non-relational domains. Therefore, we do not discuss this topic any further.
+
+## Computable Abstract Semantics
+
+- we use non-relational abstract domain
+   - we also discuss the modifications which is required to use relational abstract domain.
+
+The form of analysis is :
+- mathematical function
+   - input : a program and an abstract pre-condition
+   - output : an abstract post-condition
+
+Some preparations :
+- $\mathbb{A}$ : the state abstract domain
+- $\gamma$ : associated concretization function
+   - $\mathbb{A}_{\mathscr{V}}$ : underlying value abstraction.
+   - $\gamma_{\mathscr{V}}$ : concretization function
+
+The design of the analysis aims at:
+- the soundness in the sense of definition 2.6
+   - See figure 3.7
+      - $\llbracket \mathrm{p} \rrbracket_{\mathscr{P}}^{\sharp}$ : the static analysis function (or *abstract semantics*)
+
+The best abstraction function $\alpha$ can also be used if it exists to discuss the *soundness*.
+
+### Abstract Semantics of Each Commands
+
+#### introduction
+
+As in chapter 2, we are going to construct the definition of $\llbracket \cdot \rrbracket_{\mathscr{P}}^{\sharp}$ by induction.
+
+- Definition of the semantics are very similar to that of concrete semantics.
+- Easy to see that soundness is ensured.
+   - we will see that soundness is ensured in a inductive manner.
+- Abstract semantics of a command is defined by that of its sub-commands.
+   - we assume that the semantics of sub-commands has already defined.
+
+#### Bottom Element
+
+- $\llbracket \mathtt{C} \rrbracket_{\mathscr{P}}^{\sharp} (\bot) = \bot$
+   - intuitive explanation : running a program from empty set of states is empty.
+- soundness : ensured
+
+#### Skip Commands
+
+- $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- soundness : ensured
+   - input is not modified
