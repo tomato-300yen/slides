@@ -492,5 +492,54 @@ Such as *convex polyhedra*.
 - The elements of abstract domain of linear equalities :
    - $\bot$ : empty set
    - conjunctions of linear equality constraints over the program variables : to constrain sets of memory states.
+      - I don't know what this means
+      - $\mathrm{x} = a \mathrm{y}$
 
-I might make some graph.
+I might make some graph of linear equalities.
+
+In the geometrical point of view :
+- abstract elements are in the affine space $\mathbb{V}^{N}$
+   - $N$ : dimension (number of variables)
+
+This abstraction features :
+- best abstraction function
+- concretization
+
+The best abstraction of any set $M$ of memory states :
+- the smallest affine space that contains all the memories in $M$
+
+### Definition 3.8 (Convex polyhedra)
+
+- elements of abstract domain of linear inequalities :
+   - $\bot$ : empty set
+   - conjunctions of linear inequality constraints over the program variables : to constrain sets of memory states.
+
+In the geometrical point of view :
+- abstract elements : convex polyhedra of all dimension in $\mathbb{V}^{N}$
+   - $N$ : dimension (number of variables)
+
+This abstraction features :
+- concretization
+- but no no best abstraction function (certain concrete sets do have a best abstraction)
+
+I might make some graph of convex polyhedra.
+
+The cost :
+- the number of inequality is not bounded.
+
+### Definition 3.9 (Octagons)
+
+- element of abstract domain of octagons :
+   - $\bot$ : empty set
+   - conjunctions of linear inequality constraints of the form below:
+      - $\pm\mathrm{x} \pm \mathrm{y} \leq c$
+      - $\pm x = c$
+
+In the geometrical point of view :
+- abstract elements : "octagonal" shape
+
+This abstraction has both :
+- best abstraction function
+- concretization function
+
+In general, choice of an efficient computer representation for abstract domains that describe relational constraints is more difficult than in the case of non-relational domains. Therefore, we do not discuss this topic any further.
