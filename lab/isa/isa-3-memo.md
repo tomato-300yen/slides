@@ -590,3 +590,21 @@ As in chapter 2, we are going to construct the definition of $\llbracket \cdot \
 - $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
 - soundness : ensured
    - input is not modified
+
+#### Sequences of Commands
+
+- Soundness property of figure 3.7 is stable is under composition.
+   - $\llbracket \mathtt{p}_0 ; \mathtt{p}_1 \rrbracket_{\mathscr{P}} (M) = \llbracket \mathtt{p}_0 \rrbracket_{\mathscr{P}} (\llbracket \mathtt{p}_1 \rrbracket_{\mathscr{P}} (M))$
+- $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+   - this equation ensures that we can prove soundness by induction.
+
+#### Theorem 3.1 (Approximation of composition)
+
+Some preparations :
+- $F_0$, $F_1$ : $\wp (\mathbb{M}) \rightarrow \wp (\mathbb{M})$
+   - two monotone functions
+- $F_0^{\sharp}$, $F_1^{\sharp}$ : $\mathbb{A} \rightarrow \mathbb{A}$
+   - these two functions over-approximate the two function above.
+   - such that
+      - $F_0 \circ \gamma \subseteq \gamma \circ F_0^{\sharp}$ and $F_1 \circ \gamma \subseteq \gamma \circ F_1^{\sharp}$
+- then, $F_0 \circ F_1$ can be over-approximated by $F_0^{\sharp} \circ F_1^{\sharp}$
