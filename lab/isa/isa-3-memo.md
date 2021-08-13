@@ -715,3 +715,89 @@ We introduce the variable $\mathrm{x}\rq$ and write the constraint as below:
 From the last term, we get $\mathrm{x} = \mathrm{x}\rq - \mathrm{y} - 2$. Then, apply this formula and we get
 - $2 \leq \mathrm{x}\rq - \mathrm{y} - 2 \leq 3 \land 3 - \mathrm{x}\rq + \mathrm{y} \leq \mathrm{y}$
 - $\iff 4 \leq \mathrm{x}\rq - \mathrm{y} \leq 5 \land 3 \leq \mathrm{x}\rq$
+
+### 3.3.2 Abstract Interpretation of Conditional Branching
+
+- An in the last paragraph, we over-approximate the definition of concrete semantics step-by-step.
+
+> $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket_{\mathscr{P}}(M) = \llbracket C_0 \rrbracket_{\mathscr{P}}(\mathscr{F}_{B}(M)) \cup \llbracket C_1 \rrbracket_{\mathscr{P}}(\mathscr{F}_{\neg B}(M))$
+
+We will first design an operation to over-approximate $\mathscr{F}_{B}$ for any Boolean expression $B$.
+Then, we will use the semantics of conditional branching,
+and finally, we will apply the over-approximation of the union of concrete sets.
+
+#### Analysis of Conditions
+
+- abstraction of filtering function $\mathscr{F}_B$, which we denote by $F_{B}^{\sharp}$
+- $\mathscr{F}_B$
+   - input : memory states
+   - output : kmemory states such that $B$ evaluates to *true*.
+- $\mathscr{F}_B^{\sharp}$
+   - input : an abstract state
+   - output : an abstract state refined by the condition $B$
+
+$\mathscr{F}_B^{\sharp}$ should satisfies the following soundness condition (ref. figure 3.7):
+- for
+   - all conditions $B$
+   - all abstract states $M^{\sharp}$ 
+- $\mathscr{F}_{B}(\gamma (M^{\sharp})) \subseteq \gamma (\mathscr{F}_B^{\sharp} (M^{\sharp}))$
+
+We will see some representative case.
+
+- Sign abstract domain $\{ \bot, \top, [=0], [\geq 0], [\leq 0] \}$
+   - $\mathscr{F}_{\mathrm{x} \lt 0}^{\sharp} (M^{\sharp})= $
+      - $(\mathrm{y} \in \mathbb{X}) \mapsto \bot \enspace$ if $M^{\sharp} (\mathrm{x}) = [\geq 0]$ or $[= 0]$ or $\bot$
+      - $M^{\sharp} [\mathrm{x} \mapsto [\leq]]\enspace$ if $M^{\sharp} (\mathrm{x}) = [\leq 0]$ or $\top$
+
+
+- Interval abstract domain $M^{\sharp}(\mathrm{x}) = [a, b]$
+   - $\mathscr{F}_{\mathrm{x} \leq n}^{\sharp}(M^{\sharp}) = $
+      - $(\mathrm{y} \in \mathbb{X}) \mapsto \bot$ if $a > n$
+      - $M^{\sharp} [\mathrm{x} \mapsto [a, n]]\enspace$ if $a \leq n \leq b$
+      - $M^{\sharp}$ if $b \leq n$
+
+
+#### Example 3.13 (Analysis of a condition)
+
+We consider the code fragment below that computes the absolute value of $\mathrm{x} - 7$.
+
+```c
+if(x > 7){
+   y := x - 7
+}else{
+   y := 7 - x
+}
+```
+
+Assumption:
+- pre-condition $M^{\sharp}$ is defined by:
+   - $\mathrm{x} \mapsto \top$
+   - $\mathrm{y} \mapsto \top$
+
+Then, by the rule above,
+- $\mathscr{F}_{\mathrm{x} \gt 7} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto [8, + \infty)]$
+- $\mathscr{F}_{\mathrm{x} \leq 7} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto (-\infty, 7]]$
+   - refined
+
+Although we will not see the full definition of the condition analysis, it should be sound.
+
+#### Theorem 3.3 (Soundness of the abstract interpretation conditions)
+
+- for all
+   - expressions $B$
+   - non-relational abstract elements $M^{\sharp}$
+   - memory states $m$ such that $m \in \gamma(M^{\sharp})$
+- if $\llbracket B \rrbracket (m) = \mathbf{true}$, then $m \in \gamma (\mathscr{F}_B^{\sharp} (M^{\sharp}))$
+
+### Analysis of Flow Joins
+
+The concrete semantics computes the union of the results of both branches.
+Thus, the analysis should over-approximate unions of sets of concrete states.
+Therefore, the abstract join operator $\sqcup^{\sharp}$ should satisfy the following soundness property:
+ 
+- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \gamma(M_0^{\sharp} \sqcup^{\sharp} M_1^{\sharp})$
+
+To define the abstract union operator we can simply
+- define a join operator $\sqcup^{\sharp}_{\mathscr{V}}$ in the value abstract domain.
+- apply operator $\sqcup^{\sharp}_{\mathscr{V}}$ in a point-wise manner:
+   - for all variable $\mathrm{x}$, $(M_0^{\sharp} \sqcup^{\sharp} M_1^{\sharp}) (\mathrm{x}) = M_0^{\sharp}(\mathrm{x}) \sqcup^{\sharp}_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
