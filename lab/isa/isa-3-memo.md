@@ -608,3 +608,110 @@ Some preparations :
    - such that
       - $F_0 \circ \gamma \subseteq \gamma \circ F_0^{\sharp}$ and $F_1 \circ \gamma \subseteq \gamma \circ F_1^{\sharp}$
 - then, $F_0 \circ F_1$ can be over-approximated by $F_0^{\sharp} \circ F_1^{\sharp}$
+
+I might make some graph. (I've already made a graph in my notebook)
+
+- Assumption : $M^{\sharp} \in \mathbb{A}$
+- $F_1 \circ \gamma (M^{\sharp}) \subseteq \gamma \circ F_1^{\sharp} (M^{\sharp})$ ( by the soundness of $F_1$ )
+- $F_0 \circ F_1 \circ \gamma (M^{\sharp}) \subseteq F_0 \circ \gamma \circ F_1^{\sharp} (M^{\sharp})$ ( applied $F_0$, since $F_0$ is monotone)
+   - $\subseteq \gamma \circ F_0^{\sharp} \circ F_1^{\sharp} (M^{\sharp})$ ( by the soundness of $F_0$ )
+- then,
+   - $F_0 \circ F_1 \circ \gamma (M^{\sharp}) \subseteq \gamma \circ F_0^{\sharp} \circ F_1^{\sharp} (M^{\sharp})$
+- so, $F_0 \circ F_1$ is over-approximated by $\circ F_0^{\sharp} \circ F_1^{\sharp}$
+
+Note:
+- concrete semantics heavily relies on this composition of function.
+
+## 3.3.1 Abstract Interpretation of Assignment
+
+- update to memory states are performed by assignment commands.
+- base idea is identical to that of chapter 2.
+
+We first need to define the interpretation of expressions and then, interpretation of assignment.
+
+### Abstract Interpretation of Expressions
+
+- $\llbracket \mathtt{E} \rrbracket^{\sharp}$ : abstract interpretation of expressions
+   - $\llbracket \mathtt{E} \rrbracket^{\sharp} : \mathbb{A} \rightarrow \mathbb{A}_{\mathscr{V}}$ 
+- semantics of expressions
+   - $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+      - This shoud return any abstract element that over-approximate $n$
+      - If the value abstraction has a best abstraction $\alpha_{\mathscr{V}}$, $\alpha_{\mathscr{V}} (\{n\})$ is enough.
+      - $\phi_{\mathscr{V}} : \mathbb{V} \rightarrow \mathbb{A}_{\mathscr{V}}$
+         - This function may not return the most precise abstraction.
+         - This function is such that $n \in \gamma_{\mathscr{V}} (\phi_{\mathscr{V}}(n))$
+   - $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+      - simply return a abstraction that is associated to the variable.
+   - $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+      - we need to aply the conservative abstraction of $f_\odot$ in the non-relational lattice.
+      - we need an operator $f_{\odot}^{\sharp}$ such that:
+         - for all $n_{0}^{\sharp}, n_{1}^{\sharp} \in \mathbb{A}_{\mathscr{V}}$, $\{ f_{\odot} (n_0, n_1) \enspace | \enspace n_0 \in \gamma_{\mathscr{V}} (n_{0}^{\sharp})$ and $n_1 \in \gamma_{\mathscr{V}} (n_{1}^{\sharp}) \} \subseteq \gamma_{\mathscr{V}} (f_{\odot}^{\sharp} (n_{0}^{\sharp}, n_{1}^{\sharp}))$
+      - $f_{\odot}^{\sharp}$ shoud over-approximate the effect of operation of $f_{\odot}$ on concrete value.
+
+#### Example 3.10 (Abstract semantics of expressions)
+
+Assumption:
+- we use interval abstraction
+- we consider $\mathrm{x} + 2 * \mathrm{y} - 6$
+- $M^{\sharp}$ is defined by $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp} (\mathrm{y}) [8, 9]$
+
+Interpretation of the expressions would be like this:
+- $\llbracket \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp})$
+   - $= f_{-}^{\sharp} (\llbracket \mathrm{x} + 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 6 \rrbracket^{\sharp}(M^{\sharp}))$
+   - $= f_{+}^{\sharp} (\llbracket \mathrm{x} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp})) - [6,6]$
+   - $= M^{\sharp}(\mathrm{x}) + f_{*}^{\sharp}(\llbracket 2 \rrbracket^{\sharp}(M^{\sharp}), \llbracket \mathrm{y} \rrbracket^{\sharp}(M^{\sharp})) - [6,6]$
+   - $= [10, 20] + [2,2] * [8,9] - [6,6]$
+   - $= [10,20] + [16, 18] - [6,6]$
+   - $= [26, 38] - [6, 6]$
+   - $= [20, 32]$
+
+This semantics is sound (we will not see the proof though).
+
+Theorem 3.2 (Soundness of the abstract interpretation of expressions)
+
+- for
+   - all expressions $\mathtt{E}$
+   - all non-relational abstract elements $M^{\sharp}$
+   - all memory states $m$ such that $m \in \gamma (M^{\sharp})$
+- $\llbracket \mathtt{E} \rrbracket (m) \in \gamma_{\mathscr{V}} (\llbracket \mathtt{E} \rrbracket^{\sharp}(M^{\sharp}))$
+
+### Analysis of Assignments
+
+Recall that
+> $\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)] \enspace | \enspace m \in M\}$
+
+1. Evaluation of the expression $\mathtt{E}$ to $n$
+2. Update the variable $\mathrm{x}$ with $n$
+
+This composition can be over-approximated piece by piece (Theorem 3.1).
+
+- target : $\mathrm{x} \colonequals \mathtt{E}$
+- semantics of assignments
+   - $\llbracket \mathrm{x} \colonequals \mathtt{E} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp} [\mathrm{x} \mapsto \llbracket \mathtt{E} \rrbracket^{\sharp} (M^{\sharp})]$
+- semantics of input
+   - $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
+      - repaleced the value with $\top_{\mathscr{V}}$
+
+#### Example 3.11 (Analysis of an assignment command)
+
+- $\llbracket \mathrm{x} \colonequals \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp}) = \{ \mathrm{x} \mapsto [20,32], \mathrm{y} \mapsto [8,9] \}$
+
+### Analysis of Assignments Using a Relational Abstract Domain
+
+> 1. Add temporary dimension $\mathrm{x}\rq$ that is meant to describe the value of the expression
+> 1. Represent as precisely as possible the constraint $\mathrm{x}\rq = \mathtt{E}$
+> 1. Project out dimension $\mathrm{x}$, and rename $\mathrm{x}\rq$ to $\mathrm{x}$
+
+#### Example 3.12
+
+Assumption:
+- abstract domain : convex polyhedra
+- abstract pre-condition : $2 \leq \mathrm{x} \leq 3 \land 1 - \mathrm{x} \leq \mathrm{y}$
+- assignment : $\mathrm{x} \colonequals \mathrm{y} + \mathrm{x} + 2$
+
+We introduce the variable $\mathrm{x}\rq$ and write the constraint as below:
+- $2 \leq \mathrm{x} \leq 3 \land 1 - \mathrm{x} \leq \mathrm{y} \land \mathrm{x}\rq = \mathrm{y} + \mathrm{x} + 2$
+
+From the last term, we get $\mathrm{x} = \mathrm{x}\rq - \mathrm{y} - 2$. Then, apply this formula and we get
+- $2 \leq \mathrm{x}\rq - \mathrm{y} - 2 \leq 3 \land 3 - \mathrm{x}\rq + \mathrm{y} \leq \mathrm{y}$
+- $\iff 4 \leq \mathrm{x}\rq - \mathrm{y} \leq 5 \land 3 \leq \mathrm{x}\rq$
