@@ -801,3 +801,30 @@ To define the abstract union operator we can simply
 - define a join operator $\sqcup^{\sharp}_{\mathscr{V}}$ in the value abstract domain.
 - apply operator $\sqcup^{\sharp}_{\mathscr{V}}$ in a point-wise manner:
    - for all variable $\mathrm{x}$, $(M_0^{\sharp} \sqcup^{\sharp} M_1^{\sharp}) (\mathrm{x}) = M_0^{\sharp}(\mathrm{x}) \sqcup^{\sharp}_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
+
+The definition of $\cup^{\sharp}_{\mathscr{V}}$ depends on the abstract domain.
+For instance, for the interval domain:
+- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, b_1] = [\mathtt{ min }(a_0, b_0), \mathtt{ max }(a_1, b_1)]$
+- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, +\infty] = [\mathtt{ min }(a_0, b_0), +\infty]$
+
+The union operator defined for the non-relational domain is sound in the following sense.
+
+#### Theorem 3.4 (Soundness of abstract join)
+
+Let $M_0^{\sharp}$ and $M_1^{\sharp}$ be the two abstract states.
+ 
+- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \\gamma(M_0^{\\sharp} \\cup^{\\sharp} M_1^{\\sharp})$
+
+#### Example 3.14 (Analysis of flow joins)
+
+- $M_0^{\sharp} = \{ \mathrm{x} \mapsto [0,3], \mathrm{y} \mapsto [6,7], \mathrm{z} \mapsto [4,8] \}$
+- $M_1^{\sharp} = \{ \mathrm{x} \mapsto [5,6], \mathrm{y} \mapsto [0,2], \mathrm{z} \mapsto [6,9] \}$
+
+Then,
+
+- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [0, 6], \mathrm{x} \mapsto [0, 7], \mathrm{x} \mapsto [6, 9]\}$
+
+
+### Analysis of a Conditional Commands
+
+
