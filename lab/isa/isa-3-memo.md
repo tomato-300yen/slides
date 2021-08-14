@@ -1070,3 +1070,16 @@ We can now compute an abstract state $M_{\mathrm{ lim }}^{\sharp}$ that over-app
       - $R \longleftarrow R \cup^{\sharp}F^{\sharp}(R);$
    - $\mathrm{ until }$ $R = T$
    - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
+
+This iteration technique is actually general and can be useful when analysing programs that contains iterative constructions.
+
+#### Example 3.19 (Convergence of abstract iterates in the signs abstract domain)
+
+The analysis using the signs abstract domain in the case of the two programs of example 3.16
+
+- In the case of the program of figure 3.9(a), we obtain the following iteration sequence:
+   - $M^{\sharp}_0 = \{\mathrm{x} \mapsto [= 0]\}$
+   - $M^{\sharp}_1 = \{\mathrm{x} \mapsto [\geq 0]\}$
+   - $M^{\sharp}_2 = \{\mathrm{x} \mapsto [\leq 0]\}$
+      - this analysis terminates after only two iterations
+- In the case of the program of figure 3.9(b), we obtain the same iteration sequence, same result.
