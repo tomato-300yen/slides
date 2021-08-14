@@ -866,3 +866,207 @@ Analysis proceeds as follows :
    - we get:
       - $\{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto [0, +\infty) \}$
 
+### Analysis of Conditional Commands with a Relational Abstract Domain
+
+We have to use different algorithm for the analysis of:
+- for the analysis of condition tests
+- for the computation of abstract join
+
+Analysis of conditional test with a relational domain -> addition of several constraints to the abstract states
+
+In general, it is more precise. Condition test that involve several variables are more precise. (more likely to be presented exactly)
+
+
+## 3.3.3 Abstract Interpretation of Loops
+
+Last one is loop.
+As you know, we rely on the definition of concrete semantics.
+
+Before we define the abstract semantics of loop, we will study its concrete semantics a bit more.
+
+### Concrete Semantics of Loop
+
+
+> $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
+
+We are defining the abstract semantics of loop by induction, we assume that we can compute the over-approximation of $\llbracket C \rrbracket_{\mathscr{P}}$.
+
+Over-approximation of sequences of commands can be obtained by the over-approximation of each commands.
+
+What we need to solve is to compute an over-approximation of the infinite union $\cup_{i \geq 0}F^{i}(M)$ with function $F^{\sharp}$ that over-approximate $F$, where $F = \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$
+
+#### Example 3.16 (Analysis of programs with loops)
+
+We will use these programs as a example.
+
+Figure 3.9(a)
+```c
+x := 0;
+while (x >= 0) {
+   x := x + 1;
+}
+```
+
+Figure 3.9(b)
+```c
+x := 0;
+while (x <= 100) {
+   if (x >= 50) {
+      x := 10
+   } else {
+      x := x + 1
+   }
+}
+```
+
+### Sequences of Concrete and Abstract Iterates
+
+We first consider a situation where a loop iterates at most $n$ times. ($n$ is a fixed integer value)
+
+Then, the states they may generate at the loop head are:
+
+- $M_n = \bigcup^{n}_{i=0} F^{i}(M)$
+   - this set of states can be computed by induction over $n$.
+      - HINT : $M_0 = M$, $M_{k+1} = M \cup F(M_k)$
+
+Indeed, the sequences $(M_k)_{k \in \mathbb{N}}$ can be defined recursively as follows.
+- $M_0 = M$
+- $M_{k + 1} = M_k \cup F(M_k)$
+
+It is very easy to compute an over-approximation of $M_n$ using the same techniques used in the previous section.
+
+Assumption :
+- $M^{\sharp}$ : an abstract element of the abstract domain
+   - $M \subseteq \gamma( M^{\sharp} )$
+
+We define the abstract iterates $( M_k^{\sharp} )_{k \in \mathbb{N}}$ as follows
+- $M_0^{\sharp} = M^{\sharp}$
+- $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \cup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
+
+Then we can prove by induction that
+- for all integers $n$,
+   - $M_n \subseteq \gamma(M_n^{\sharp})$
+
+Proof of the statement above:
+1. $n = 0$
+   - It is obvious from assumption that $M_0 \subseteq \gamma( M_0^{\sharp} )$
+1. $n = k$
+   - we assume that $M_k \subseteq \gamma( M_k^{\sharp} )$
+   - $M_{k+1}$
+      - $= M_k \cup F(M_k)$
+      - $\subseteq \gamma(M_k^{\sharp}) \cup F(\gamma(M_k^{\sharp}))$ ( $\because M_k \subseteq \gamma( M_k^{\sharp} )$)
+      - $\subseteq \gamma(M_k^{\sharp}) \cup \gamma(F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $F^{\sharp}$)
+      - $\subseteq \gamma(M_k^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $\sqcup^{\sharp}$)
+      - $= \gamma(M_{k + 1}^{\sharp}) $
+   - $\therefore M_{k + 1} \subseteq \gamma(M_{k + 1}^{\sharp})$
+
+### Example 3.17 (Abstract iterates)
+
+Figure 3.9(a)
+```c
+x := 0;
+while (x >= 0) {
+   x := x + 1;
+}
+```
+
+Figure 3.9(b)
+```c
+x := 0;
+while (x <= 100) {
+   if (x >= 50) {
+      x := 10
+   } else {
+      x := x + 1
+   }
+}
+```
+
+In the case of program (a):
+- $M_0^{\sharp} = \{\mathrm{x} \mapsto [0, 0]\}$
+- $M_1^{\sharp} = \{\mathrm{x} \mapsto [0, 1]\}$
+- $M_2^{\sharp} = \{\mathrm{x} \mapsto [0, 2]\}$
+- ...
+- $M_n^{\sharp} = \{\mathrm{x} \mapsto [0, n]\}$
+- ...
+
+In the case of program (b):
+- $M_0^{\sharp} = \{\mathrm{x} \mapsto [0, 0]\}$
+- $M_1^{\sharp} = \{\mathrm{x} \mapsto [0, 1]\}$
+- $M_2^{\sharp} = \{\mathrm{x} \mapsto [0, 2]\}$
+- ...
+- $M_49^{\sharp} = \{\mathrm{x} \mapsto [0, 49]\}$
+- $M_50^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- $M_50^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- $M_50^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- ...
+
+### Convergence of Iterate
+
+> $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \cup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
+
+We consider:
+- the case of unbounded iteration
+- the termination problem
+
+Let us assume that the abstract iteration stabilize at some rank $n$, which means that $M_{n}^{\sharp} = M_{n + 1}^{\sharp}$.
+
+Then,
+- for all $k \geq n$
+   - $M_k^{\sharp} = M_n^{\sharp}$
+   - $M_k \subseteq \gamma( M_n^{\sharp} )$
+
+Also,
+- $M_{\mathrm{loop}} \subseteq \gamma(M_n^{\sharp})\quad$ where $\quad M_{\mathrm{loop}} = \bigcup_{i \geq 0} M_i$
+
+Another interesting observation is that
+- $M_{\mathrm{loop}} = \bigcup_{i \geq 0} F^i(M) = \bigcup_{i \geq 0}M_i \subseteq \gamma(M_n^{\sharp})$
+
+Then, **If the sequences of abstract iterates converges**, then its final value over-approximate *all* the concrete behaviors.
+
+#### Example 3.18 (Convergence of abstract iterates)
+
+- In the case of program (a), the sequences of abstract iterates does not converge.
+- In the case of program (b), the ranges of $\mathrm{x}$ stabilize but only after 51 iterations.
+
+Neither of these are satisfactory.
+- lack of termination
+- hight number required to stabilize
+
+Therefor, we have to formalize the condition the ensures that the sequences of abstract iterates converges.
+
+
+### Convergence in Finite Height Lattices
+
+Assumption:
+- $\sqsubseteq$ is such that
+   - $M_a^{\sharp} \sqsubseteq M_b^{\sharp}\quad$ if and only if $\quad\gamma(M_a^{\sharp}) \subseteq \gamma(=M_b^{\sharp})$ for all abstract states $M_a^{\sharp}, M_b^{\sharp}$
+
+First case where convergence is ensured is when:
+
+- $M_a^{\sharp} \sqsubset M_b^{\sharp}$
+
+cannot hold infinitely many times.
+
+This condition is realized when the abstract domain has *finite height*.
+That is when the length of all the chains of the form
+- $M_0^{\sharp} \sqsubset M_1^{\sharp} \sqsubset  \cdots \sqsubset M_k^{\sharp} $
+
+is bounded by some fixed value $h$, *height of the abstract domain*.
+
+For example, if the abstract domain has finite height $h$, the sequences
+- $M_0^{\sharp} , M_1^{\sharp} ,  \cdots , M_h^{\sharp} , M_{h+1}^{\sharp}$
+ 
+is increasing for $\sqsubseteq$, but cannot be strictly increasing.
+So there exists a number lower than $h$ at which it becomes stable.
+This number is bounded by the height of lattice.
+ 
+We can now compute an abstract state $M_{\mathrm{ lim }}^{\sharp}$ that over-approximate $M_{\mathrm{loop}}$ by the algorithm in figure 3.10 (a).
+
+- $\mathrm{abs\_iter}(F^{\sharp}, M^{\sharp})$
+   - $R \longleftarrow M^{\sharp};$
+   - $\mathrm{ repeat }$
+      - $T \longleftarrow R;$
+      - $R \longleftarrow R \cup^{\sharp}F^{\sharp}(R);$
+   - $\mathrm{ until }$ $R = T$
+   - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
