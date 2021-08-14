@@ -813,7 +813,7 @@ The union operator defined for the non-relational domain is sound in the followi
 
 Let $M_0^{\sharp}$ and $M_1^{\sharp}$ be the two abstract states.
  
-- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \\gamma(M_0^{\\sharp} \\cup^{\\sharp} M_1^{\\sharp})$
+- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \gamma(M_0^{\sharp} \cup^{\sharp} M_1^{\sharp})$
 
 #### Example 3.14 (Analysis of flow joins)
 
@@ -827,4 +827,42 @@ Then,
 
 ### Analysis of a Conditional Commands
 
+Now, we have defined
+- condition
+- flow joins
+
+and we can use those to define the semantics of conditional commands.
+
+Semantics of conditional commands:
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
+
+This definition is very similar to that of concrete one.
+
+#### Example 3.15 (Analysis of a conditional command)
+
+We use this program from example 3.13 here.
+
+```c
+if(x > 7){
+   y := x - 7
+}else{
+   y := 7 - x
+}
+```
+
+- abstract pre-condition : $M^{\sharp} = \{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto \top \}$
+
+Analysis proceeds as follows :
+
+1. the analysis of **true** branch
+   1. filters pre-condition
+   2. computes the post-condition for the assignment of $\mathrm{y} \colonequals \mathrm{x} - 7$
+   3. we get:
+      - $\{ \mathrm{x} \mapsto [8, + \infty), \mathrm{y} \mapsto [1, +\infty) \}$
+2. the analysis of **false** branch
+   - we get:
+      - $\{ \mathrm{x} \mapsto (- \infty, 7], \mathrm{y} \mapsto [0, +\infty) \}$
+3. abstract join of these two abstract states
+   - we get:
+      - $\{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto [0, +\infty) \}$
 
