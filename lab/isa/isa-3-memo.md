@@ -1083,3 +1083,56 @@ The analysis using the signs abstract domain in the case of the two programs of 
    - $M^{\sharp}_2 = \{\mathrm{x} \mapsto [\leq 0]\}$
       - this analysis terminates after only two iterations
 - In the case of the program of figure 3.9(b), we obtain the same iteration sequence, same result.
+
+### Widening Operators
+
+- We will use *widening* technique for iterates to converge quickly
+- Essentially, widening operator over-approximate concrete unions
+   - and also enforces termination of all sequences of iteration
+
+#### Definition 3.11 (Widening operator)
+
+- widening operator : $\triangledown$ such that
+   1. for all abstract elements $a_0, a_1$
+      - $\gamma (a_0) \cup \gamma (a_1) \subseteq \gamma (a_0 \triangledown a_1)$
+   1. for all sequences $(a_n)_{n \in \mathbb{N}}$ of abstract elements, the sequences of $(a_n \rq)_{n \in \mathbb{N}}$ defined below is ultimately stationary (= eventually converge).
+      - $a_0\rq = a_0$
+      - $a_{n + 1}\rq = a_n\rq \triangledown a_n$
+
+Then we can turn the sequence of abstract iterates into a terminating sequence.
+
+#### Theorem 3.5 (Abstract iterates with widening)
+
+- $\triangledown$ : widening operator over non-relational abstract domain $\mathbb{A}$
+- $F^{\sharp}$ : $\mathbb{A} \rightarrow \mathbb{A}$
+
+Assumption:
+- $F : \mathbb{M} \rightarrow \mathbb{M}$
+   - continuous
+   - $F \circ \gamma \subseteq \gamma \circ F^{\sharp}$ (in the sense of point-wise)
+
+Then,
+- $\bigcup_{i \geq 0 } F^{i}(\gamma(M^{\sharp})) \subseteq \gamma(M^{\sharp}_{\mathrm{lim}})$
+   - $M^{\sharp}_{\mathrm{lim}}$ over-approximates the concrete semantics of the loop.
+
+#### Example 3.20 (Widening operator for he abstract domain of intervals)
+
+- $[n p] \triangledown_{\mathscr{V}} [n, q]$
+   - $[n, p]$ if $p \geq q$
+   - $[n, + \infty)$ if $p < q$
+
+Then, we consider the program in the figure 3.9.
+
+- In both case, we obtain the following iteration sequence:
+   - $M_0^{\sharp} = \{ \mathrm{x} \mapsto [0, 0] \}$
+   - $M_1^{\sharp} = \{ \mathrm{x} \mapsto [0, + \infty) \}$
+   - $M_2^{\sharp} = \{ \mathrm{x} \mapsto [0, + \infty) \}$
+- The convergence is now very fast, however
+   - the result is coarse in the case of program (b),
+      - this analysis doesn't converge.
+- We will see some common techniques to obtain more precise result in section 5.2
+
+
+### Analysis of Loops with a Relational Abstract Domain
+
+
