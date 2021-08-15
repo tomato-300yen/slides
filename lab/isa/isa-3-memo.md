@@ -1150,6 +1150,107 @@ Then, we consider the program in the figure 3.9.
 
 ### Analysis of Loops
 
+- semantics of the analysis of loop
+   - $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
 ### Analysis of Loops with a Relational Abstract Domain
 
+- Almost same as with a non-relational domain
+- Requires only an abstract join or widening operator specific to the abstraction being used
+
+That is,
+- In the case of linear equalities
+   - widening is not necessary because its height of lattice is finite
+- In the case of convex polyhedra and octagons
+   - widening operator is required because its height of lattice is infinite.
+
+### Another View on the Analysis of Loops
+
+- concrete semantics of a loop statement
+   - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
+      - = $\mathscr{F}_{\neg B} (M_{\mathrm{loop}})$
+
+Let us consider the following equation:
+- $M_{\mathrm{loop}} = \cup_{i \geq 0}(\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)$
+   - $= M \cup \Big(\bigcup_{i \gt 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)\Big)$
+   - $= M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B \Big(\bigcup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)\Big)$
+   - $= M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (M_{\mathrm{loop}})$
+
+Observation:
+- $M_{\mathrm{loop}}$ is a *fixpoint* of a function $G : X \mapsto M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (X)$
+- $M_{\mathrm{loop}}$ is a smallest set of states. $M_{\mathrm{loop}}$ is a *least fixpoint* of $G$
+
+We let $\mathbf{lfp} G$ denote the least fixpoint of $G$.
+
+Then,
+- concrete semantics of a loop can be expressed like this
+   - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} (\mathbf{lfp}\medspace G) \enspace$ where $\enspace G : X \mapsto M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (X)$
+- abstract semantics of a loop relies on the over-approximation of a concrete least fixpoint.
+   - we can use many techniques to compute over-approximation of least fixpoint such as:
+      - abstract union
+      - widening operator
+   - we will see several improvements in section 5.2
+
+## 3.3.4 Putting Everything Together
+
+See figure 3.11.
+- $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+- $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+- $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+- $\llbracket \mathtt{C} \rrbracket_{\mathscr{P}}^{\sharp} (\bot) = \bot$
+- $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+- $\llbracket \mathrm{x} \colonequals \mathtt{E} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp} [\mathrm{x} \mapsto \llbracket \mathtt{E} \rrbracket^{\sharp} (M^{\sharp})]$
+- $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
+- $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
+We have defined several elements:
+- $\phi_{\mathscr{V}}$ : abstraction of constants
+- $f_{\odot}$ : mathematical function for abstraction of binary operator $\odot$, specific to the underlying value abstraction
+- $\mathscr{F}_B^{\sharp}$ : specific to the underlying value abstraction
+- $\sqcup^{\sharp}$ : abstract union operation, specific to the underlying value abstraction
+- $\mathrm{abs\_iter}$ : abstract iteration function, relies on the widening operator $\triangledown$
+
+We have defined these semantics so that each of these is sound.
+
+### Theorem 3.6 (Soundness)
+ 
+For all commands $C$ and all abstract states $M^{\sharp}$, the computation of $\gamma (\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$ terminates and:
+
+- $\llbracket C \rrbracket_{\mathscr{P}} (\gamma (M^{\sharp})) \subseteq \gamma (\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$
+   - The proof of this theorem proceeds by induction over the syntax of commands.
+      - For each kind of commands, we ensured that the definition of its semantics would lead to sound result.
+
+
+### Computing an Over-Approximation of All Reachable States
+
+We can use the analysis of 3.11 to analyze a whole program.
+
+### Using the Result of the Analysis to Prove the Properties of Interest
+
+For instance,
+- program : $C$
+- initial state : $\gamma (M^{\sharp})$
+- output state : $\gamma(\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$
+- property of interest : $M$
+
+Then, we check whether $\gamma(\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp})) \subseteq M$ holds or not.
+- If it holds,
+   - $\llbracket C \rrbracket_{\mathscr{P}} \gamma(M^{\sharp}) \subseteq M$ is guaranteed because the analysis is sound.
+- If it doesn't hold,
+   - no information can be derived from the analysis.
+      - the program may violate the property
+      - the analysis may be imprecise
+
+In general, if the inclusion does not hold, *alarms* will be called.
+And users need to further inspect the result of the analysis to decide whether the alarms is true or false.
+
+- alarms : says that the analysis tools failed to prove the property of interest
+- triage : the process above
+
+The analysis function $\llbracket C \rrbracket^{\sharp}_{\mathscr{P}}$ is not monotone.
+Therefore, replacing pre-condition $M^{\sharp}$ with more precise one does not ensure that the result is more precise.
+
+### Adapting the Analysis to Use a Different Abstraction
 
