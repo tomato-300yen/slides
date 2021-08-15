@@ -1103,8 +1103,19 @@ Then we can turn the sequence of abstract iterates into a terminating sequence.
 
 #### Theorem 3.5 (Abstract iterates with widening)
 
+Assumption:
 - $\triangledown$ : widening operator over non-relational abstract domain $\mathbb{A}$
 - $F^{\sharp}$ : $\mathbb{A} \rightarrow \mathbb{A}$
+
+Then, the algorithm shown below terminates and returns $M^{\sharp}_{\mathrm{lim}}$.
+
+- $\mathrm{abs\_iter}(F^{\sharp}, M^{\sharp})$
+   - $R \longleftarrow M^{\sharp};$
+   - $\mathrm{ repeat }$
+      - $T \longleftarrow R;$
+      - $R \longleftarrow R \triangledown F^{\sharp}(R);$
+   - $\mathrm{ until }$ $R = T$
+   - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
 
 Assumption:
 - $F : \mathbb{M} \rightarrow \mathbb{M}$
@@ -1114,6 +1125,10 @@ Assumption:
 Then,
 - $\bigcup_{i \geq 0 } F^{i}(\gamma(M^{\sharp})) \subseteq \gamma(M^{\sharp}_{\mathrm{lim}})$
    - $M^{\sharp}_{\mathrm{lim}}$ over-approximates the concrete semantics of the loop.
+
+This theorem guarantees
+- the termination of the loop analysis
+- soundness
 
 #### Example 3.20 (Widening operator for he abstract domain of intervals)
 
@@ -1132,6 +1147,8 @@ Then, we consider the program in the figure 3.9.
       - this analysis doesn't converge.
 - We will see some common techniques to obtain more precise result in section 5.2
 
+
+### Analysis of Loops
 
 ### Analysis of Loops with a Relational Abstract Domain
 
