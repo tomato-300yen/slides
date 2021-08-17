@@ -33,6 +33,13 @@ table td {
   white-space: nowrap;
 }
 
+def {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #333333;
+  border-radius: 10px;
+}
+
 /* hide */
 hide {
   background-color: #ddd;
