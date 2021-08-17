@@ -544,7 +544,7 @@ This abstraction has both :
 
 In general, choice of an efficient computer representation for abstract domains that describe relational constraints is more difficult than in the case of non-relational domains. Therefore, we do not discuss this topic any further.
 
-## Computable Abstract Semantics
+## 3.3 Computable Abstract Semantics
 
 - we use non-relational abstract domain
    - we also discuss the modifications which is required to use relational abstract domain.
@@ -1261,4 +1261,39 @@ The analysis function $\llbracket C \rrbracket^{\sharp}_{\mathscr{P}}$ is not mo
 Therefore, replacing pre-condition $M^{\sharp}$ with more precise one does not ensure that the result is more precise.
 
 ### Adapting the Analysis to Use a Different Abstraction
+
+What if we want to use another abstraction.
+
+The analysis of
+- expression
+- input
+
+is essentially non-relational abstraction and it has to be modified.
+
+However, in general, overall structure of the analysis doesn't need to be modified.
+
+
+### Soundness theorem using best abstraction
+
+We can also use best abstraction function $\alpha$ instead of $\gamma$.
+
+- $\alpha ( \llbracket C \rrbracket_{\mathscr{P}} (M)) \sqsubseteq \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (\alpha (M))$
+
+## 3.4 The Design of an Abstract Interpreter
+
+We will summarize the process we have followed in this chapter.
+
+General three steps to construct a static analysis:
+- fix the reference concrete semantics
+- select the abstraction
+- derive analysis algorithm
+
+This division of the analysis design into independent steps is important
+- for the construction of a static analysis
+- when a static analysis needs to be improved ( a static analysis is imprecise )
+
+Common case a static analysis is imprecise:
+- abstraction is coarse
+- algorithm return overly approximated result for the sake of cost
+- concrete semantics is too coarse to express the properties of interest
 
