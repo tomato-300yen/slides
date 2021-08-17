@@ -565,6 +565,14 @@ The design of the analysis aims at:
    - See figure 3.7
       - $\llbracket \mathrm{p} \rrbracket_{\mathscr{P}}^{\sharp}$ : the static analysis function (or *abstract semantics*)
 
+$$
+\begin{CD}
+   a_{\mathrm{pre}} @>\mathrm{analyze}\enspace\mathtt{p}>> a_{\mathrm{post}} = \llbracket \mathtt{p} \rrbracket^{\sharp}_{\mathscr{P}} (a_{\mathrm{pre}}) \\
+@A\in \gamma (\cdot)AA @AA\in \gamma (\cdot)A \\
+   m @>\mathrm{run}\enspace\mathtt{p}>>m\rq
+\end{CD}
+$$
+
 The best abstraction function $\alpha$ can also be used if it exists to discuss the *soundness*.
 
 ### Abstract Semantics of Each Commands
