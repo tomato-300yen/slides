@@ -322,3 +322,58 @@ $\mathscr{F}_B$ commutes with the union, thus:
 Therefore,
 
 - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \big)$
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+   - The concept of abstraction
+   - Non-relational abstraction
+   - Relational abstraction
+- Computable Abstract Semantics (3.3)
+- Interpreter (3.4)
+
+---
+
+# Concrete, Abstract
+
+We carefully distinguish between these:
+- domain the program is defined ($\longrightarrow$ "___concrete___" qualifier for this)
+- domain that is used for the analysis of program ($\longrightarrow$ "___abstract___" qualifier for this)
+
+---
+
+# Concrete Domain
+
+<def>
+Definition:
+<ul>
+<li>
+
+concrete domain : a set $\mathbb{C}$ used to describe concrete behaviors
+</li>
+<ul>
+<li>
+
+$\subseteq$ : order relation that compare program behaviors in the logical point of view
+</li>
+<ul>
+<li>
+
+$x \subseteq y$ means that $x$ implies behavior y, that is:
+</li>
+<ul>
+<li>
+
+$x$ expresses a stronger property than $y$.
+</li>
+</ul>
+</ul>
+</ul>
+</ul>
+</def>
+
+- $\mathbb{C} = \wp (\mathbb{M})$
+   - choose $\wp (\mathbb{M})$ as the concrete domain to study the sets of reachability states.
