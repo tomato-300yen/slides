@@ -528,7 +528,7 @@ Note:
 
 ---
 
-# Galois Connection (1/n)
+# Galois Connection (1/3)
 
 When an abstraction relation defines both
 - concretization function
@@ -538,7 +538,7 @@ they are tightly related to each other (which we call ***Galois connection***).
 
 ---
 
-# Galois Connection (2/n)
+# Galois Connection (2/3)
 
 <def>
 <h4>
@@ -555,7 +555,7 @@ Definition 3.5 (Galois connection):
 
 ---
 
-# Galois Connection (3/n)
+# Galois Connection (3/3)
 
 Some interesting properties (proof is in B.1):
 - $\alpha$ and $\gamma$ are monotone function.
@@ -565,3 +565,101 @@ Some interesting properties (proof is in B.1):
 - $\forall a \in \mathbb{A}$
    - $\alpha (\gamma (a)) \sqsubseteq a$
    - concretizing an abstract element and abstracting the result back refines the information available in the initial abstract element (which is known as *reduction*)
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+   - <gray>The concept of abstraction</gray>
+   - Non-relational abstraction
+   - <gray>Relational abstraction</gray>
+- Computable Abstract Semantics (3.3)
+- Interpreter (3.4)
+
+---
+
+# (Non-relational / Relational) Abstraction
+
+- Non-relational : それぞれの変数を独立に抽象化する
+- Relational : 変数間の関係も含めて抽象化する (relationalが表すとおり)
+
+---
+
+# Non-relational Abstraction
+
+Non-relational abstraction proceeds in two steps:
+1. For each variable, it collects the values that the variable may take.
+2. Then, over-approximates each of these set of values with one abstract element per variable (*value abstraction*).
+
+---
+
+# Value Abstraction (1/n)
+
+
+<def>
+   <h4>
+Definition 3.6 (Value abstraction)
+   </h4>
+
+A **value abstraction** is an abstraction of $(\wp (\mathbb{V}), \subseteq)$
+
+</def>
+
+As we saw in chapter 2, *interval* and *sign* constraints define value abstractions.
+
+---
+
+# Value Abstraction (2/n)
+
+#### Example 3.5 (Signs) (Figure 3.5)
+
+- sign abstraction domain $\mathbb{A}_{\mathscr{S}}$ : $[\geq 0]$, $[\leq 0]$, $[= 0]$
+   - $\top$ : any set of values
+   - $\bot$ : empty set of values
+- concretization function
+   - $\gamma_{\mathscr{S}}$ :
+      - $[\geq 0]\enspace \longmapsto \enspace \{ n \in \mathbb{V} \enspace | \enspace n \geq 0\}$
+      - $[\leq 0]\enspace \longmapsto \enspace \{ n \in \mathbb{V} \enspace | \enspace n \leq 0\}$
+      - $[= 0]\enspace \longmapsto \enspace \{ 0 \}$
+      - $\top \enspace \longmapsto \enspace \mathbb{V}$
+      - $\bot \enspace \longmapsto \enspace \empty$
+
+---
+
+# Value Abstraction (3/n)
+
+#### Example 3.6 (A variation on the lattice of sign, with no abstraction function)
+
+- If we remove $[= 0]$ from the abstract domain above, it doesn't have best abstract function.
+- concrete set $\{ 0 \}$
+   - we can't define abstraction function of this
+   - $[\leq]$ and $[\geq]$ are incomparable
+
+As a consequence:
+- in general, it is impossible to identify one element as a most precise (sound) one.
+
+> Provided the analysis designer and user are aware of this fact, it is not a serious limitation, however.
+
+---
+
+# Value Abstraction (4/n)
+
+#### Example 3.7 (Intervals) (Figure 3.5)
+
+- intervals value abstract domain $\mathbb{A}_{\mathscr{S}}$ :
+   - $\bot$ : the empty set of values
+   - $(n_0, n_1)$ : 
+      - $n_0$ : either $- \infty$ or a value
+      - $n_1$ : either $+ \infty$ or a value
+      - $n_0 \leq n_1$
+- concretization function :
+   - $\gamma_{\mathscr{S}}$ :
+      - $\bot \longmapsto \empty$
+      - $[n_0, n_1]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n_0 \leq n \leq n_1\}$
+      - $[n_0, + \infty]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n_0 \leq n\}$
+      - $[- \infty, n_1]\enspace \longmapsto \enspace \{n \in \mathbb{V} \enspace | \enspace n \leq n_1\}$
+      - $(- \infty, + \infty) \longmapsto \mathbb{V}$
+
+The order relation is defined by the inclusion of concrete interval.
