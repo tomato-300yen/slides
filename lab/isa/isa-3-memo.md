@@ -388,7 +388,7 @@ As a consequence:
    - $\bot$ : the empty set of values
    - $(n_0, n_1)$ : 
       - $n_0$ : either $- \infty$ or a value
-      - $n_1$ : either $\infty$ or a value
+      - $n_1$ : either $+ \infty$ or a value
       - $n_0 \leq n_1$
 - concretization function :
    - $\gamma_{\mathscr{S}}$ :
