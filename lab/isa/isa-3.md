@@ -663,3 +663,69 @@ As a consequence:
       - $(- \infty, + \infty) \longmapsto \mathbb{V}$
 
 The order relation is defined by the inclusion of concrete interval.
+
+$[0, 2]$ and $[1, 3]$ are incomparable.
+
+---
+
+# Value Abstraction (5/n)
+
+#### Example 3.8 (Congruences)
+
+- abstract domain of congruences :
+   - describes sets of values using congruence relations
+- abstract element :
+   - $\bot$ : empty set of values
+   - $(n, p)$ : set of values that are equal to $n$ modulo $p$.
+      - $p = 0$ or $0 \leq n \lt p$
+- concretization function :
+   - $\gamma_{\mathscr{C}}$ :
+      - $\bot \enspace \longmapsto \enspace \empty$
+      - $(n, p) \enspace \longmapsto \enspace \{n + kp \enspace | \enspace k \in \mathbb{Z}\}$
+
+Also,
+- $\mathbb{A}_{\mathscr{C}}$ : set of abstract elements
+- $\sqsubseteq_{\mathscr{C}}$ : ordering relation defined by
+   - $a_0 \sqsubseteq_{\mathscr{C}} a_1 \iff \gamma_{\mathscr{C}} (a_0) \subseteq \gamma_{\mathscr{C}} (a_1)$
+
+Note:
+- This domain has abstraction function $\alpha_{\mathscr{C}}$.
+- $(0, 1)$ : represents all integers.
+- $(n, 0)$ : represents $n$.
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+   - <gray>The concept of abstraction</gray>
+   - <gray>Non-relational abstraction</gray>
+   - Relational abstraction
+- Computable Abstract Semantics (3.3)
+- Interpreter (3.4)
+
+---
+
+# Relational Abstraction
+
+<def>
+   <h4>
+Definition 3.7 (Non-relational abstraction)
+   </h4>
+
+   Assume that a value abstraction is given, that is
+   - a value abstraction : $(\mathbb{A}_{\mathscr{V}}, \sqsubseteq)$
+   - concretization function $\gamma_{\mathscr{V}}$ : $\mathbb{A}_{\mathscr{V}} \rightarrow \wp (\mathbb{V})$
+   - a least element : $\bot_{\mathscr{V}}$
+   - a greatest element : $\top_{\mathscr{V}}$
+
+   Then, non-relational abstraction is is defined by
+   - set of abstract elements $\mathbb{A}_{\mathscr{N}}$ = $\mathbb{X} \rightarrow \mathbb{A}_{\mathscr{V}}$
+   - order relation $\sqsubseteq_{\mathscr{A}}$ : defined by
+   - point-wise extension of $\sqsubseteq_{\mathscr{V}}$
+   - $M_0^{\sharp} \sqsubseteq_{\mathscr{N}} M_1^{\sharp}$ if and only if $\forall \mathrm{x} \in \mathbb{X}$, $M_0^{\sharp}(\mathrm{x}) \sqsubseteq_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
+   - concretization function $\gamma_{\mathscr{N}}$ defined by
+   - $\gamma_{\mathscr{N}} : \quad M^{\sharp} \enspace \longmapsto \enspace \{m \in \mathbb{M} \enspace | \enspace \forall \mathrm{x} \in \mathbb{X}, m(\mathrm{x}) \in \gamma_{\mathscr{V}} (M^{\sharp}(\mathrm{x}))\}$
+
+</def>
