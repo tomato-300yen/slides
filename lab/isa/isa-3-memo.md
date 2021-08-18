@@ -253,8 +253,8 @@ I might make some graph.
 - variable : $\mathrm{x}, \mathrm{y}$
 
 Elements of concrete domain :
-- $M_0 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x}) < m(\mathrm{y}) \leq 8}$
-- $M_1 = {m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x})}$
+- $M_0 = \{m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x}) < m(\mathrm{y}) \leq 8\}$
+- $M_1 = \{m \in \mathbb{M} \enspace | \enspace 0 \leq m(\mathrm{x})\}$
 
 An element of abstract domain :
 - $M^{\sharp}$ : over-approximates each value
@@ -302,7 +302,7 @@ Abstraction function is a function $\alpha : \mathbb{C} \rightarrow \mathbb{A}$ 
 - maps each concrete element to its best abstraction
 
 An abstraction function is:
-- dual of concretization function
+- the dual of concretization function
 - monotone
 
 #### Example 3.4 (Abstraction function)
