@@ -651,7 +651,7 @@ We first need to define the interpretation of expressions and then, interpretati
    - $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
       - simply return a abstraction that is associated to the variable.
    - $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
-      - we need to aply the conservative abstraction of $f_\odot$ in the non-relational lattice.
+      - we need to apply the conservative abstraction of $f_\odot$ in the non-relational lattice.
       - we need an operator $f_{\odot}^{\sharp}$ such that:
          - for all $n_{0}^{\sharp}, n_{1}^{\sharp} \in \mathbb{A}_{\mathscr{V}}$, $\{ f_{\odot} (n_0, n_1) \enspace | \enspace n_0 \in \gamma_{\mathscr{V}} (n_{0}^{\sharp})$ and $n_1 \in \gamma_{\mathscr{V}} (n_{1}^{\sharp}) \} \subseteq \gamma_{\mathscr{V}} (f_{\odot}^{\sharp} (n_{0}^{\sharp}, n_{1}^{\sharp}))$
       - $f_{\odot}^{\sharp}$ shoud over-approximate the effect of operation of $f_{\odot}$ on concrete value.
