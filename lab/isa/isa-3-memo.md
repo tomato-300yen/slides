@@ -810,7 +810,7 @@ To define the abstract union operator we can simply
 The definition of $\cup^{\sharp}_{\mathscr{V}}$ depends on the abstract domain.
 For instance, for the interval domain:
 - $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, b_1] = [\mathtt{ min }(a_0, b_0), \mathtt{ max }(a_1, b_1)]$
-- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, +\infty] = [\mathtt{ min }(a_0, b_0), +\infty]$
+- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, +\infty) = [\mathtt{ min }(a_0, b_0), +\infty)$
 
 The union operator defined for the non-relational domain is sound in the following sense.
 
