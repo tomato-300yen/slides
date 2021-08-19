@@ -818,7 +818,7 @@ The union operator defined for the non-relational domain is sound in the followi
 
 Let $M_0^{\sharp}$ and $M_1^{\sharp}$ be the two abstract states.
  
-- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \gamma(M_0^{\sharp} \cup^{\sharp} M_1^{\sharp})$
+- $\gamma(M_0^{\sharp}) \cup \gamma(M_1^{\sharp}) \subseteq \gamma(M_0^{\sharp} \sqcup^{\sharp} M_1^{\sharp})$
 
 #### Example 3.14 (Analysis of flow joins)
 
