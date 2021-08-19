@@ -661,7 +661,7 @@ We first need to define the interpretation of expressions and then, interpretati
 Assumption:
 - we use interval abstraction
 - we consider $\mathrm{x} + 2 * \mathrm{y} - 6$
-- $M^{\sharp}$ is defined by $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp} (\mathrm{y}) [8, 9]$
+- $M^{\sharp}$ is defined by $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp} = (\mathrm{y}) [8, 9]$
 
 Interpretation of the expressions would be like this:
 - $\llbracket \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp})$
