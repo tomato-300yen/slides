@@ -807,10 +807,10 @@ To define the abstract union operator we can simply
 - apply operator $\sqcup^{\sharp}_{\mathscr{V}}$ in a point-wise manner:
    - for all variable $\mathrm{x}$, $(M_0^{\sharp} \sqcup^{\sharp} M_1^{\sharp}) (\mathrm{x}) = M_0^{\sharp}(\mathrm{x}) \sqcup^{\sharp}_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
 
-The definition of $\cup^{\sharp}_{\mathscr{V}}$ depends on the abstract domain.
+The definition of $\sqcup^{\sharp}_{\mathscr{V}}$ depends on the abstract domain.
 For instance, for the interval domain:
-- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, b_1] = [\mathtt{ min }(a_0, b_0), \mathtt{ max }(a_1, b_1)]$
-- $[a_0, b_0] \cup^{\sharp}_{\mathscr{V}} [a_1, +\infty) = [\mathtt{ min }(a_0, b_0), +\infty)$
+- $[a_0, b_0] \sqcup^{\sharp}_{\mathscr{V}} [a_1, b_1] = [\mathtt{ min }(a_0, b_0), \mathtt{ max }(a_1, b_1)]$
+- $[a_0, b_0] \sqcup^{\sharp}_{\mathscr{V}} [a_1, +\infty) = [\mathtt{ min }(a_0, b_0), +\infty)$
 
 The union operator defined for the non-relational domain is sound in the following sense.
 
