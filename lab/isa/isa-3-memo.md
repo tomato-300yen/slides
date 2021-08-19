@@ -778,9 +778,7 @@ if(x > 7){
 ```
 
 Assumption:
-- pre-condition $M^{\sharp}$ is defined by:
-   - $\mathrm{x} \mapsto \top$
-   - $\mathrm{y} \mapsto \top$
+- pre-condition $M^{\sharp}$ : $\mathrm{x} \mapsto \top$, $\mathrm{y} \mapsto \top$
 
 Then, by the rule above,
 - $\mathscr{F}_{\mathrm{x} \gt 7} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto [8, + \infty)]$
