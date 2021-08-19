@@ -520,7 +520,7 @@ In the geometrical point of view :
 
 This abstraction features :
 - concretization
-- but no no best abstraction function (certain concrete sets do have a best abstraction)
+- but no best abstraction function (certain concrete sets do have a best abstraction)
 
 I might make some graph of convex polyhedra.
 
