@@ -778,6 +778,9 @@ The best abstraction of $\{m_0, m_1, m_2, m_3\}$ can be defined as follows :
    - <gray>The concept of abstraction</gray>
    - <gray>Non-relational abstraction</gray>
    - Relational abstraction
+      - linear equalities
+      - convex polyhedra
+      - octagons
 - Computable Abstract Semantics (3.3)
 - Interpreter (3.4)
 
@@ -874,10 +877,312 @@ This abstraction features:
 
 # Overview
 
-- Semantics (3.1)
-- Abstraction (3.2)
+- <gray>Semantics (3.1)</gray>
+- <gray>Abstraction (3.2)</gray>
 - Computable Abstract Semantics (3.3)
-   - a
-- Interpreter (3.4)
+   - introduction
+   - semantics of each commands
+- <gray>Interpreter (3.4)</gray>
 
+---
+
+# Computable Abstract Semantics (1/n)
+
+- we **use non-relational** abstract domain
+   - we also discuss the modifications which is required to use relational abstract domain.
+
+The form of analysis is :
+- mathematical function
+   - input : a program and an abstract pre-condition
+   - output : an abstract post-condition
+
+---
+
+# Computable Abstract Semantics (2/n)
+
+Some preparations :
+- $\mathbb{A}$ : the state abstract domain
+- $\gamma$ : associated concretization function
+   - $\mathbb{A}_{\mathscr{V}}$ : underlying value abstraction.
+   - $\gamma_{\mathscr{V}}$ : concretization function
+
+The design of the analysis aims at:
+- the soundness in the sense of definition 2.6
+   - See figure 3.7
+      - $\llbracket \mathrm{p} \rrbracket_{\mathscr{P}}^{\sharp}$ : the static analysis function (or *abstract semantics*)
+
+
+---
+
+# Computable Abstract Semantics (3/n)
+
+$$
+\begin{CD}
+   a_{\mathrm{pre}} @>\mathrm{analyze}\enspace\mathtt{p}>> \llbracket \mathtt{p} \rrbracket^{\sharp}_{\mathscr{P}} (a_{\mathrm{pre}}) \\
+@A\in \gamma (\cdot)AA @. \\
+   m @>\mathrm{run}\enspace\mathtt{p}>> m\rq
+\end{CD}
+$$
+
+$$
+\begin{CD}
+   a_{\mathrm{pre}} @. a_{\mathrm{post}}\\
+@A\in \gamma (\cdot)AA @AA\in \gamma (\cdot)A \\
+   m @>\mathrm{run}\enspace\mathtt{p}>> m\rq
+\end{CD}
+$$
+
+- $\llbracket \mathtt{p} \rrbracket^{\sharp}_{\mathscr{P}}$ : analysis function, or *abstract semantics*
+
+---
+
+# Abstract Semantics of Each Commands
+
+We're going to define the semantics of $\llbracket \cdot \rrbracket^{\sharp}_{\mathscr{P}}$ by induction.
+
+- Definition of the semantics : very similar to that of concrete semantics.
+- Soundness : ensured
+   - soundness is ensured in a inductive manner
+- Abstract semantics of a command : defined by that of its sub-commands.
+
+---
+
+# That's all 🙂
+
+- $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+- $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+- $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+- $\llbracket \mathtt{C} \rrbracket_{\mathscr{P}}^{\sharp} (\bot) = \bot$
+- $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+- $\llbracket \mathrm{x} \colonequals \mathtt{E} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp} [\mathrm{x} \mapsto \llbracket \mathtt{E} \rrbracket^{\sharp} (M^{\sharp})]$
+- $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
+- $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
+---
+
+# Bottom Element, Skip Commands
+
+<def>
+<h4>
+Bottom Element
+</h4>
+
+- $\llbracket \mathtt{C} \rrbracket_{\mathscr{P}}^{\sharp} (\bot) = \bot$
+   - intuitive explanation : running a program from empty set of states is empty.
+   - soundness : ensured
+
+</def>
+
+<def>
+<h4>
+Skip Commands
+</h4>
+
+- $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+   - input is not modified
+   - soundness : ensured
+
+</def>
+
+---
+
+# Sequences of Commands
+
+- Soundness property of figure 3.7 is stable is under composition.
+   - $\llbracket \mathtt{p}_0 ; \mathtt{p}_1 \rrbracket_{\mathscr{P}} (M) = \llbracket \mathtt{p}_0 \rrbracket_{\mathscr{P}} (\llbracket \mathtt{p}_1 \rrbracket_{\mathscr{P}} (M))$
+
+
+<def>
+<h4>
+Sequences of Commands
+</h4>
+
+   - $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+   - this equation ensures that we can prove soundness by induction.
+</def>
+
+---
+
+# Approximation of Composition (1/n)
+
+<theorem>
+<h4>
+Theorem 3.1 (Approximation of composition)
+</h4>
+
+- $F_0$, $F_1$ : $\wp (\mathbb{M}) \rightarrow \wp (\mathbb{M})$
+   - two monotone functions
+- $F_0^{\sharp}$, $F_1^{\sharp}$ : $\mathbb{A} \rightarrow \mathbb{A}$
+   - these two functions over-approximate the two function above.
+   - such that
+      - $F_0 \circ \gamma \subseteq \gamma \circ F_0^{\sharp}$ and $F_1 \circ \gamma \subseteq \gamma \circ F_1^{\sharp}$
+- then, $F_0 \circ F_1$ can be over-approximated by $F_0^{\sharp} \circ F_1^{\sharp}$
+
+</theorem>
+
+---
+
+# Approximation of Composition (2/n)
+
+<h4>
+Proof
+</h4>
+
+- Assumption : $M^{\sharp} \in \mathbb{A}$
+- $F_1 \circ \gamma (M^{\sharp}) \subseteq \gamma \circ F_1^{\sharp} (M^{\sharp})$ ( by the soundness of $F_1$ )
+- $F_0 \circ F_1 \circ \gamma (M^{\sharp}) \subseteq F_0 \circ \gamma \circ F_1^{\sharp} (M^{\sharp})$ ( applied $F_0$, since $F_0$ is monotone)
+   - $\subseteq \gamma \circ F_0^{\sharp} \circ F_1^{\sharp} (M^{\sharp})$ ( by the soundness of $F_0$ )
+- then,
+   - $F_0 \circ F_1 \circ \gamma (M^{\sharp}) \subseteq \gamma \circ F_0^{\sharp} \circ F_1^{\sharp} (M^{\sharp})$
+- so, $F_0 \circ F_1$ is over-approximated by $\circ F_0^{\sharp} \circ F_1^{\sharp}$
+
+Note:
+- concrete semantics heavily relies on this composition of function.
+
+---
+
+# Expressions (1/5)
+
+<def>
+<h4>
+Abstract Interpretation of Expressions
+</h4>
+
+- $\llbracket \mathtt{E} \rrbracket^{\sharp}$ : abstract interpretation of expressions
+- $\llbracket \mathtt{E} \rrbracket^{\sharp} : \mathbb{A} \rightarrow \mathbb{A}_{\mathscr{V}}$ 
+- semantics of expressions
+- $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+- $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+- $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+- soundness : ensured
+- we will not see the proof though.
+</def>
+
+
+---
+
+# Expressions (2/5)
+
+- $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+   - This shoud return any abstract element that over-approximate $n$
+   - If the value abstraction has a best abstraction $\alpha_{\mathscr{V}}$, $\alpha_{\mathscr{V}} (\{n\})$ is enough.
+   - $\phi_{\mathscr{V}} : \mathbb{V} \rightarrow \mathbb{A}_{\mathscr{V}}$
+      - This function may not return the most precise abstraction.
+      - This function is such that $n \in \gamma_{\mathscr{V}} (\phi_{\mathscr{V}}(n))$
+
+---
+
+# Expressions (3/5)
+
+- $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+   - simply return a abstraction that is associated to the variable.
+
+> - set of abstract elements $\mathbb{A}_{\mathscr{N}}$ = $\mathbb{X} \rightarrow \mathbb{A}_{\mathscr{V}}$
+
+---
+
+# Expressions (4/5)
+
+- $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+   - we need to apply the conservative abstraction of $f_\odot$ in the non-relational lattice.
+   - we need an operator $f_{\odot}^{\sharp}$ such that:
+      - for all $n_{0}^{\sharp}, n_{1}^{\sharp} \in \mathbb{A}_{\mathscr{V}}$
+         - $\{ f_{\odot} (n_0, n_1) \enspace | \enspace n_0 \in \gamma_{\mathscr{V}} (n_{0}^{\sharp})$ and $n_1 \in \gamma_{\mathscr{V}} (n_{1}^{\sharp}) \} \subseteq \gamma_{\mathscr{V}} (f_{\odot}^{\sharp} (n_{0}^{\sharp}, n_{1}^{\sharp}))$
+   - $f_{\odot}^{\sharp}$ shoud over-approximate the effect of operation of $f_{\odot}$ on concrete value.
+
+---
+
+# Expressions (5/5)
+
+#### Example 3.10 (Abstract semantics of expressions)
+
+- we use interval abstraction
+- $M^{\sharp}$ is defined by $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp}(\mathrm{y}) = [8, 9]$
+
+Interpretation of $\mathrm{x} + 2 * \mathrm{y} - 6$ : ($f^{\sharp}_{-}$ and $f^{\sharp}_{+}$ can be used)
+- $\llbracket \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp})$
+   - $= f_{-}^{\sharp} (\llbracket \mathrm{x} + 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 6 \rrbracket^{\sharp}(M^{\sharp}))$
+   - <hide>$= f_{+}^{\sharp} (\llbracket \mathrm{x} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp})) - [6,6]$</hide>
+   - <hide>$= M^{\sharp}(\mathrm{x}) + f_{*}^{\sharp}(\llbracket 2 \rrbracket^{\sharp}(M^{\sharp}), \llbracket \mathrm{y} \rrbracket^{\sharp}(M^{\sharp})) - [6,6]$</hide>
+   - <hide>$= [10, 20] + [2,2] * [8,9] - [6,6]$</hide>
+   - <hide>$= [20, 32]$</hide>
+
+---
+
+# Assignments (1/n)
+
+> $\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)] \enspace | \enspace m \in M\}$
+
+Recall that assignment is the composition of 
+1. Evaluation of the expression $\mathtt{E}$ to $n$
+2. Update of the variable $\mathrm{x}$ with $n$
+
+This composition can be over-approximated piece by piece (Theorem 3.1).
+
+---
+
+# Assignments (, Input) (2/n)
+
+
+<def>
+
+<h4>
+Assignments
+</h4>
+
+- target : $\mathrm{x} \colonequals \mathtt{E}$
+- $\llbracket \mathrm{x} \colonequals \mathtt{E} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp} [\mathrm{x} \mapsto \llbracket \mathtt{E} \rrbracket^{\sharp} (M^{\sharp})]$
+
+</def>
+
+<def>
+<h4>
+input
+</h4>
+
+- $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
+   - repaleced the value with $\top_{\mathscr{V}}$
+</def>
+
+---
+
+# Assignments (3/n)
+
+#### Example 3.11 (Analysis of an assignment command)
+
+> - $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp}(\mathrm{y}) = [8, 9]$
+> - $\llbracket \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp}) = [20, 32]$
+
+
+- $\llbracket \mathrm{x} \colonequals \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp}) =$ <hide>$\{ \mathrm{x} \mapsto [20,32], \mathrm{y} \mapsto [8,9] \}$</hide>
+
+---
+
+# Assignments (with Relational Abstract Domain) (1/n)
+
+### Analysis of Assignments Using a Relational Abstract Domain
+
+> 1. Add temporary dimension $\mathrm{x}\rq$ that is meant to describe the value of the expression
+> 1. Represent as precisely as possible the constraint $\mathrm{x}\rq = \mathtt{E}$
+> 1. Project out dimension $\mathrm{x}$, and rename $\mathrm{x}\rq$ to $\mathrm{x}$
+
+---
+
+# Assignments (with Relational Abstract Domain) (2/n)
+
+#### Example 3.12
+
+Assumption:
+- abstract domain : convex polyhedra
+- abstract pre-condition : $2 \leq \mathrm{x} \leq 3 \land 1 - \mathrm{x} \leq \mathrm{y}$
+- assignment : $\mathrm{x} \colonequals \mathrm{y} + \mathrm{x} + 2$
+
+We introduce the variable $\mathrm{x}\rq$ and write the constraint as below:
+- $2 \leq \mathrm{x} \leq 3 \land 1 - \mathrm{x} \leq \mathrm{y} \land \mathrm{x}\rq = \mathrm{y} + \mathrm{x} + 2$
+
+From the last term, we get $\mathrm{x} = \mathrm{x}\rq - \mathrm{y} - 2$. Then, apply this formula and we get
+- $2 \leq \mathrm{x}\rq - \mathrm{y} - 2 \leq 3 \land 3 - \mathrm{x}\rq + \mathrm{y} \leq \mathrm{y}$
+- $\iff 4 \leq \mathrm{x}\rq - \mathrm{y} \leq 5 \land 3 \leq \mathrm{x}\rq$ (rename $\mathrm{x}\rq$ to $\mathrm{x}$ if you want)
 
