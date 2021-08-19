@@ -739,7 +739,7 @@ and finally, we will apply the over-approximation of the union of concrete sets.
 - abstraction of filtering function $\mathscr{F}_B$, which we denote by $F_{B}^{\sharp}$
 - $\mathscr{F}_B$
    - input : memory states
-   - output : kmemory states such that $B$ evaluates to *true*.
+   - output : memory states such that $B$ evaluates to *true*.
 - $\mathscr{F}_B^{\sharp}$
    - input : an abstract state
    - output : an abstract state refined by the condition $B$
