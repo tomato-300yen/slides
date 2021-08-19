@@ -695,19 +695,7 @@ Note:
 
 ---
 
-# Overview
-
-- Semantics (3.1)
-- Abstraction (3.2)
-   - <gray>The concept of abstraction</gray>
-   - <gray>Non-relational abstraction</gray>
-   - Relational abstraction
-- Computable Abstract Semantics (3.3)
-- Interpreter (3.4)
-
----
-
-# Relational Abstraction
+# Non-relational Abstraction (1/4)
 
 <def>
    <h4>
@@ -729,3 +717,167 @@ Definition 3.7 (Non-relational abstraction)
    - $\gamma_{\mathscr{N}} : \quad M^{\sharp} \enspace \longmapsto \enspace \{m \in \mathbb{M} \enspace | \enspace \forall \mathrm{x} \in \mathbb{X}, m(\mathrm{x}) \in \gamma_{\mathscr{V}} (M^{\sharp}(\mathrm{x}))\}$
 
 </def>
+
+---
+
+# Non-relational Abstraction (2/4)
+
+Intuitive explanation:
+- treats each variable independently
+   - applies the value abstraction to each variable separately from the other
+- order relation is point-wise
+
+The ***least element*** of the non-relational abstract domain is
+- the function that maps each variable to the least element $\bot_{\mathscr{V}}$ :
+   - $\forall \mathrm{x} \in \mathbb{X}, \bot_{\mathscr{N}} (\mathrm{x}) = \bot_{\mathscr{V}}$
+
+The ***greatest element*** $\top_{\mathscr{N}}$ can be defined similarly.
+
+
+---
+
+# Non-relational Abstraction (3/4)
+
+- When the value abstraction has an abstraction function $\alpha_{\mathscr{V}}$:
+   - the non-relational abstraction also has one.
+
+It is defined as follows:
+- $\alpha_{\mathscr{N}}$ : $M \longmapsto \Big( (\mathrm{x} \in \mathbb{X}) \longmapsto \alpha_{\mathscr{V}} (\{ m(\mathrm{x}) \enspace | \enspace m \in M\}) \Big)$
+
+Note:
+- $\bot_{\mathscr{N}}$ is the best abstraction of $\empty$
+
+
+---
+
+# Non-relational Abstraction (4/4)
+
+#### Example 3.9 (Non-relational abstraction)
+
+Assumption:
+- $\mathbb{X} = \{\mathrm{x}, \mathrm{y}, \mathrm{z}\}$
+- memory states
+   - $m_0$ : $\quad \mathrm{x} \mapsto 25 \quad \mathrm{y} \mapsto 7 \quad \mathrm{z} \mapsto -12$
+   - $m_1$ : $\quad \mathrm{x} \mapsto 28 \quad \mathrm{y} \mapsto -7 \quad \mathrm{z} \mapsto -11$
+   - $m_2$ : $\quad \mathrm{x} \mapsto 20 \quad \mathrm{y} \mapsto 0 \quad \mathrm{z} \mapsto -10$
+   - $m_3$ : $\quad \mathrm{x} \mapsto 35 \quad \mathrm{y} \mapsto 8 \quad \mathrm{z} \mapsto -9$
+
+The best abstraction of $\{m_0, m_1, m_2, m_3\}$ can be defined as follows :
+- With the signs abstraction :
+   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto$ <hide>$[\geq 0]$</hide> $\quad \mathrm{y} \mapsto$ <hide>$\top\enspace\enspace\enspace$</hide> $\quad \mathrm{z} \mapsto$ <hide>$[\leq 0]$</hide>
+- With the intervals abstraction :
+   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto$ <hide>$[25, 35]$</hide> $\quad \mathrm{y} \mapsto$ <hide>$[-7, 8]$</hide> $\quad \mathrm{z} \mapsto$ <hide>$[-12, -9]$</hide>
+
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+   - <gray>The concept of abstraction</gray>
+   - <gray>Non-relational abstraction</gray>
+   - Relational abstraction
+- Computable Abstract Semantics (3.3)
+- Interpreter (3.4)
+
+---
+
+# Relational Abstraction (1/4)
+
+Such as *convex polyhedra*.
+
+<def>
+<h4>
+Definition 3.8 (Linear equalities)
+</h4>
+
+- The elements of abstract domain of linear equalities :
+   - $\bot$ : empty set
+   - conjunctions of linear equality constraints : constrain sets of memory states.
+      - such as $\mathrm{y} = a \mathrm{x}$
+
+</def>
+
+In the geometrical point of view :
+- abstract elements are in the affine space $\mathbb{V}^{N}$
+   - $N$ : dimension (number of variables)
+
+This abstraction features :
+- best abstraction function
+- concretization
+
+The best abstraction:
+- the smallest affine space that contains all the memories in $M$
+
+---
+
+# Relational Abstraction (2/4)
+
+<def>
+<h4>
+Definition 3.8 (Convex polyhedra)
+</h4>
+
+- elements of abstract domain of linear inequalities :
+   - $\bot$ : empty set
+   - conjunctions of linear **in**equality constraints : constrain sets of memory states.
+
+</def>
+
+In the geometrical point of view :
+- abstract elements : convex polyhedra of all dimension in $\mathbb{V}^{N}$
+   - $N$ : dimension (number of variables)
+
+This abstraction features :
+- concretization
+- but no best abstraction function
+   - certain concrete sets do have a best abstraction though
+
+The cost :
+- the number of inequality is not bounded.
+
+---
+
+# Relational Abstraction (3/4)
+
+
+<def>
+<h4>
+Definition 3.9 (Octagons)
+</h4>
+
+- element of abstract domain of octagons :
+   - $\bot$ : empty set
+   - conjunctions of linear inequality constraints of the form below:
+      - $\pm\mathrm{x} \pm \mathrm{y} \leq c$
+      - $\pm x = c$
+
+</def>
+
+In the geometrical point of view :
+- abstract elements : "octagonal" shape
+
+This abstraction features:
+- best abstraction function
+- concretization function
+
+
+---
+
+# Relational Abstraction (4/4)
+
+- It is difficult to decide which abstract domain describes relational constraints efficiently.
+   - We will not discuss this topic any further.
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+- Computable Abstract Semantics (3.3)
+   - a
+- Interpreter (3.4)
+
+
