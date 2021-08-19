@@ -757,7 +757,6 @@ We will see some representative case.
       - $(\mathrm{y} \in \mathbb{X}) \mapsto \bot \enspace$ if $M^{\sharp} (\mathrm{x}) = [\geq 0]$ or $[= 0]$ or $\bot$
       - $M^{\sharp} [\mathrm{x} \mapsto [\leq]]\enspace$ if $M^{\sharp} (\mathrm{x}) = [\leq 0]$ or $\top$
 
-
 - Interval abstract domain $M^{\sharp}(\mathrm{x}) = [a, b]$
    - $\mathscr{F}_{\mathrm{x} \leq n}^{\sharp}(M^{\sharp}) = $
       - $(\mathrm{y} \in \mathbb{X}) \mapsto \bot$ if $a > n$
