@@ -1137,7 +1137,7 @@ This theorem guarantees
 
 #### Example 3.20 (Widening operator for he abstract domain of intervals)
 
-- $[n p] \triangledown_{\mathscr{V}} [n, q]$
+- $[n p] \triangledown_{\mathscr{V}} [n, q] =$
    - $[n, p]$ if $p \geq q$
    - $[n, + \infty)$ if $p < q$
 
