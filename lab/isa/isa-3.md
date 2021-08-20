@@ -1278,7 +1278,7 @@ Theorem 3.3 (Soundness of the abstract interpretation conditions)
 
 ---
 
-# Analysis of Flow Joins (1/n)
+# Analysis of Flow Joins (1/3)
 
 > $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket_{\mathscr{P}}(M) = \llbracket C_0 \rrbracket_{\mathscr{P}}(\mathscr{F}_{B}(M)) \cup \llbracket C_1 \rrbracket_{\mathscr{P}}(\mathscr{F}_{\neg B}(M))$
 
@@ -1299,7 +1299,7 @@ Theorem 3.4 (Soundness of abstract join)
 
 ---
 
-# Analysis of Flow Joins (2/n)
+# Analysis of Flow Joins (2/3)
 
 To define $\sqcup^{\sharp}$, we can simply
 - define a join operator $\sqcup^{\sharp}_{\mathscr{V}}$ in the value abstract domain.
@@ -1310,3 +1310,80 @@ The definition of $\sqcup^{\sharp}_{\mathscr{V}}$ depends on the abstract domain
 For instance, for the interval domain:
 - $[a_0, b_0] \sqcup^{\sharp}_{\mathscr{V}} [a_1, b_1] = [\mathtt{ min }(a_0, b_0), \mathtt{ max }(a_1, b_1)]$
 - $[a_0, b_0] \sqcup^{\sharp}_{\mathscr{V}} [a_1, +\infty) = [\mathtt{ min }(a_0, b_0), +\infty)$
+
+---
+
+# Analysis of Flow Joins (3/3)
+
+#### Example 3.14 (Analysis of flow joins)
+
+- $M_0^{\sharp} = \{ \mathrm{x} \mapsto [0,3], \mathrm{y} \mapsto [6,7], \mathrm{z} \mapsto [4,8] \}$
+- $M_1^{\sharp} = \{ \mathrm{x} \mapsto [5,6], \mathrm{y} \mapsto [0,2], \mathrm{z} \mapsto [6,9] \}$
+
+Then,
+
+- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [$<hide>$0, 6$</hide>$], \mathrm{y} \mapsto [$<hide>$0, 7$</hide>$], \mathrm{z} \mapsto [$<hide>$6, 9$</hide>$]\}$
+
+---
+
+# Analysis of Conditional Commands (1/n)
+
+Now, we have defined
+- condition
+- flow joins
+
+and we can use those to define the semantics of conditional commands.
+
+Semantics of conditional commands:
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
+
+This definition is very similar to that of concrete one.
+
+---
+
+# Analysis of Conditional Commands (2/n)
+
+
+We use this program from example 3.13 here.
+
+```c
+if(x > 3){
+   y := x - 3
+}else{
+   y := 3 - x
+}
+```
+
+---
+
+# Analysis of Conditional Commands (3/n)
+
+#### Example 3.15 (Analysis of a conditional command)
+
+- abstract pre-condition : $M^{\sharp} = \{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto \top \}$
+
+Analysis proceeds as follows :
+
+1. the analysis of **true** branch
+   1. filters pre-condition
+   2. computes the post-condition for the assignment of $\mathrm{y} \colonequals \mathrm{x} - 3$
+   3. we get : $\{ \mathrm{x} \mapsto [4, + \infty), \mathrm{y} \mapsto [1, +\infty) \}$
+2. the analysis of **false** branch
+   - we get : $\{ \mathrm{x} \mapsto (- \infty, 7], \mathrm{y} \mapsto [0, +\infty) \}$
+3. abstract join of these two abstract states
+   - we get : $\{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto [0, +\infty) \}$
+
+---
+
+# Conditional Commands with a Relational Abstract Domain (1/n)
+
+We have to use different algorithm:
+- for the analysis of condition tests
+- for the computation of abstract join
+
+Analysis of conditional test with a relational domain :
+- add several constraints to the abstract states
+
+In general, it is more precise. Condition test that involve several variables are more precise. (more likely to be presented exactly)
+- Consider the case of $\mathrm{x} \leq \mathrm{y}$
+
