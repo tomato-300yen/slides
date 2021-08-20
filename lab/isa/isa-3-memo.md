@@ -962,7 +962,7 @@ Proof of the statement above:
       - $\subseteq \gamma(M_k^{\sharp}) \cup F(\gamma(M_k^{\sharp}))$ ( $\because M_k \subseteq \gamma( M_k^{\sharp} )$)
       - $\subseteq \gamma(M_k^{\sharp}) \cup \gamma(F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $F^{\sharp}$)
       - $\subseteq \gamma(M_k^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $\sqcup^{\sharp}$)
-      - $= \gamma(M_{k + 1}^{\sharp}) $
+      - $= \gamma(M_{k + 1}^{\sharp})$
    - $\therefore M_{k + 1} \subseteq \gamma(M_{k + 1}^{\sharp})$
 
 ### Example 3.17 (Abstract iterates)
