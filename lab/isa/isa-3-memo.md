@@ -873,7 +873,7 @@ Analysis proceeds as follows :
 
 ### Analysis of Conditional Commands with a Relational Abstract Domain
 
-We have to use different algorithm for the analysis of:
+We have to use different algorithm:
 - for the analysis of condition tests
 - for the computation of abstract join
 
