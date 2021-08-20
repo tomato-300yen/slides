@@ -1568,3 +1568,236 @@ In the case of program (b):
    </p>
 </div>
 
+---
+
+# Convergence of Iterates (1/3)
+
+> $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
+
+We consider :
+- the case of unbounded iteration
+- the termination problem
+
+Let us assume that :
+- the abstract iteration stabilize at some rank $n$
+
+Then,
+- for all $k \geq n$, $\quad M_k^{\sharp} = M_n^{\sharp}\enspace$ and $\enspace M_k \subseteq \gamma( M_n^{\sharp} )$
+
+Also,
+- $M_{\mathrm{loop}} \subseteq \gamma(M_n^{\sharp})\quad$ where $\quad M_{\mathrm{loop}} = \bigcup_{i \geq 0} M_i$
+
+---
+
+# Convergence of Iterates (2/3)
+
+Another interesting observation is that :
+- $M_{\mathrm{loop}} = \bigcup_{i \geq 0} F^i(M) = \bigcup_{i \geq 0}M_i \subseteq \gamma(M_n^{\sharp})$
+
+**If the sequences of abstract iterates converges** :
+- its final value over-approximate *all* the concrete behaviors of $\mathtt{while} (B) (C)$.
+
+> If the sequences of abstract iterates converges
+
+This can be observed by checking two consecutive iterates.
+
+---
+
+# Convergence of Iterates (3/3)
+
+#### Example 3.18 (Convergence of abstract iterates)
+
+- In the case of program (a) :
+   - the sequences of abstract iterates does not converge.
+- In the case of program (b) :
+   - the ranges of $\mathrm{x}$ stabilize but only after 51 iterations.
+
+Neither of these are satisfactory.
+- lack of termination
+- hight number required to stabilize
+
+We have to formalize the condition that ensures that
+- the sequences of abstract iterates converges.
+
+---
+
+# Convergence in Finite Height Lattices (1/4)
+
+Assumption:
+- $\sqsubseteq$ is such that
+   - $M_a^{\sharp} \sqsubseteq M_b^{\sharp}\quad$ if and only if $\quad\gamma(M_a^{\sharp}) \subseteq \gamma(=M_b^{\sharp})$ for all abstract states $M_a^{\sharp}, M_b^{\sharp}$
+
+First case where convergence is ensured is when:
+
+- $M_a^{\sharp} \sqsubset M_b^{\sharp}$
+
+cannot hold infinitely many times.
+
+This condition is realized when
+- the abstract domain has ***finite height***, or
+- the length of the chain below is bounded by some fixed value $h$ (*height of the abstract domain*).
+   - $M_0^{\sharp} \sqsubset M_1^{\sharp} \sqsubset  \cdots \sqsubset M_k^{\sharp}$
+
+---
+
+# Convergence in Finite Height Lattices (2/4)
+
+For example, if the abstract domain has finite height $h$, the sequences
+- $M_0^{\sharp} , M_1^{\sharp} ,  \cdots , M_h^{\sharp} , M_{h+1}^{\sharp}$
+ 
+is increasing for $\sqsubseteq$, but cannot be strictly increasing.
+
+So there exists a number $n (\leq h)$
+- at which it becomes stable.
+- which is bounded by the height of lattice.
+ 
+---
+
+# Convergence in Finite Height Lattices (3/4)
+
+- $M_{\mathrm{ lim }}^{\sharp}$ : over-approximation of $M_{\mathrm{loop}}$
+- $M_{\mathrm{ lim }}^{\sharp}$ can be computed by the algorithm below :
+
+<theorem>
+
+<h4>
+Figure 3.10 (a)
+</h4>
+
+- $\mathrm{abs\_iter}(F^{\sharp}, M^{\sharp})$
+   - $R \longleftarrow M^{\sharp};$
+   - $\mathrm{ repeat }$
+      - $T \longleftarrow R;$
+      - $R \longleftarrow R \sqcup^{\sharp}F^{\sharp}(R);$
+   - $\mathrm{ until }$ $R = T$
+   - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
+</theorem>
+
+---
+
+# Convergence in Finite Height Lattices (4/4)
+
+#### Example 3.19 (Convergence of abstract iterates in the signs abstract domain)
+
+- domain : signs abstract domain
+- program : same as example 3.16 and 3.17
+
+- In the case of the program of (a), we obtain :
+   - $M^{\sharp}_0 = \{\mathrm{x} \mapsto [= 0]\}$
+   - $M^{\sharp}_1 = \{\mathrm{x} \mapsto [\geq 0]\}$
+   - $M^{\sharp}_2 = \{\mathrm{x} \mapsto [\leq 0]\}$
+      - this analysis terminates after only two iterations
+- In the case of the program of (b), we obtain the same result.
+
+---
+
+# Widening Operators (1/7)
+
+- We will use ***widening*** technique for iterates to converge quickly.
+- Essentially, widening operator do:
+   - over-approximate concrete unions
+   - enforces termination of all sequences of iteration
+
+---
+
+# Widening Operators (2/7)
+
+<def>
+<h4>
+Definition 3.11 (Widening operator)
+</h4>
+
+   - widening operator : $\triangledown$ such that
+      1. for all abstract elements $a_0$ and $a_1,\quad$ $\gamma (a_0) \cup \gamma (a_1) \subseteq \gamma (a_0 \triangledown a_1)$
+      1. for all sequences $(a_n)_{n \in \mathbb{N}}$ of abstract elements, the sequences of $(a_n \rq)_{n \in \mathbb{N}}$ defined below is ultimately stationary (= eventually converge).
+         - $a_0\rq = a_0$
+         - $a_{n + 1}\rq = a_n\rq \triangledown a_n$
+
+</def>
+
+Then we can turn the sequence of abstract iterates into a terminating sequence.
+
+---
+
+# Widening Operators (3/7)
+
+<theorem>
+<h4>
+Theorem 3.5 (Abstract iterates with widening)
+</h4>
+
+Let we assume:
+- $\triangledown$ : widening operator over non-relational abstract domain $\mathbb{A}$
+- $F^{\sharp}$ : $\mathbb{A} \rightarrow \mathbb{A}$
+
+Then, the algorithm shown in the next page terminates and returns $M^{\sharp}_{\mathrm{lim}}$.
+
+</theorem>
+
+---
+
+# Widening Operators (4/7)
+
+<theorem>
+<h4>
+Figure 3.10 (b)
+</h4>
+
+- $\mathrm{abs\_iter}(F^{\sharp}, M^{\sharp})$
+   - $R \longleftarrow M^{\sharp};$
+   - $\mathrm{ repeat }$
+      - $T \longleftarrow R;$
+      - $R \longleftarrow R \triangledown F^{\sharp}(R);$
+   - $\mathrm{ until }$ $R = T$
+   - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
+</theorem>
+
+---
+
+# Widening Operators (5/7)
+
+<theorem>
+<h4>
+Theorem 3.5 (Abstract iterates with widening) (continued)
+</h4>
+
+Let we assume:
+- $F : \mathbb{M} \rightarrow \mathbb{M}$
+   - continuous
+   - $F \circ \gamma \subseteq \gamma \circ F^{\sharp}$ (in the sense of point-wise)
+
+Then,
+- $\bigcup_{i \geq 0 } F^{i}(\gamma(M^{\sharp})) \subseteq \gamma(M^{\sharp}_{\mathrm{lim}})$
+   - $M^{\sharp}_{\mathrm{lim}}$ over-approximates the concrete semantics of the loop.
+
+</theorem>
+
+This theorem guarantees
+- the termination of the loop analysis
+- soundness
+
+---
+
+# Widening Operators (6/7)
+
+Widening operator for the intervals domain would be like this:
+   - $[n p] \triangledown_{\mathscr{V}} [n, q] =$
+      - $[n, p]$ if $p \geq q$
+      - $[n, + \infty)$ if $p < q$
+
+---
+
+# Widening Operators (7/7)
+
+#### Example 3.20 (Widening operator for he abstract domain of intervals)
+
+- program : same as example 3.16 and 3.17
+- In both case, we obtain the following iteration sequence:
+   - $M_0^{\sharp} = \{ \mathrm{x} \mapsto [0, 0] \}$
+   - $M_1^{\sharp} = \{ \mathrm{x} \mapsto [0, + \infty) \}$
+   - $M_2^{\sharp} = \{ \mathrm{x} \mapsto [0, + \infty) \}$
+- The convergence is now very fast, however
+   - the result is coarse in the case of program (b),
+      - this analysis doesn't converge.
+- Some common techniques to obtain more precise result is in section 5.2
+
