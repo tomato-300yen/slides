@@ -1801,3 +1801,65 @@ Widening operator for the intervals domain would be like this:
       - this analysis doesn't converge.
 - Some common techniques to obtain more precise result is in section 5.2
 
+---
+
+# Analysis of Loops (1/1)
+
+- semantics of the analysis of loop
+   - $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
+---
+
+# Analysis of Loops with a Relational Abstract Domain
+
+- Almost same as with a non-relational domain
+- Requires only an abstract join or widening operator specific to the abstraction being used
+
+That is,
+- In the case of linear equalities
+   - widening is not necessary because its height of lattice is finite
+- In the case of convex polyhedra and octagons
+   - widening operator is required because its height of lattice is infinite.
+
+
+---
+
+# Another View on the Analysis of Loops (1/n)
+
+- concrete semantics of a loop statement
+   - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
+      - = $\mathscr{F}_{\neg B} (M_{\mathrm{loop}})$
+
+Let us consider the following equation:
+- $M_{\mathrm{loop}} = \cup_{i \geq 0}(\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)$
+   - $= M \cup \Big(\bigcup_{i \gt 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)\Big)$
+   - $= M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B \Big(\bigcup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B)^{i}(M)\Big)$
+   - $= M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (M_{\mathrm{loop}})$
+
+---
+
+# Another View on the Analysis of Loops (2/n)
+
+Observation:
+- $M_{\mathrm{loop}}$ is a ***fixpoint*** of a function $G : X \mapsto M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (X)$
+- $M_{\mathrm{loop}}$ is a smallest set of states. $M_{\mathrm{loop}}$ is a ***least fixpoint*** of $G$
+
+We let $\mathbf{lfp}\medspace G$ denote the least fixpoint of $G$.
+
+Then, **concrete semantics** of a loop can be expressed like this
+- $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} (\mathbf{lfp}\medspace G) \enspace$
+   - where $\enspace G : X \mapsto M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (X)$
+
+---
+
+# Another View on the Analysis of Loops (2/n)
+
+- **abstract semantics** of a loop relies on the over-approximation of a concrete least fixpoint.
+
+- When the abstract lattice has
+   - *finite* height
+      - we use abstract union
+   - *infinite* height
+      - we use widening operator
+- We will see several improvements in section 5.2.
+
