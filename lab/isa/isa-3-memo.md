@@ -1072,7 +1072,7 @@ We can now compute an abstract state $M_{\mathrm{ lim }}^{\sharp}$ that over-app
    - $R \longleftarrow M^{\sharp};$
    - $\mathrm{ repeat }$
       - $T \longleftarrow R;$
-      - $R \longleftarrow R \cup^{\sharp}F^{\sharp}(R);$
+      - $R \longleftarrow R \sqcup^{\sharp}F^{\sharp}(R);$
    - $\mathrm{ until }$ $R = T$
    - $\mathrm{ return }$ $M^{\sharp}_{\mathrm{lim}} = T;$
 
