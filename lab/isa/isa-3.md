@@ -1863,3 +1863,18 @@ Then, **concrete semantics** of a loop can be expressed like this
       - we use widening operator
 - We will see several improvements in section 5.2.
 
+---
+
+# That's all 🙂
+
+- $\llbracket n \rrbracket^{\sharp} (M^{\sharp}) = \phi_{\mathscr{V}} (n)$
+- $\llbracket \mathrm{x} \rrbracket^{\sharp} (M^{\sharp}) = M^{\sharp}(\mathrm{x})$
+- $\llbracket \mathtt{E_0} \odot \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}) = f_{\odot}^{\sharp} (\llbracket \mathtt{E_0} \rrbracket^{\sharp} (M^{\sharp}), \llbracket \mathtt{E_1} \rrbracket^{\sharp} (M^{\sharp}))$
+- $\llbracket \mathtt{C} \rrbracket_{\mathscr{P}}^{\sharp} (\bot) = \bot$
+- $\llbracket \mathtt{skip} \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+- $\llbracket \mathrm{x} \colonequals \mathtt{E} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp} [\mathrm{x} \mapsto \llbracket \mathtt{E} \rrbracket^{\sharp} (M^{\sharp})]$
+- $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
+- $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
+- $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
