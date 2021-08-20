@@ -1326,7 +1326,7 @@ Then,
 
 ---
 
-# Analysis of Conditional Commands (1/n)
+# Analysis of Conditional Commands (1/3)
 
 Now, we have defined
 - condition
@@ -1341,7 +1341,7 @@ This definition is very similar to that of concrete one.
 
 ---
 
-# Analysis of Conditional Commands (2/n)
+# Analysis of Conditional Commands (2/3)
 
 
 We use this program from example 3.13 here.
@@ -1356,7 +1356,7 @@ if(x > 3){
 
 ---
 
-# Analysis of Conditional Commands (3/n)
+# Analysis of Conditional Commands (3/3)
 
 #### Example 3.15 (Analysis of a conditional command)
 
@@ -1375,7 +1375,7 @@ Analysis proceeds as follows :
 
 ---
 
-# Conditional Commands with a Relational Abstract Domain (1/n)
+# Conditional Commands with a Relational Abstract Domain (1/1)
 
 We have to use different algorithm:
 - for the analysis of condition tests
@@ -1386,4 +1386,185 @@ Analysis of conditional test with a relational domain :
 
 In general, it is more precise. Condition test that involve several variables are more precise. (more likely to be presented exactly)
 - Consider the case of $\mathrm{x} \leq \mathrm{y}$
+
+---
+
+# Abstract Interpretation of Loops (1/n)
+
+### Concrete Semantics of Loop
+
+
+> $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
+
+Note:
+- Over-approximation of $\llbracket C \rrbracket_{\mathscr{P}}$ can be computed.
+- Over-approximation of sequences of commands can be obtained by the over-approximation of each commands.
+
+That is,
+- Over-approximation of $\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$ can be computed
+
+---
+
+# Abstract Interpretation of Loops (2/n)
+
+### Concrete Semantics of Loop
+
+
+> $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
+
+- $F = \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B$
+- $F^{\sharp}$ : over-approximation of $F$
+
+Goal:
+- Over-approximation of the infinite union $\cup_{i \geq 0}F^{i}(M)$ with $F^{\sharp}$
+
+---
+
+# Abstract Interpretation of Loops (3/n)
+
+#### Example 3.16 (Analysis of programs with loops)
+
+We will use these programs as a example.
+<div class="twocols">
+   <p>
+
+Figure 3.9(a)
+```c
+x := 0;
+while (x >= 0) {
+   x := x + 1;
+}
+```
+   </p>
+
+   <p class="break">
+
+Figure 3.9(b)
+```c
+x := 0;
+while (x <= 100) {
+   if (x >= 50) {
+      x := 10
+   } else {
+      x := x + 1
+   }
+}
+```
+
+   </p>
+</div>
+
+---
+
+# Sequences of Concrete and Abstract Iterates (1/n)
+
+**Situation** : a loop iterates at most $n$ times. ($n$ is a fixed integer value)
+
+Then, the states they may generate at the loop head are :
+
+- $M_n = \bigcup^{n}_{i=0} F^{i}(M)$
+
+The sequences $(M_k)_{k \in \mathbb{N}}$ can be defined recursively as follows :
+- $M_0 = M$
+- $M_{k + 1} = M_k \cup F(M_k)$
+
+Then,
+- over-approximation of $M_n$ : can be easily done using $\sqcup^{\sharp}$ (, which is used in the previous chapter)
+
+---
+
+# Sequences of Concrete and Abstract Iterates (2/n)
+
+Indeed, let us assume:
+- $M^{\sharp}$ : an abstract element of the abstract domain
+   - $M \subseteq \gamma( M^{\sharp} )$
+
+We define the abstract iterates $( M_k^{\sharp} )_{k \in \mathbb{N}}$ as follows
+- $M_0^{\sharp} = M^{\sharp}$
+- $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
+
+Then we can prove by induction that
+- for all integers $n$, $M_n \subseteq \gamma(M_n^{\sharp})$
+
+---
+
+# Proof of $\forall n$, $M_n \subseteq \gamma(M_n^{\sharp})$
+
+1. $n = 0$
+   - It is obvious from assumption that $M_0 \subseteq \gamma( M_0^{\sharp} )$
+1. $n = k$
+   - we assume that $M_k \subseteq \gamma( M_k^{\sharp} )$
+   - $M_{k+1}$
+      - $= M_k \cup F(M_k)$
+      - $\subseteq \gamma(M_k^{\sharp}) \cup F(\gamma(M_k^{\sharp}))$ ( $\because M_k \subseteq \gamma( M_k^{\sharp} )$)
+      - $\subseteq \gamma(M_k^{\sharp}) \cup \gamma(F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $F^{\sharp}$)
+      - $\subseteq \gamma(M_k^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $\sqcup^{\sharp}$)
+      - $= \gamma(M_{k + 1}^{\sharp})$
+   - $\therefore M_{k + 1} \subseteq \gamma(M_{k + 1}^{\sharp})$
+
+---
+
+# Sequences of Concrete and Abstract Iterates (3/n)
+
+### Example 3.17 (Abstract iterates)
+
+<div class="twocols">
+   <p>
+
+Figure 3.9(a)
+```c
+x := 0;
+while (x >= 0) {
+   x := x + 1;
+}
+```
+   </p>
+
+   <p class="break">
+
+Figure 3.9(b)
+```c
+x := 0;
+while (x <= 100) {
+   if (x >= 50) {
+      x := 10
+   } else {
+      x := x + 1
+   }
+}
+```
+
+   </p>
+</div>
+
+---
+
+# Sequences of Concrete and Abstract Iterates (4/n)
+
+### Example 3.17 (Abstract iterates)
+
+<div class="twocols">
+   <p>
+
+In the case of program (a):
+- $M_0^{\sharp} = \{\mathrm{x} \mapsto [0, 0]\}$
+- $M_1^{\sharp} = \{\mathrm{x} \mapsto [0, 1]\}$
+- $M_2^{\sharp} = \{\mathrm{x} \mapsto [0, 2]\}$
+- ...
+- $M_n^{\sharp} = \{\mathrm{x} \mapsto [0, n]\}$
+- ...
+   </p>
+
+   <p class="break">
+
+In the case of program (b):
+- ...
+- $M_{49}^{\sharp} = \{\mathrm{x} \mapsto [0, 49]\}$
+- $M_{51}^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- $M_{52}^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- $M_{53}^{\sharp} = \{\mathrm{x} \mapsto [0, 50]\}$
+- ...
+
+   </p>
+</div>
 
