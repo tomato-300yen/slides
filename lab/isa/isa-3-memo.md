@@ -827,7 +827,7 @@ Let $M_0^{\sharp}$ and $M_1^{\sharp}$ be the two abstract states.
 
 Then,
 
-- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [0, 6], \mathrm{x} \mapsto [0, 7], \mathrm{x} \mapsto [6, 9]\}$
+- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [0, 6], \mathrm{y} \mapsto [0, 7], \mathrm{z} \mapsto [6, 9]\}$
 
 
 ### Analysis of a Conditional Commands
