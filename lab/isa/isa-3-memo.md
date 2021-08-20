@@ -946,7 +946,7 @@ Assumption :
 
 We define the abstract iterates $( M_k^{\sharp} )_{k \in \mathbb{N}}$ as follows
 - $M_0^{\sharp} = M^{\sharp}$
-- $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \cup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
+- $M_{k + 1}^{\sharp} = M_{k}^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_{k}^{\sharp})$
 
 Then we can prove by induction that
 - for all integers $n$,
