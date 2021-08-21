@@ -330,8 +330,8 @@ Therefore,
 - Semantics (3.1)
 - Abstraction (3.2)
    - The concept of abstraction
-   - Non-relational abstraction
-   - Relational abstraction
+   - <gray>Non-relational abstraction</gray>
+   - <gray>Relational abstraction</gray>
 - Computable Abstract Semantics (3.3)
 - Interpreter (3.4)
 
@@ -877,17 +877,17 @@ This abstraction features:
 
 # Overview
 
-- <gray>Semantics (3.1)</gray>
-- <gray>Abstraction (3.2)</gray>
+- Semantics (3.1)
+- Abstraction (3.2)
 - Computable Abstract Semantics (3.3)
    - introduction
-   - semantics of each commands
-   - soundness
-- <gray>Interpreter (3.4)</gray>
+   - <gray>semantics of each commands</gray>
+   - <gray>soundness</gray>
+- Interpreter (3.4)
 
 ---
 
-# Computable Abstract Semantics (1/n)
+# Computable Abstract Semantics (1/3)
 
 - we **use non-relational** abstract domain
    - we also discuss the modifications which is required to use relational abstract domain.
@@ -899,7 +899,7 @@ The form of analysis is :
 
 ---
 
-# Computable Abstract Semantics (2/n)
+# Computable Abstract Semantics (2/3)
 
 Some preparations :
 - $\mathbb{A}$ : the state abstract domain
@@ -915,7 +915,7 @@ The design of the analysis aims at:
 
 ---
 
-# Computable Abstract Semantics (3/n)
+# Computable Abstract Semantics (3/3)
 
 $$
 \begin{CD}
@@ -934,6 +934,18 @@ $$
 $$
 
 - $\llbracket \mathtt{p} \rrbracket^{\sharp}_{\mathscr{P}}$ : analysis function, or *abstract semantics*
+
+---
+
+# Overview
+
+- Semantics (3.1)
+- Abstraction (3.2)
+- Computable Abstract Semantics (3.3)
+   - <gray>introduction</gray>
+   - semantics of each commands
+   - <gray>soundness</gray>
+- Interpreter (3.4)
 
 ---
 
@@ -1883,13 +1895,13 @@ Then, **concrete semantics** of a loop can be expressed like this
 
 # Overview
 
-- <gray>Semantics (3.1)</gray>
-- <gray>Abstraction (3.2)</gray>
+- Semantics (3.1)
+- Abstraction (3.2)
 - Computable Abstract Semantics (3.3)
    - <gray>introduction</gray>
    - <gray>semantics of each commands</gray>
    - soundness
-- <gray>Interpreter (3.4)</gray>
+- Interpreter (3.4)
 
 ---
 
