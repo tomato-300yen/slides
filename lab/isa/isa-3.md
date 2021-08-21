@@ -1972,7 +1972,16 @@ However, in general, overall structure of the analysis doesn't need to be modifi
 
 ---
 
-# Interpreter (1/n)
+# Overview
+
+- <gray>Semantics (3.1)</gray>
+- <gray>Abstraction (3.2)</gray>
+- <gray>Computable Abstract Semantics (3.3)</gray>
+- Interpreter (3.4)
+
+---
+
+# Interpreter (1/5)
 
 General three steps to construct a static analysis:
 1. fix the reference concrete semantics
@@ -1981,7 +1990,7 @@ General three steps to construct a static analysis:
 
 ---
 
-# Interpreter (2/n)
+# Interpreter (2/5)
 
 ### 1. Concrete Semantics
 
@@ -1994,7 +2003,7 @@ General three steps to construct a static analysis:
 
 ---
 
-# Interpreter (3/n)
+# Interpreter (3/5)
 
 ### 2. Abstraction
 
@@ -2008,7 +2017,7 @@ Note:
 
 ---
 
-# Interpreter (4/n)
+# Interpreter (4/5)
 
 ### 3. Abstract Semantics
 
@@ -2024,14 +2033,14 @@ Note:
 
 ---
 
-# Interpreter (5/n)
+# Interpreter (5/5)
 
 This division of the analysis design into independent steps is important
 - for the construction of a static analysis
 - when a static analysis needs to be improved ( a static analysis is imprecise )
 
 Common case a static analysis is imprecise:
-- abstraction is coarse
-- algorithm return overly approximated result for the sake of cost
-- concrete semantics is too coarse to express the properties of interest
+- abstraction is coarse (step 2)
+- algorithm return overly approximated result  (step 3)
+- concrete semantics is too coarse to express the properties of interest (step 1)
 
