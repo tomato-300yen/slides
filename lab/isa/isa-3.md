@@ -882,6 +882,7 @@ This abstraction features:
 - Computable Abstract Semantics (3.3)
    - introduction
    - semantics of each commands
+   - soundness
 - <gray>Interpreter (3.4)</gray>
 
 ---
@@ -1877,4 +1878,160 @@ Then, **concrete semantics** of a loop can be expressed like this
 - $\llbracket \mathtt{input(\mathrm{x})} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = M^{\sharp}[\mathrm{x} \mapsto \top_{\mathscr{V}}]$
 - $\llbracket \texttt{if} (B) \{C_0\} \texttt{else} \{C_1\} \rrbracket^{\sharp}_{\mathscr{P}}(M^{\sharp}) = \llbracket C_0 \rrbracket_{\mathscr{P}}^{\sharp}(\mathscr{F}^{\sharp}_{B}(M^{\sharp})) \sqcup^{\sharp} \llbracket C_1 \rrbracket^{\sharp}_{\mathscr{P}}(\mathscr{F}^{\sharp}_{\neg B}(M^{\sharp}))$
 - $\llbracket \mathtt{while} (B) \{ C \} \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}) = \mathscr{F}_{\neg B}^{\sharp} (\mathrm{abs\_iter} ( \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} \circ \mathscr{F}_B^{\sharp}, M^{\sharp} ))$
+
+---
+
+# Overview
+
+- <gray>Semantics (3.1)</gray>
+- <gray>Abstraction (3.2)</gray>
+- Computable Abstract Semantics (3.3)
+   - <gray>introduction</gray>
+   - <gray>semantics of each commands</gray>
+   - soundness
+- <gray>Interpreter (3.4)</gray>
+
+---
+
+# Soundness (1/2)
+
+<theorem>
+<h4>
+Theorem 3.6 (Soundness)
+</h4>
+
+For all commands $C$ and all abstract states $M^{\sharp}$, the computation of $\gamma (\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$ terminates and:
+
+- $\llbracket C \rrbracket_{\mathscr{P}} (\gamma (M^{\sharp})) \subseteq \gamma (\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$
+   - Proof : by the induction over the syntax of commands.
+      - For each kind of commands, we ensured that the definition of its semantics would lead to sound result.
+</theorem>
+
+---
+
+# Soundness (2/2)
+
+We can also use best abstraction function $\alpha$ instead of $\gamma$.
+
+- $\alpha ( \llbracket C \rrbracket_{\mathscr{P}} (M)) \sqsubseteq \llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (\alpha (M))$
+
+---
+
+# Analysis of the whole program (1/n)
+
+For instance,
+<div class="twocols">
+   <p>
+
+- program : $C$
+- initial state : $\gamma (M^{\sharp})$
+   </p>
+   <p class="break">
+
+- output state : $\gamma(\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp}))$
+- property of interest : $M$
+   </p>
+</div>
+
+Then, we check whether $\gamma(\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M^{\sharp})) \subseteq M$ holds or not.
+- If it holds,
+   - $\llbracket C \rrbracket_{\mathscr{P}} \gamma(M^{\sharp}) \subseteq M$ is guaranteed because the analysis is sound.
+- If it doesn't hold,
+   - no information can be derived from the analysis.
+      - the program may violate the property
+      - the analysis may be imprecise
+
+---
+
+# Analysis of the whole program (2/n)
+
+In general, if the inclusion does not hold, ***alarms*** will be called.
+
+- alarms : says that the analysis tools failed to prove the property of interest
+- triage :
+   1. inspect the result of the analysis
+   1. decide whether the alarm is true or false
+
+Note:
+- The analysis function $\llbracket C \rrbracket^{\sharp}_{\mathscr{P}}$ is not monotone.
+   - Therefore, replacing pre-condition $M^{\sharp}$ with more precise one does not ensure that the result is more precise.
+
+---
+
+# Different Abstraction
+
+What if we want to use another abstraction.
+
+The analysis of
+- expression
+- input
+
+is essentially non-relational abstraction and it has to be modified.
+
+However, in general, overall structure of the analysis doesn't need to be modified.
+
+---
+
+# Interpreter (1/n)
+
+General three steps to construct a static analysis:
+1. fix the reference concrete semantics
+1. select the abstraction
+1. derive analysis algorithm
+
+---
+
+# Interpreter (2/n)
+
+### 1. Concrete Semantics
+
+- $\llbracket C \rrbracket_{\mathscr{P}} : \wp (\mathbb{M}) \longrightarrow \wp (\mathbb{M})$
+   - $\mathbb{M}$ : set of memory states
+   - $f_{\odot}$ : operations for each operator in the language
+   - $\mathscr{F}_{\mathtt{B}}$ : filter functions
+   - $\cup$ : union
+   - infinite set union, least fixpoint
+
+---
+
+# Interpreter (3/n)
+
+### 2. Abstraction
+
+- $\mathbb{A} = (\mathbb{X} \longrightarrow \mathbb{A}_{\mathscr{V}})$
+- $\gamma : \mathbb{A} \longrightarrow \wp (\mathbb{M})$
+
+Note:
+- Actual definition relies on
+   - the value abstraction $\mathbb{A}_{\mathscr{V}}$
+   - the concretization function $\gamma_{\mathscr{V}}$
+
+---
+
+# Interpreter (4/n)
+
+### 3. Abstract Semantics
+
+- $\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} : \mathbb{A} \longrightarrow \mathbb{A}$
+
+Note:
+- Actual definition relies on
+   - $f^{\sharp}_{\odot}$ : sound over-approximation of $f_{\odot}$
+   - $\mathscr{F}^{\sharp}_{\mathtt{B}}$ : abstract filter function (which is sound with respect to $\mathscr{F}_{\mathtt{B}}$)
+   - $\sqcup^{\sharp}$ : sound over-approximation of $\cup$
+   - over-approximation of concrete fixpoint
+      - based on a widening operator
+
+---
+
+# Interpreter (5/n)
+
+This division of the analysis design into independent steps is important
+- for the construction of a static analysis
+- when a static analysis needs to be improved ( a static analysis is imprecise )
+
+Common case a static analysis is imprecise:
+- abstraction is coarse
+- algorithm return overly approximated result for the sake of cost
+- concrete semantics is too coarse to express the properties of interest
 
