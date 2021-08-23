@@ -348,7 +348,9 @@ We carefully distinguish between these:
 # Concrete Domain
 
 <def>
+<h4>
 Definition: Concrete Domain
+</h4>
 <ul>
 <li>
 
@@ -392,7 +394,9 @@ Some preparations:
 # Abstract Domain (2/3)
 
 <def>
+<h4>
 Definition: Abstract Domain and Abstract Relation
+</h4>
 
 - **abstract domain** : a pair of a set $\mathbb{A}$ and an ordering relation $\sqsubseteq$ over that set.
 
@@ -435,7 +439,7 @@ Then,
 
 ---
 
-# Concretization Function (1/n)
+# Concretization Function (1/2)
 
 Sometimes, $"\vDash"$ is not useful. Thus, we define concretization function.
 
@@ -452,7 +456,7 @@ A concretization function (or, for short, concretization) :
 
 ---
 
-# Concretization Function (2/n)
+# Concretization Function (2/2)
 
 - A concretization function fully describe the abstraction relation:
    - $\forall c \in \mathbb{C}, \forall a \in \mathbb{A},$ $\quad\quad c \vDash a \iff c \subseteq \gamma (a)$
@@ -478,7 +482,7 @@ A concretization function (or, for short, concretization) :
 
 $c$ has a **best abstraction** if and only if there exists $a$ such that:
 - $a$ is an abstraction of $c$
-- any other abstraction of $c$ is greater than $c$.
+- any other abstraction of $c$ is greater than $a$.
 
 Abstraction function (or for short, abstraction):
 - $\alpha : \mathbb{C} \rightarrow \mathbb{A}$
@@ -595,7 +599,7 @@ Non-relational abstraction proceeds in two steps:
 
 ---
 
-# Value Abstraction (1/n)
+# Value Abstraction (1/5)
 
 
 <def>
@@ -611,7 +615,7 @@ As we saw in chapter 2, *interval* and *sign* constraints define value abstracti
 
 ---
 
-# Value Abstraction (2/n)
+# Value Abstraction (2/5)
 
 #### Example 3.5 (Signs) (Figure 3.5)
 
@@ -628,7 +632,7 @@ As we saw in chapter 2, *interval* and *sign* constraints define value abstracti
 
 ---
 
-# Value Abstraction (3/n)
+# Value Abstraction (3/5)
 
 #### Example 3.6 (A variation on the lattice of sign, with no abstraction function)
 
@@ -644,7 +648,7 @@ As a consequence:
 
 ---
 
-# Value Abstraction (4/n)
+# Value Abstraction (4/5)
 
 #### Example 3.7 (Intervals) (Figure 3.5)
 
@@ -668,7 +672,7 @@ $[0, 2]$ and $[1, 3]$ are incomparable.
 
 ---
 
-# Value Abstraction (5/n)
+# Value Abstraction (5/5)
 
 #### Example 3.8 (Congruences)
 
@@ -710,11 +714,11 @@ Definition 3.7 (Non-relational abstraction)
 
    Then, non-relational abstraction is is defined by
    - set of abstract elements $\mathbb{A}_{\mathscr{N}}$ = $\mathbb{X} \rightarrow \mathbb{A}_{\mathscr{V}}$
-   - order relation $\sqsubseteq_{\mathscr{A}}$ : defined by
-   - point-wise extension of $\sqsubseteq_{\mathscr{V}}$
-   - $M_0^{\sharp} \sqsubseteq_{\mathscr{N}} M_1^{\sharp}$ if and only if $\forall \mathrm{x} \in \mathbb{X}$, $M_0^{\sharp}(\mathrm{x}) \sqsubseteq_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
+   - order relation $\sqsubseteq_{\mathscr{N}}$ : defined by
+      - point-wise extension of $\sqsubseteq_{\mathscr{V}}$
+         - $M_0^{\sharp} \sqsubseteq_{\mathscr{N}} M_1^{\sharp}$ if and only if $\forall \mathrm{x} \in \mathbb{X}$, $M_0^{\sharp}(\mathrm{x}) \sqsubseteq_{\mathscr{V}} M_1^{\sharp}(\mathrm{x})$
    - concretization function $\gamma_{\mathscr{N}}$ defined by
-   - $\gamma_{\mathscr{N}} : \quad M^{\sharp} \enspace \longmapsto \enspace \{m \in \mathbb{M} \enspace | \enspace \forall \mathrm{x} \in \mathbb{X}, m(\mathrm{x}) \in \gamma_{\mathscr{V}} (M^{\sharp}(\mathrm{x}))\}$
+      - $\gamma_{\mathscr{N}} : \quad M^{\sharp} \enspace \longmapsto \enspace \{m \in \mathbb{M} \enspace | \enspace \forall \mathrm{x} \in \mathbb{X}, m(\mathrm{x}) \in \gamma_{\mathscr{V}} (M^{\sharp}(\mathrm{x}))\}$
 
 </def>
 
@@ -766,7 +770,7 @@ The best abstraction of $\{m_0, m_1, m_2, m_3\}$ can be defined as follows :
 - With the signs abstraction :
    - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto$ <hide>$[\geq 0]$</hide> $\quad \mathrm{y} \mapsto$ <hide>$\top\enspace\enspace\enspace$</hide> $\quad \mathrm{z} \mapsto$ <hide>$[\leq 0]$</hide>
 - With the intervals abstraction :
-   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto$ <hide>$[25, 35]$</hide> $\quad \mathrm{y} \mapsto$ <hide>$[-7, 8]$</hide> $\quad \mathrm{z} \mapsto$ <hide>$[-12, -9]$</hide>
+   - $M^{\sharp}$ : $\quad \mathrm{x} \mapsto$ <hide>$[20, 35]$</hide> $\quad \mathrm{y} \mapsto$ <hide>$[-7, 8]$</hide> $\quad \mathrm{z} \mapsto$ <hide>$[-12, -9]$</hide>
 
 
 ---
@@ -1018,7 +1022,7 @@ Sequences of Commands
 
 ---
 
-# Approximation of Composition (1/n)
+# Approximation of Composition (1/2)
 
 <theorem>
 <h4>
@@ -1037,7 +1041,7 @@ Theorem 3.1 (Approximation of composition)
 
 ---
 
-# Approximation of Composition (2/n)
+# Approximation of Composition (2/2)
 
 <h4>
 Proof
@@ -1124,7 +1128,7 @@ Interpretation of $\mathrm{x} + 2 * \mathrm{y} - 6$ : ($f^{\sharp}_{-}$ and $f^{
 
 ---
 
-# Assignments (1/n)
+# Assignments (1/3)
 
 > $\llbracket \mathrm{x} \colonequals E \rrbracket_{\mathscr{P}}(M) = \{m[\mathrm{x} \mapsto \llbracket E \rrbracket(m)] \enspace | \enspace m \in M\}$
 
@@ -1136,7 +1140,7 @@ This composition can be over-approximated piece by piece (Theorem 3.1).
 
 ---
 
-# Assignments (, Input) (2/n)
+# Assignments (, Input) (2/3)
 
 
 <def>
@@ -1161,7 +1165,7 @@ input
 
 ---
 
-# Assignments (3/n)
+# Assignments (3/3)
 
 #### Example 3.11 (Analysis of an assignment command)
 
@@ -1173,7 +1177,7 @@ input
 
 ---
 
-# Assignments (with Relational Abstract Domain) (1/n)
+# Assignments (with Relational Abstract Domain) (1/2)
 
 ### Analysis of Assignments Using a Relational Abstract Domain
 
@@ -1183,7 +1187,7 @@ input
 
 ---
 
-# Assignments (with Relational Abstract Domain) (2/n)
+# Assignments (with Relational Abstract Domain) (2/2)
 
 #### Example 3.12
 
@@ -1402,7 +1406,7 @@ In general, it is more precise. Condition test that involve several variables ar
 
 ---
 
-# Abstract Interpretation of Loops (1/n)
+# Abstract Interpretation of Loops (1/3)
 
 ### Concrete Semantics of Loop
 
@@ -1418,7 +1422,7 @@ That is,
 
 ---
 
-# Abstract Interpretation of Loops (2/n)
+# Abstract Interpretation of Loops (2/3)
 
 ### Concrete Semantics of Loop
 
@@ -1433,7 +1437,7 @@ Goal:
 
 ---
 
-# Abstract Interpretation of Loops (3/n)
+# Abstract Interpretation of Loops (3/3)
 
 #### Example 3.16 (Analysis of programs with loops)
 
@@ -1469,7 +1473,7 @@ while (x <= 100) {
 
 ---
 
-# Sequences of Concrete and Abstract Iterates (1/n)
+# Sequences of Concrete and Abstract Iterates (1/4)
 
 **Situation** : a loop iterates at most $n$ times. ($n$ is a fixed integer value)
 
@@ -1486,7 +1490,7 @@ Then,
 
 ---
 
-# Sequences of Concrete and Abstract Iterates (2/n)
+# Sequences of Concrete and Abstract Iterates (2/4)
 
 Indeed, let us assume:
 - $M^{\sharp}$ : an abstract element of the abstract domain
@@ -1517,7 +1521,7 @@ Then we can prove by induction that
 
 ---
 
-# Sequences of Concrete and Abstract Iterates (3/n)
+# Sequences of Concrete and Abstract Iterates (3/4)
 
 ### Example 3.17 (Abstract iterates)
 
@@ -1552,7 +1556,7 @@ while (x <= 100) {
 
 ---
 
-# Sequences of Concrete and Abstract Iterates (4/n)
+# Sequences of Concrete and Abstract Iterates (4/4)
 
 ### Example 3.17 (Abstract iterates)
 
@@ -1837,7 +1841,7 @@ That is,
 
 ---
 
-# Another View on the Analysis of Loops (1/n)
+# Another View on the Analysis of Loops (1/3)
 
 - concrete semantics of a loop statement
    - $\llbracket \texttt{while} (B) \{ C \} \rrbracket_{\mathscr{P}}(M) = \mathscr{F}_{\neg B} \Big( \cup_{i \geq 0} (\llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B) ^i (M) \Big)$
@@ -1851,7 +1855,7 @@ Let us consider the following equation:
 
 ---
 
-# Another View on the Analysis of Loops (2/n)
+# Another View on the Analysis of Loops (2/3)
 
 Observation:
 - $M_{\mathrm{loop}}$ is a ***fixpoint*** of a function $G : X \mapsto M \cup \llbracket C \rrbracket_{\mathscr{P}} \circ \mathscr{F}_B (X)$
@@ -1865,7 +1869,7 @@ Then, **concrete semantics** of a loop can be expressed like this
 
 ---
 
-# Another View on the Analysis of Loops (2/n)
+# Another View on the Analysis of Loops (3/3)
 
 - **abstract semantics** of a loop relies on the over-approximation of a concrete least fixpoint.
 
@@ -1929,7 +1933,7 @@ We can also use best abstraction function $\alpha$ instead of $\gamma$.
 
 ---
 
-# Analysis of the whole program (1/n)
+# Analysis of the whole program (1/2)
 
 For instance,
 <div class="twocols">
@@ -1955,7 +1959,7 @@ Then, we check whether $\gamma(\llbracket C \rrbracket^{\sharp}_{\mathscr{P}} (M
 
 ---
 
-# Analysis of the whole program (2/n)
+# Analysis of the whole program (2/2)
 
 In general, if the inclusion does not hold, ***alarms*** will be called.
 
