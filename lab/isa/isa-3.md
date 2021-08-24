@@ -1016,7 +1016,7 @@ Skip Commands
 Sequences of Commands
 </h4>
 
-   - $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
+   - $\llbracket \mathtt{C}_0 ; \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (M^{\sharp}) = \llbracket \mathtt{C}_1 \rrbracket_{\mathscr{P}}^{\sharp} (\llbracket \mathtt{C}_0 \rrbracket_{\mathscr{P}}^{\sharp}(M^{\sharp}))$
    - this equation ensures that we can prove soundness by induction.
 </def>
 
@@ -1118,7 +1118,7 @@ Abstract Interpretation of Expressions
 - we use interval abstraction
 - $M^{\sharp}$ is defined by $M^{\sharp} (\mathrm{x}) = [10, 20]$ and $M^{\sharp}(\mathrm{y}) = [8, 9]$
 
-Interpretation of $\mathrm{x} + 2 * \mathrm{y} - 6$ : ($f^{\sharp}_{-}$ and $f^{\sharp}_{+}$ can be used)
+Interpretation of $\mathrm{x} + 2 * \mathrm{y} - 6$ : ($f^{\sharp}_{-}$, $f^{\sharp}_{+}$ and $f^{\sharp}_{*}$ can be used)
 - $\llbracket \mathrm{x} + 2 * \mathrm{y} - 6 \rrbracket^{\sharp} (M^{\sharp})$
    - $= f_{-}^{\sharp} (\llbracket \mathrm{x} + 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 6 \rrbracket^{\sharp}(M^{\sharp}))$
    - <hide>$= f_{+}^{\sharp} (\llbracket \mathrm{x} \rrbracket^{\sharp}(M^{\sharp}), \llbracket 2 * \mathrm{y} \rrbracket^{\sharp}(M^{\sharp})) - [6,6]$</hide>
@@ -1339,7 +1339,7 @@ For instance, for the interval domain:
 
 Then,
 
-- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [$<hide>$0, 6$</hide>$], \mathrm{y} \mapsto [$<hide>$0, 7$</hide>$], \mathrm{z} \mapsto [$<hide>$6, 9$</hide>$]\}$
+- $M_0^{\sharp} \cup^{\sharp} M_1^{\sharp} = \{ \mathrm{x} \mapsto [$<hide>$0, 6$</hide>$], \mathrm{y} \mapsto [$<hide>$0, 7$</hide>$], \mathrm{z} \mapsto [$<hide>$4, 9$</hide>$]\}$
 
 ---
 
@@ -1386,7 +1386,7 @@ Analysis proceeds as follows :
    2. computes the post-condition for the assignment of $\mathrm{y} \colonequals \mathrm{x} - 3$
    3. we get : $\{ \mathrm{x} \mapsto [4, + \infty), \mathrm{y} \mapsto [1, +\infty) \}$
 2. the analysis of **false** branch
-   - we get : $\{ \mathrm{x} \mapsto (- \infty, 7], \mathrm{y} \mapsto [0, +\infty) \}$
+   - we get : $\{ \mathrm{x} \mapsto (- \infty, 3], \mathrm{y} \mapsto [0, +\infty) \}$
 3. abstract join of these two abstract states
    - we get : $\{ \mathrm{x} \mapsto \top, \mathrm{y} \mapsto [0, +\infty) \}$
 
