@@ -72,7 +72,7 @@ ret *a + *b;
 
 <img src='./fig/isa-5-9-a.svg' width="400"> <img src='./fig/isa-5-9-a-color.svg' width="400"> <img src='./fig/isa-5-9-a-reduced.svg' width="250">
 
-We only use <red>red</red> part.
+We need only <red>red</red> part.
 
 ---
 
@@ -108,3 +108,63 @@ $$\mathbb{M}^{\sharp}_{sparse} = \{ M^{\sharp} \in \mathbb{M}^{\sharp} \enspace 
 Then, when $Access^{\sharp}(\cdot)$ is computed?
 - → before the main analysis starts ( so called *pre-analysis* )
   - pre-analysis : typically coarser, hence quicker yet sound analysis
+
+---
+
+# Temporal Sparsity
+
+![bg right:25% contain](./fig/isa-5-9-c.svg)
+
+---
+
+# Precision-Preserving Def-Use Chain
+
+<def>
+
+<h4>
+Definition 5.4 (Safe def and use sets from pre-analysis)
+</h4>
+
+  - $D^{\sharp}(l)$ :  sets of abstract locations
+  - $U^{\sharp}(l)$ :  sets of abstract locations
+
+  $D^{\sharp}_{pre}$ and $U^{\sharp}_{pre}$ are those that are computed by the pre-analysis.
+
+  - $D^{\sharp}_{pre}$ and $U^{\sharp}_{pre}$ are *safe* whenever
+    - $\forall l \in \mathbb{L} : D^{\sharp}_{pre} (l) \supseteq D^{\sharp}(l) \enspace$ and $\enspace \forall l \in \mathbb{L} : U^{\sharp}_{pre} (l) \supseteq U^{\sharp}(l)$
+      - over-approximate non-sparse analysis
+    - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} \supseteq D^{\sharp}_{pre} (l) \enspace \backslash \enspace D^{\sharp}(l)$
+      - this will be explained later
+
+</def>
+
+---
+
+# Precision-Preserving Def-Use Chain
+
+<def>
+
+<h4>
+Definition 5.5 (Def-use chain information from pre-analysis)
+</h4>
+
+  We define $D^{\sharp}_{pre}$ and $U^{\sharp}_{pre}$ as in definition 5.4.
+
+  - label $a$ and $b$ have a *def-use chain* for abstract location $\eta$ whenever
+    - for every label $c$ in the execution paths from $a$ to $b$
+      - $\eta \notin D^{\sharp}_{pre}(c)$
+
+</def>
+
+![height:200](./fig/isa-5-10-a.svg)
+
+---
+
+# Precision-Preserving Def-Use Chain
+
+![bg right:45% contain](./fig/isa-5-10.svg)
+
+- Why the second condition in def 5.4 is needed to be safe
+> - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} \supseteq D^{\sharp}_{pre} (l) D^{\sharp}(l)$
+
+
