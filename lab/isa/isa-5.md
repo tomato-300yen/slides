@@ -70,7 +70,7 @@ ret *a + *b;
 
 <!-- figure 5.9を用いてSpatial Sparsityの導入をする -->
 
-<img src='./isa-5-9-a.svg' width="400"> <img src='./isa-5-9-a-color.svg' width="400"> <img src='./isa-5-9-a-reduced.svg' width="250">
+<img src='./fig/isa-5-9-a.svg' width="400"> <img src='./fig/isa-5-9-a-color.svg' width="400"> <img src='./fig/isa-5-9-a-reduced.svg' width="250">
 
 We only use <red>red</red> part.
 
