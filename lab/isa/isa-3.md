@@ -1406,7 +1406,7 @@ In general, it is more precise. Condition test that involve several variables ar
 
 ---
 
-# Abstract Interpretation of Loops (1/3)
+# Abstract Interpretation of Loops (1/2)
 
 ### Concrete Semantics of Loop
 
@@ -1422,7 +1422,7 @@ That is,
 
 ---
 
-# Abstract Interpretation of Loops (2/3)
+# Abstract Interpretation of Loops (2/2)
 
 ### Concrete Semantics of Loop
 
@@ -1435,41 +1435,6 @@ That is,
 Goal:
 - Over-approximation of the infinite union $\cup_{i \geq 0}F^{i}(M)$ with $F^{\sharp}$
 
----
-
-# Abstract Interpretation of Loops (3/3)
-
-#### Example 3.16 (Analysis of programs with loops)
-
-We will use these programs as a example.
-<div class="twocols">
-   <p>
-
-Figure 3.9(a)
-```c
-x := 0;
-while (x >= 0) {
-   x := x + 1;
-}
-```
-   </p>
-
-   <p class="break">
-
-Figure 3.9(b)
-```c
-x := 0;
-while (x <= 100) {
-   if (x >= 50) {
-      x := 10
-   } else {
-      x := x + 1
-   }
-}
-```
-
-   </p>
-</div>
 
 ---
 
@@ -1518,41 +1483,6 @@ Then we can prove by induction that
       - $\subseteq \gamma(M_k^{\sharp} \sqcup^{\sharp} F^{\sharp}(M_k^{\sharp}))$ ( $\because$ soundness of $\sqcup^{\sharp}$)
       - $= \gamma(M_{k + 1}^{\sharp})$
    - $\therefore M_{k + 1} \subseteq \gamma(M_{k + 1}^{\sharp})$
-
----
-
-# Sequences of Concrete and Abstract Iterates (3/4)
-
-### Example 3.17 (Abstract iterates)
-
-<div class="twocols">
-   <p>
-
-Figure 3.9(a)
-```c
-x := 0;
-while (x >= 0) {
-   x := x + 1;
-}
-```
-   </p>
-
-   <p class="break">
-
-Figure 3.9(b)
-```c
-x := 0;
-while (x <= 100) {
-   if (x >= 50) {
-      x := 10
-   } else {
-      x := x + 1
-   }
-}
-```
-
-   </p>
-</div>
 
 ---
 
@@ -1620,6 +1550,40 @@ This can be observed by checking two consecutive iterates.
 
 ---
 
+# program
+
+We will use these programs as a example.
+<div class="twocols">
+   <p>
+
+Figure 3.9(a)
+```c
+x := 0;
+while (x >= 0) {
+   x := x + 1;
+}
+```
+   </p>
+
+   <p class="break">
+
+Figure 3.9(b)
+```c
+x := 0;
+while (x <= 100) {
+   if (x >= 50) {
+      x := 10
+   } else {
+      x := x + 1
+   }
+}
+```
+
+   </p>
+</div>
+
+---
+
 # Convergence of Iterates (3/3)
 
 #### Example 3.18 (Convergence of abstract iterates)
@@ -1630,8 +1594,8 @@ This can be observed by checking two consecutive iterates.
    - the ranges of $\mathrm{x}$ stabilize but only after 51 iterations.
 
 Neither of these are satisfactory.
-- lack of termination
-- hight number required to stabilize
+- lack of termination ( (a) )
+- hight number required to stabilize ( (b) )
 
 We have to formalize the condition that ensures that
 - the sequences of abstract iterates converges.
@@ -1642,7 +1606,7 @@ We have to formalize the condition that ensures that
 
 Assumption:
 - $\sqsubseteq$ is such that
-   - $M_a^{\sharp} \sqsubseteq M_b^{\sharp}\quad$ if and only if $\quad\gamma(M_a^{\sharp}) \subseteq \gamma(=M_b^{\sharp})$ for all abstract states $M_a^{\sharp}, M_b^{\sharp}$
+   - $M_a^{\sharp} \sqsubseteq M_b^{\sharp}\quad$ if and only if $\quad\gamma(M_a^{\sharp}) \subseteq \gamma(M_b^{\sharp})$ for all abstract states $M_a^{\sharp}, M_b^{\sharp}$
 
 First case where convergence is ensured is when:
 
@@ -1830,7 +1794,7 @@ Widening operator for the intervals domain would be like this:
 # Analysis of Loops with a Relational Abstract Domain
 
 - Almost same as with a non-relational domain
-- Requires only an abstract join or widening operator specific to the abstraction being used
+- Required to change : abstract join, widening operator
 
 That is,
 - In the case of linear equalities
