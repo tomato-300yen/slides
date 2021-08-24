@@ -1666,7 +1666,7 @@ Figure 3.10 (a)
 - In the case of the program of (a), we obtain :
    - $M^{\sharp}_0 = \{\mathrm{x} \mapsto [= 0]\}$
    - $M^{\sharp}_1 = \{\mathrm{x} \mapsto [\geq 0]\}$
-   - $M^{\sharp}_2 = \{\mathrm{x} \mapsto [\leq 0]\}$
+   - $M^{\sharp}_2 = \{\mathrm{x} \mapsto [\geq 0]\}$
       - this analysis terminates after only two iterations
 - In the case of the program of (b), we obtain the same result.
 
@@ -1692,7 +1692,7 @@ Definition 3.11 (Widening operator)
       1. for all abstract elements $a_0$ and $a_1,\quad$ $\gamma (a_0) \cup \gamma (a_1) \subseteq \gamma (a_0 \triangledown a_1)$
       1. for all sequences $(a_n)_{n \in \mathbb{N}}$ of abstract elements, the sequences of $(a_n \rq)_{n \in \mathbb{N}}$ defined below is ultimately stationary (= eventually converge).
          - $a_0\rq = a_0$
-         - $a_{n + 1}\rq = a_n\rq \triangledown a_n$
+         - $a_{n + 1}\rq = a_n\rq \triangledown a_{n + 1}$
 
 </def>
 
@@ -1762,7 +1762,7 @@ This theorem guarantees
 # Widening Operators (6/7)
 
 Widening operator for the intervals domain would be like this:
-   - $[n p] \triangledown_{\mathscr{V}} [n, q] =$
+   - $[n, p] \triangledown_{\mathscr{V}} [n, q] =$
       - $[n, p]$ if $p \geq q$
       - $[n, + \infty)$ if $p < q$
 
