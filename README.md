@@ -13,6 +13,7 @@
 
 - [chapter 3](lab/isa/isa-3.md)
    - [memo file](lab/isa/isa-3-memo.md)
+- [chapter 5](lab/isa/isa-5.md)
 
 ## Useful Material
 
