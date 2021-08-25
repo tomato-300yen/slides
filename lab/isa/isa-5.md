@@ -79,9 +79,9 @@ We need only <red>red</red> part.
 # Spatial Sparsity
 
 Notation:
-- $dom(M^{\sharp})$ : $\mathbb{M}^{\sharp} \rightarrow \wp (\mathbb{X})$ 
+- $dom(M^{\sharp})$ : $\mathbb{M}^{\sharp} \rightarrow \wp (\mathbb{A^{\sharp}})$ 
   - entries of $M^{\sharp}$
-- $Access^{\sharp}(l)$ : $\mathbb{L} \rightarrow \wp (\mathbb{X})$
+- $Access^{\sharp}(l)$ : $\mathbb{L} \rightarrow \wp (\mathbb{A^{\sharp}})$
   - set of abstract locations that may be accessed by the program in label $l$
 
 
@@ -111,9 +111,37 @@ Then, when $Access^{\sharp}(\cdot)$ is computed?
 
 ---
 
+# Overview
+
+- Sparse Analysis
+  - Spatial Sparsity
+  - Temporal Sparsity
+- Modular Analysis
+- Backward Analysis
+
+---
+
 # Temporal Sparsity
 
-![bg right:25% contain](./fig/isa-5-9-c.svg)
+![bg right:55% contain](./fig/isa-5-9-c-custom.svg)
+
+- I show only the case of $\mathrm{x}$.
+
+- Statements where defined variables are not used can be skipped.
+  - in this case the second statement
+- Such flow is called ***def-use chain***
+
+---
+
+# Temporal Sparsity
+
+Once the def-use chain is available, temporal sparsity analysis is defined as follow:
+
+$$(l, M^{\sharp}) \hookrightarrow^{\sharp} (l\rq, M\rq^{\sharp}) \enspace \mathrm{for} \enspace l\rq \in \mathtt{next}^{\sharp} (l, M^{\sharp})$$
+
+Then, $\hookrightarrow^{\sharp}$ become sparse.
+
+$\mathtt{next}^{\sharp}(l, M^{\sharp})$ determines the def-use relation from where point $l$ to its use point $l\rq$.
 
 ---
 
@@ -133,7 +161,7 @@ Definition 5.4 (Safe def and use sets from pre-analysis)
   - $D^{\sharp}_{pre}$ and $U^{\sharp}_{pre}$ are *safe* whenever
     - $\forall l \in \mathbb{L} : D^{\sharp}_{pre} (l) \supseteq D^{\sharp}(l) \enspace$ and $\enspace \forall l \in \mathbb{L} : U^{\sharp}_{pre} (l) \supseteq U^{\sharp}(l)$
       - over-approximate non-sparse analysis
-    - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} \supseteq D^{\sharp}_{pre} (l) \enspace \backslash \enspace D^{\sharp}(l)$
+    - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} (l) \supseteq D^{\sharp}_{pre} (l) \enspace \backslash \enspace D^{\sharp}(l)$
       - this will be explained later
 
 </def>
@@ -162,9 +190,20 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 
 # Precision-Preserving Def-Use Chain
 
-![bg right:45% contain](./fig/isa-5-10.svg)
-
-- Why the second condition in def 5.4 is needed to be safe
+- Why is the second condition in <u>def 5.4</u> needed to be safe?
 > - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} \supseteq D^{\sharp}_{pre} (l) D^{\sharp}(l)$
 
+- → To preserve the original flow.
+
+![bg right:45% contain](./fig/isa-5-10.svg)
+
+---
+
+# Overview
+
+- Sparse Analysis
+  - Spatial Sparsity
+  - Temporal Sparsity
+- Modular Analysis
+- Backward Analysis
 
