@@ -261,8 +261,10 @@ void set_i(int *arr, int index) {
 
 Parametric context is:
 $$
-\mathtt{arr} \mapsto (\mathrm{offset} : [\mathtt{s}_0, \mathtt{s}_1], \mathrm{size} : [\mathtt{s}_2, \mathtt{s}_3])\\
-\mathtt{index} \mapsto [\mathtt{s}_4, \mathtt{s}_5]
+\begin{align*}
+\mathtt{arr} &\mapsto (\mathrm{offset} : [\mathtt{s}_0, \mathtt{s}_1], \mathrm{size} : [\mathtt{s}_2, \mathtt{s}_3])\\
+\mathtt{index} &\mapsto [\mathtt{s}_4, \mathtt{s}_5]
+\end{align*}
 $$
 
 Safe condition is:
@@ -284,8 +286,10 @@ char * malloc_wrapper(int n) {
 
 Symbolic procedure summary would be:
 $$
-\mathtt{n} \mapsto [\mathtt{s}_6, \mathtt{s}_7]\\
-\mathtt{ret} \mapsto (\mathrm{offset} : [0, 0], \mathrm{size} : [\mathtt{s}_6, \mathtt{s}_7])
+\begin{align*}
+\mathtt{n} &\mapsto [\mathtt{s}_6, \mathtt{s}_7]\\
+\mathtt{ret} &\mapsto (\mathrm{offset} : [0, 0], \mathrm{size} : [\mathtt{s}_6, \mathtt{s}_7])
+\end{align*}
 $$
 
 ---
@@ -315,3 +319,136 @@ $$
 [0 + 0, 0 + 9] < [9, 9]
 $$
 This condition is false, hence alarm.
+
+---
+
+# Overview
+
+- Sparse Analysis
+  - Spatial Sparsity
+  - Temporal Sparsity
+- Modular Analysis
+- Backward Analysis
+
+---
+
+# Forward vs Backward
+
+Let's over-approximate pre-condition from a post-condition.
+
+Recall the filtering function $\mathscr{F}_{\mathtt{B}}$ from chapter 3,
+$$
+\mathscr{F}_{\mathtt{B}} (M) = \{ m \in M \enspace | \enspace \llbracket \mathtt{B} \rrbracket (m) = \mathtt{true}\}
+$$
+
+We can define $\llbracket B \rrbracket _{\mathbf{bwd}}$ and define $\mathscr{F}_{\mathtt{B}}$ from it:
+$$
+\begin{align*}
+\llbracket \mathtt{B} \rrbracket_{\mathbf{bwd}} (v) &= \{ m \in \mathbb{M} \enspace | \enspace \llbracket \mathtt{B} \rrbracket (m) = v \}\\
+\mathscr{F}_{\mathtt{B}} (M) &= M \cap \llbracket B \rrbracket_{\mathbf{bwd}} (\mathtt{true})
+\end{align*}
+$$
+
+- $\llbracket \mathtt{B} \rrbracket_{\mathbf{bwd}}$ is backward style.
+  - input : value
+  - output : set of states that lead to the input value
+
+---
+
+# Forward vs Backward
+
+We define backward semantics as follow:
+$$
+\begin{align*}
+\llbracket C \rrbracket_{\mathbf{bwd}} (M) &= \{ m \in \mathbb{M} \enspace | \enspace \exists m \rq \in \llbracket C \rrbracket (\{ m\}), m\rq \in M \} \\
+&= \{ m \in \mathbb{M} \enspace | \enspace \llbracket C \rrbracket (\{ m \}) \cap M \not = \empty \}
+\end{align*}
+$$
+
+---
+
+# Backward analysis and Applications
+
+We consider this simple program.
+
+```c
+int x0, x1;
+input(x0);
+if (x0 > 0) {
+  x1 := x0;
+} else {
+  x1 := -x0;
+}
+```
+
+<details>
+<summary>
+
+Q. The result of the analysis of chapter 3 is: ($\{\mathrm{x}_0 \mapsto ??, \mathrm{x}_1 \mapsto ??\}$)
+</summary>
+
+$$
+\{\mathrm{x}_0 \mapsto \top , \mathrm{x}_1 \mapsto [0, +\infty)\}
+$$
+
+</details>
+
+---
+
+# Backward analysis and Applications
+
+We consider this simple program.
+
+```c
+int x0, x1;
+input(x0);
+if (x0 > 0) {
+  x1 := x0;
+} else {
+  x1 := -x0;
+}
+```
+
+<details>
+<summary>
+
+Q. $\llbracket C \rrbracket_{\mathbf{bwd}}$ maps $2 \leq \mathrm{x}_1 \leq 5$ to ...
+</summary>
+
+$$
+\begin{align*}
+\mathrm{x}_0 &: [-5, -2] \cup [2, 5], \mathrm{or}\\
+\mathrm{x}_0 &: [-5, 5] \text{ ( still sound )}
+\end{align*}
+$$
+
+</details>
+
+---
+
+# Backward analysis and Applications
+
+We consider this simple program.
+
+```c
+int x0, x1;
+input(x0);
+if (x0 > 0) {
+  x1 := x0;
+} else {
+  x1 := -x0;
+}
+```
+
+<details>
+<summary>
+
+Q. $\llbracket C \rrbracket_{\mathbf{bwd}}$ maps $\mathrm{x}_1 \leq -3$ to ...
+</summary>
+
+$$
+\mathrm{x}_1 : \bot \text{ ( infeasible ) }
+$$
+
+</details>
+
