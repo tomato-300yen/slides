@@ -207,3 +207,111 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 - Modular Analysis
 - Backward Analysis
 
+---
+
+# Modular Analysis
+
+- Unit of modular analysis : procedure (function)
+- analyze each of them, and then, links them together and get the whole-program analysis result.
+
+merit:
+- incremental analysis
+- improvement of precision
+- you have to recompute only the analysis of a procedure when it is modified.
+
+---
+
+# Parameterization
+
+Consider a interval analysis $[l, h]$.
+
+1. parameterize the calling context
+   - in this case symbolize the lower and upper bound of interval
+1. compute the post-state in terms of symbolic parameters
+1. at link time, instantiate pre- and post-state
+1. ex) check whether the no-buffer-overrun conditions are violated
+
+---
+
+# Summary-Based
+
+> When we resolve the symbolic safe conditions to be violated, an alarm is raised.
+
+---
+
+# Scalability
+
+Scalability largely depends on inter-procedural analysis.
+
+> When a procedure is modified, the whole-program analysis result is quickly obtained by updating only the parts that transitively depend on the procedure for which abstract states have changed.
+
+---
+
+# Case Study (1/3)
+
+Goal:
+- estimate the sizes of buffers and the ranges of their indexing expressions
+
+Fist example:
+```c
+void set_i(int *arr, int index) {
+  arr[index] = 0;
+}
+```
+
+Parametric context is:
+$$
+\mathtt{arr} \mapsto (\mathrm{offset} : [\mathtt{s}_0, \mathtt{s}_1], \mathrm{size} : [\mathtt{s}_2, \mathtt{s}_3])\\
+\mathtt{index} \mapsto [\mathtt{s}_4, \mathtt{s}_5]
+$$
+
+Safe condition is:
+$$
+[\mathtt{s}_0 + \mathtt{s}_4, \mathtt{s}_1 + \mathtt{s}_5] < [\mathtt{s}_2, \mathtt{s}_3]
+$$
+
+---
+
+# Case Study (2/3)
+
+Second example
+
+```c
+char * malloc_wrapper(int n) {
+  return malloc(n);
+}
+```
+
+Symbolic procedure summary would be:
+$$
+\mathtt{n} \mapsto [\mathtt{s}_6, \mathtt{s}_7]\\
+\mathtt{ret} \mapsto (\mathrm{offset} : [0, 0], \mathrm{size} : [\mathtt{s}_6, \mathtt{s}_7])
+$$
+
+---
+
+# Case Study (3/3)
+
+```c
+void interprocedural() {
+  int *arr = malloc_wrapper(9*sizeof(int));
+  // arr -> (offset:[0,0], size:[9,9])
+  int i;
+  for ( i = 0; i < 9; i+=1 ) {
+    // i -> [0,8]
+    set_i(arr, i);      // safe
+    set_i(arr, i + 1);  // alarm
+  }
+}
+```
+
+For the first $\mathtt{set\_i}(\mathtt{arr}, \mathtt{i})$ call, the safety condition is:
+$$
+[0 + 0, 0 + 8] < [9, 9]
+$$
+
+For the second $\mathtt{set\_i}(\mathtt{arr}, \mathtt{i} + 1)$ call, the safety condition is:
+$$
+[0 + 0, 0 + 9] < [9, 9]
+$$
+This condition is false, hence alarm.
