@@ -562,6 +562,6 @@ Again, forward analysis
 
 # Precision Refinement (3/3)
 
-- This forward-backward iteration can be iterated as many times as required
-- Backward analysis itself might be imprecise,
-  - however, it can improve preciseness used with forward analysis.
+- This forward-backward iteration can be iterated as many times as required.
+- Backward analysis itself might be imprecise, however,
+  - it can improve preciseness if used along with forward analysis.
