@@ -217,7 +217,7 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 merit:
 - incremental analysis
 - improvement of precision
-- you have to recompute only the analysis of a procedure when it is modified.
+- need to recompute only the analysis of a procedure when it is modified.
 
 ---
 
