@@ -25,9 +25,9 @@ paginate: true
 
 - Sparse Analysis
   - Spatial Sparsity
-  - Temporal Sparsity
-- Modular Analysis
-- Backward Analysis
+  - <gray>Temporal Sparsity</gray>
+- <gray>Modular Analysis</gray>
+- <gray>Backward Analysis</gray>
 
 ---
 
@@ -114,10 +114,10 @@ Then, when $Access^{\sharp}(\cdot)$ is computed?
 # Overview
 
 - Sparse Analysis
-  - Spatial Sparsity
+  - <gray>Spatial Sparsity</gray>
   - Temporal Sparsity
-- Modular Analysis
-- Backward Analysis
+- <gray>Modular Analysis</gray>
+- <gray>Backward Analysis</gray>
 
 ---
 
@@ -201,11 +201,11 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 
 # Overview
 
-- Sparse Analysis
+- <gray>Sparse Analysis</gray>
 - Modular Analysis
   - Introduction
-  - Case study
-- Backward Analysis
+  - <gray>Case study</gray>
+- <gray>Backward Analysis</gray>
 
 ---
 
@@ -251,11 +251,11 @@ Consider a interval analysis $[l, h]$.
 
 # Overview
 
-- Sparse Analysis
+- <gray>Sparse Analysis</gray>
 - Modular Analysis
-  - Introduction
+  - <gray>Introduction</gray>
   - Case study
-- Backward Analysis
+- <gray>Backward Analysis</gray>
 
 ---
 
@@ -336,11 +336,11 @@ This condition is false, hence alarm.
 
 # Overview
 
-- Sparse Analysis
-- Modular Analysis
+- <gray>Sparse Analysis</gray>
+- <gray>Modular Analysis</gray>
 - Backward Analysis
   - introduction
-  - precise refinement
+  - <gray>precise refinement</gray>
 
 ---
 
@@ -492,6 +492,16 @@ $$
     - derive pre-condition from post-condition
       - post-condition : $\{\mathtt{x} \mapsto [3, 9]\}$
       - pre-condition : $\{\mathtt{x} \mapsto [2, 8]\}$
+
+---
+
+# Overview
+
+- <gray>Sparse Analysis</gray>
+- <gray>Modular Analysis</gray>
+- Backward Analysis
+  - <gray>introduction</gray>
+  - precise refinement
 
 ---
 
