@@ -235,6 +235,8 @@ Consider a interval analysis $[l, h]$.
 
 # Summary-Based
 
+- Modular analysis compute what a procedure does ( ***summary*** ).
+
 > When we resolve the symbolic safe conditions to be violated, an alarm is raised.
 
 ---
