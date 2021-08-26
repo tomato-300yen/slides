@@ -241,9 +241,9 @@ Consider a interval analysis $[l, h]$.
 
 # Scalability
 
-Scalability largely depends on inter-procedural analysis.
-
-> When a procedure is modified, the whole-program analysis result is quickly obtained by updating only the parts that transitively depend on the procedure for which abstract states have changed.
+- When a procedure is modified:
+  - the whole-program analysis result is quickly obtained by updating only the result of modified condition.
+- Scalability is maintained.
 
 ---
 
