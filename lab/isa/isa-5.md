@@ -24,7 +24,7 @@ paginate: true
 # Overview
 
 - Sparse Analysis
-  - Spatial Sparsity
+  - <gray>Spatial Sparsity</gray>
   - <gray>Temporal Sparsity</gray>
 - <gray>Modular Analysis</gray>
 - <gray>Backward Analysis</gray>
@@ -49,6 +49,16 @@ That is,
 1. Design a sound analysis
 2. Add sparse analysis to improve its scalability
   - its precision is preserved
+
+---
+
+# Overview
+
+- Sparse Analysis
+  - Spatial Sparsity
+  - <gray>Temporal Sparsity</gray>
+- <gray>Modular Analysis</gray>
+- <gray>Backward Analysis</gray>
 
 ---
 
@@ -193,7 +203,7 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 - Why is the second condition in <u>def 5.4</u> needed to be safe?
 > - $\forall l \in \mathbb{L} : U^{\sharp}_{pre} \supseteq D^{\sharp}_{pre} (l) D^{\sharp}(l)$
 
-- → To preserve the original flow.
+- → To preserve the original "flow".
 
 ![bg right:45% contain](./fig/isa-5-10.svg)
 
@@ -239,13 +249,12 @@ Consider a interval analysis $[l, h]$.
 
 > When we resolve the symbolic safe conditions to be violated, an alarm is raised.
 
----
 
 # Scalability
 
 - When a procedure is modified:
   - the whole-program analysis result is quickly obtained by updating only the result of modified condition.
-- Scalability is maintained.
+- This analysis make the whole analysis scalable.
 
 ---
 
@@ -322,11 +331,13 @@ void interprocedural() {
 ```
 
 For the first $\mathtt{set\_i}(\mathtt{arr}, \mathtt{i})$ call, the safety condition is:
+
 $$
 [0 + 0, 0 + 8] < [9, 9]
 $$
 
 For the second $\mathtt{set\_i}(\mathtt{arr}, \mathtt{i} + 1)$ call, the safety condition is:
+
 $$
 [0 + 0, 0 + 9] < [9, 9]
 $$
@@ -339,8 +350,10 @@ This condition is false, hence alarm.
 - <gray>Sparse Analysis</gray>
 - <gray>Modular Analysis</gray>
 - Backward Analysis
-  - introduction
-  - <gray>precise refinement</gray>
+  - Forward vs Backward
+  - <gray>Backward Analysis and Applications</gray>
+  - <gray>Definition of Backward Analysis</gray>
+  - <gray>Precision Refinement</gray>
 
 ---
 
@@ -380,6 +393,18 @@ $$
 Intuitive explanation
 - input : a set of states $M$
 - output : a set of states that may lead to some of $M$ by executing $C$
+
+---
+
+# Overview
+
+- <gray>Sparse Analysis</gray>
+- <gray>Modular Analysis</gray>
+- Backward Analysis
+  - <gray>Forward vs Backward</gray>
+  - Backward Analysis and Applications
+  - <gray>Definition of Backward Analysis</gray>
+  - <gray>Precision Refinement</gray>
 
 ---
 
@@ -473,6 +498,18 @@ $$
 
 ---
 
+# Overview
+
+- <gray>Sparse Analysis</gray>
+- <gray>Modular Analysis</gray>
+- Backward Analysis
+  - <gray>Forward vs Backward</gray>
+  - <gray>Backward Analysis and Applications</gray>
+  - Definition of Backward Analysis
+  - <gray>Precision Refinement</gray>
+
+---
+
 # Definition of Backward Analysis (1/2)
 
 - $\llbracket \mathbf{skip} \rrbracket_{\mathbf{bwd}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
@@ -500,8 +537,10 @@ $$
 - <gray>Sparse Analysis</gray>
 - <gray>Modular Analysis</gray>
 - Backward Analysis
-  - <gray>introduction</gray>
-  - precise refinement
+  - <gray>Forward vs Backward</gray>
+  - <gray>Backward Analysis and Applications</gray>
+  - <gray>Definition of Backward Analysis</gray>
+  - Precision Refinement
 
 ---
 
