@@ -31,7 +31,7 @@ paginate: true
 
 ---
 
-# Sparse Analysis (1/n)
+# Sparse Analysis (1/2)
 
 We can reduce the cost of the analysis by considering ***sparsity***.
 
