@@ -202,9 +202,9 @@ Definition 5.5 (Def-use chain information from pre-analysis)
 # Overview
 
 - Sparse Analysis
-  - Spatial Sparsity
-  - Temporal Sparsity
 - Modular Analysis
+  - Introduction
+  - Case study
 - Backward Analysis
 
 ---
@@ -244,6 +244,16 @@ Consider a interval analysis $[l, h]$.
 Scalability largely depends on inter-procedural analysis.
 
 > When a procedure is modified, the whole-program analysis result is quickly obtained by updating only the parts that transitively depend on the procedure for which abstract states have changed.
+
+---
+
+# Overview
+
+- Sparse Analysis
+- Modular Analysis
+  - Introduction
+  - Case study
+- Backward Analysis
 
 ---
 
@@ -325,10 +335,10 @@ This condition is false, hence alarm.
 # Overview
 
 - Sparse Analysis
-  - Spatial Sparsity
-  - Temporal Sparsity
 - Modular Analysis
 - Backward Analysis
+  - introduction
+  - precise refinement
 
 ---
 
@@ -365,11 +375,13 @@ $$
 \end{align*}
 $$
 
+Intuitive explanation
+- input : a set of states $M$
+- output : a set of states that may lead to some of $M$ by executing $C$
+
 ---
 
-# Backward analysis and Applications
-
-We consider this simple program.
+# Backward analysis and Applications (1/4)
 
 ```c
 int x0, x1;
@@ -395,9 +407,7 @@ $$
 
 ---
 
-# Backward analysis and Applications
-
-We consider this simple program.
+# Backward analysis and Applications (2/4)
 
 ```c
 int x0, x1;
@@ -426,9 +436,7 @@ $$
 
 ---
 
-# Backward analysis and Applications
-
-We consider this simple program.
+# Backward analysis and Applications (3/4)
 
 ```c
 int x0, x1;
@@ -452,3 +460,110 @@ $$
 
 </details>
 
+---
+
+# Backward analysis and Applications (4/4)
+
+- Provide *necessary condition* for a specific behavior to occur
+  - = provide *sufficient condition* for a specific behavior not to occur
+- Program understanding
+- Precision Refinement
+
+---
+
+# Definition of Backward Analysis (1/2)
+
+- $\llbracket \mathbf{skip} \rrbracket_{\mathbf{bwd}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- $\llbracket C_0;C_1 \rrbracket_{\mathbf{bwd}}^{\sharp} (M^{\sharp}) = M^{\sharp}$
+- $\llbracket \mathbf{if}(B)\{C_0\}\mathbf{else}\{C_1\} \rrbracket_{\mathbf{bwd}}^{\sharp} (M^{\sharp}) = \mathscr{F}_{B}^{\sharp}(\llbracket C_0 \rrbracket_{\mathbf{bwd}}^{\sharp}) \sqcup^{\sharp} \mathscr{F}_{\neg B}^{\sharp}(\llbracket C_1 \rrbracket_{\mathbf{bwd}}^{\sharp})$
+- $\llbracket \mathbf{while}(B)\{C\} \rrbracket_{\mathbf{bwd}}^{\sharp}(M^{\sharp}) = \mathtt{abs\_iter}(\mathscr{F}_{B}^{\sharp}\circ\llbracket C \rrbracket_{\mathbf{bwd}}^{\sharp}) \circ \mathscr{F}_{\neg B} (M^{\sharp})$
+
+---
+
+# Definition of Backward Analysis (2/2)
+
+- expression $\mathtt{x} \colonequals \mathtt{E}$
+  - if $\mathtt{x}$ appears in $\mathtt{E}$ ( "non-invertible" )
+    - apply $\mathscr{F}^{\sharp}_{\mathtt{x} = \mathtt{E}}$ and then forget all the constraints over $\mathtt{x}$
+  - if $\mathtt{x}$ does not appears in $\mathtt{E}$ ( "invertible" )
+    - such as $\mathtt{x} = \mathtt{x} + 1$
+    - derive pre-condition from post-condition
+      - post-condition : $\{\mathtt{x} \mapsto [3, 9]\}$
+      - pre-condition : $\{\mathtt{x} \mapsto [2, 8]\}$
+
+---
+
+# Precision Refinement
+
+```c
+...
+# 1
+if (y <= x) {
+  ...  
+  # 2
+    if (x <= 4) {
+      ...
+      # 3
+        if (5 <= y){
+          ...
+          # 4
+        }
+    }
+}
+```
+
+Note:
+- third true branch is not *feasible*
+
+---
+
+# Precision Refinement (1/3)
+
+Forward analysis using intervals or polyhedra.
+<div class="twocols">
+  <p>
+
+Intervals
+1. $\{\mathtt{x} \mapsto \top, \mathtt{y} \mapsto \top\}$
+1. $\{\mathtt{x} \mapsto \top, \mathtt{y} \mapsto \top\}$
+1. $\{\mathtt{x} \mapsto (- \infty , 4], \mathtt{y} \mapsto \top\}$
+1. $\{\mathtt{x} \mapsto (- \infty , 4], \mathtt{y} \mapsto [5, +\infty]\}$
+  </p>
+
+  <p class="break">
+
+Polyhedra
+1. $\top$
+1. $\mathtt{y} \leq \mathtt{x}$
+1. $\mathtt{y} \leq \mathtt{x} \land \mathtt{x} \leq 4$
+1. $\bot$
+  </p>
+</div>
+
+Result:
+- Analysis using polyhedra suggests that the third true branch is not feasible,
+  - but the analysis using intervals does not
+
+---
+
+# Precision Refinement (2/3)
+
+Backward analysis using the result of fist forward analysis:
+1. $\bot$ ↑ end
+1. $\{\mathtt{x} \mapsto (- \infty , 4], \mathtt{y} \mapsto [5, + \infty)\}$ ↑
+1. $\{\mathtt{x} \mapsto (- \infty , 4], \mathtt{y} \mapsto [5, + \infty)\}$ ↑
+1. $\{\mathtt{x} \mapsto (- \infty , 4], \mathtt{y} \mapsto [5, + \infty)\}$ ↑ start
+
+Again, forward analysis
+1. $\bot$ ↓ start
+1. $\bot$ ↓
+1. $\bot$ ↓
+1. $\bot$ ↓ end, not feasible
+
+---
+
+# Precision Refinement (3/3)
+
+- This forward-backward iteration can be iterated as many times as required
+- Backward analysis itself might be imprecise,
+  - however, it can improve preciseness used with forward analysis.
