@@ -614,3 +614,14 @@ Again, forward analysis
 - This forward-backward iteration can be iterated as many times as required.
 - Backward analysis itself might be imprecise, however,
   - it can improve preciseness if used along with forward analysis.
+
+---
+
+# Summary
+
+- Sparse Analysis
+  - addresses scalability
+- Modular Analysis
+  - addresses scalability
+- Backward Analysis
+  - addresses preciseness
