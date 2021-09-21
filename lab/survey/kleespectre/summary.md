@@ -222,6 +222,7 @@ KLEEspetre は cache side-channel attack の可能性のあるメモリーアク
 ### cache conflictについて
 
 そもそもcacheってなんだったっけ？
+
 ![cache_intro](img/cache_intro.svg)
 
 ![cache_definition](img/cache_definition.png)
