@@ -109,20 +109,17 @@ array2[256*64], array3[16];
 
 uint8_t foo(uint32_t x) {
   uint8_t temp = 0;
-  if (x < SIZE) {
-    temp = array[x];
-    temp |= array2[temp];
-    if (x <= 8) {
-      temp |= array2[8];
+  if (x < SIZE) {          // b1
+    temp = array[x];       // A
+    temp |= array2[temp];  // A
+    if (x <= 8) {          // b2
+      temp |= array2[8];   // B
     }
   }
-  temp |= array3[8];
-  return temp;
+  temp |= array3[8];       // C
+  return temp;             // C
 }
 ```
-
-- Normal Execution Pathsの画像
-- Execution Paths with speculationの画像
 
 ![symbolic_path](img/symbolic_path.png)
 
