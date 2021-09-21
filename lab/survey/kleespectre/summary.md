@@ -122,7 +122,7 @@ array2[256*64], array3[16];
 uint8_t foo(uint32_t x) {
   uint8_t temp = 0;
   if (x < SIZE) {          // b1
-    temp = array1[x];       // A
+    temp = array1[x];      // A
     temp |= array2[temp];  // A
     if (x <= 8) {          // b2
       temp |= array2[8];   // B
@@ -137,7 +137,7 @@ uint8_t foo(uint32_t x) {
 
 - 通常の実行を行った場合、out-of-bound access はおきない。
 - (b)は従来の記号実行を行った時の execution tree
-- (c)はこの論文でやりたいこと(以下で解説)
+- \(c\)はこの論文でやりたいこと(以下で解説)
 
 ### 問題となる状況
 
@@ -146,7 +146,7 @@ uint8_t foo(uint32_t x) {
 
 以上のような場合、投機実行によって
 
-- array1[x] が参照される。(out-of-bound reference)
+- array1[x] が参照される。(out-of-bound reference) (temp に代入される)
 - そのデータをもとにして、array2[temp]が参照される。
   - array1[x] が秘密データを参照していた場合、ここで得られる値も秘密データに依存していることになる。
   - ここで読んだ値がcacheに残っている場合、攻撃者は間接的にarray1[x]の値を入手してしまう。
