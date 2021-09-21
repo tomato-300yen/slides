@@ -313,9 +313,50 @@ array2のキャッシュは0番目に入るという仮定があったので、�
 
 その4つを上書きするのに必要なiterationは256+4=260。
 
+### BCB Gadgets in Real Program
+
+#### 使用するプログラム
+![program_to_use](img/program_to_use.png)
+
+#### 実験設定
+
+SEW=50, 100 のそれぞれで実験を行った。
+
+#### 実験結果
+![table2](img/table2.png)
+
+かなり見づらいが、str2keyで一つの脆弱性を発見した。以下のようなもの。
+
+```c
+void DES_set_odd_parity(DES_cblock *key) {
+  int i;
+  for (i = 0;, i < DES_KEY_SZ; i++) {   // VB
+    (*key)[i] = odd_parity[(*key)[i]];  // RS, LS
+  }
+}
+```
+
+### Leakage Detection with Cache Modeling
+
+現実のプログラムでは脆弱性がほとんど見つからないので、人為的に脆弱性を仕込んだ上で実験を行う。
+具体的には、ある特定のコードをstart, middle, endに入れる。
+
+#### 実験結果
+![table3](img/table3.png)
+
+- N(LS) : leakage of potentially secret data
+- delta(LS) : leakage of user-marked secret
+
+上の表からわかること
+- cache modelを導入することにより、検出件数が減る(ocb3)
+  - false positive を削っている。
+  - 実際はcacheは上書きされるが、cacheの挙動がわからないが故に、false positiveを作っている。
+- associativity を上げると、検出数が増える。
+  - associativityを上げることによって、キャッシュから追い出されづらくなる。
+
 ### cacheモデルの役割
 
-False positive を減らす。
+False positive を減らす
 
 ## 関連研究
 
