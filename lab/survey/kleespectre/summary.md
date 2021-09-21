@@ -42,6 +42,8 @@ if (x < array1_size) {  // VB
 
 ## 実験結果
 
+cache modelの有効性
+
 ## これから
 
 # 発表
@@ -104,7 +106,7 @@ int victim() {
 - 攻撃対象と攻撃者は同じマシン上にいることを仮定。(ref. [31])
 - プロセッサーの分岐予測器は外部から(間違った側に)訓練(mis-train)できる。(ref. [9])
   - すべての分岐は潜在的にmis-trainedされる可能性がある。
-  - つまり、すべての分岐をVBとして扱う。
+  - よって、すべての分岐をVBとして扱うのは妥当。
 - 攻撃者は access-based cache side-channel attack か trace-based cache side-channel attack を行うと仮定。(ref [38])
 - 攻撃可能かどうかの判定方法
   - プログラムの実行の最後で攻撃者が potentially secret なデータを観測できる場合に攻撃可能と判定する。
