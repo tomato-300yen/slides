@@ -120,7 +120,7 @@ array2[256*64], array3[16];
 uint8_t foo(uint32_t x) {
   uint8_t temp = 0;
   if (x < SIZE) {          // b1
-    temp = array[x];       // A
+    temp = array1[x];       // A
     temp |= array2[temp];  // A
     if (x <= 8) {          // b2
       temp |= array2[8];   // B
@@ -139,9 +139,45 @@ uint8_t foo(uint32_t x) {
 
 ### 問題となる状況
 
-- $x \leq SIZE$
+- x が x >= SIZE
+- b1 がmis-trained されている
 
-## 提案手法
+以上のような場合、投機実行によって
+
+- array1[x] が参照される。(out-of-bound reference)
+- そのデータをもとにして、array2[temp]が参照される。
+  - array1[x] が秘密データを参照していた場合、ここで得られる値も秘密データに依存していることになる。
+  - ここで読んだ値がcacheに残っている場合、攻撃者は間接的にarray1[x]の値を入手してしまう。
+
+従来の記号実行ではこのデータリークは検出できない。
+これを検出するためには、
+
+- 分岐予測による投機実行
+- cache の挙動
+
+を扱える必要がある。
+
+### KLEEspetre がやりたいこと
+
+1. p_T1 : x < SIZE, b1 is correctly predicted.
+1. p_F1 : x >= SIZE, b1 is correctly predicted.
+1. sp_T1 : x >= SIZE, b1 is mis-predicted. (秘密情報をリークする可能性があるのはこのパターン)
+1. sp_F1 : x < SIZE, b1 is mis-predicted.
+
+3つ目のパターンを検出したいというモチベーションがある。
+
+が、愚直にやると検査対象の数が指数的に爆発するのでうまく工夫する必要がある。
+KLEEspetreでは2つの工夫をおこなう。
+
+1. Speculative Execution Window(SEW)によって、探索する命令数に上限を設ける。(この数に達したら当該分岐の探索は終了)
+1. 秘密データを流出し得ない命令はメモリアクセスであっても無視する。
+  - 何を秘密データとするか(詳しくは後述するが、大きく分けて2つの戦略がある)
+    1. 範囲外参照先の値
+    2. 外から明示的に秘密データを指定
+  - 上の例で言えば、sp_T1の場合でコード片Aを実行している場合のみを考慮する。
+  
+
+## 提案手法の概要
 
 - 投機的実行を考慮した記号実行
 - キャッシュのモデル化
@@ -150,11 +186,16 @@ uint8_t foo(uint32_t x) {
 
 ### キャッシュのモデル化
 
+## 提案手法の詳細
+
 ## 実装
+pass
 
 ## 実験
 
 ### cacheモデルの役割
+
+False positive を減らす。
 
 ## 関連研究
 
