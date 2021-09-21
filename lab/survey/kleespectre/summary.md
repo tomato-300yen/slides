@@ -223,15 +223,95 @@ KLEEspetre は cache side-channel attack の可能性のあるメモリーアク
 
 そもそもcacheってなんだったっけ？
 
-![cache_intro](img/cache_intro.svg)
+<img src="img/cache_intro.svg" width="800">
+
+この先で用いる（かもしれない）記号の定義
 
 ![cache_definition](img/cache_definition.png)
+
 ![cache_conflict](img/cache_conflict.png)
+
+- (a) : conflict について
+- (b) : 数える conflict は unique である必要がある(= conflict は重複する可能性がある)
+- \(c\) : 無効化される conflict は数えない
+- (d) : unique conflict の回数が cache の associativity を超える場合、LRUに従って secret data は cache から追い出される
+
+
+**unique conflict の回数 < associativity** の場合、secret data は cache に残っていることになる。
+
+これらの条件を定式化することによって、cache の挙動を（より正確に？）追うことができる。
 
 ## 実装
 pass
 
 ## 実験
+
+### Litmus test
+
+Kocher[28]によって作られたテストプログラムで実験を行う。
+- 15個すべてのプログラムにおいて、脆弱性を検出できた。
+  - Microsoft compiler は2つしか検出できなかった。
+
+だが、このテストプログラムは secret data へのアクセスの後にノーマルのメモリアクセスがないため、提案している cache model の効果を検証できない。
+
+### Litmus test (追加)
+
+そこで、追加のテストを行った。使用するプログラムは以下。
+
+```c
+int array1_size = 16;
+char array1[16];
+char array2[256 * 64];
+char array3[512 * 64];
+char temp = 0;
+char victim_fun(ind idx) {
+  register int i;
+  if (idx < array1_size) {
+    temp &= array2[array1[idx]];  // RS
+  }
+#define ITER N
+  for (i = 0; i < ITER; i++) {
+    temp &= array3[i * 64];       // キャッシュを上書きしていく
+  }
+  return temp;
+}
+void main() {
+  int x;
+  klee_make_symbolic(&x, sizeof(x), "x");
+  victim_fun(x);
+}
+```
+
+ここで仮定するキャッシュは
+- 32KiB
+- set-associative
+- LRU replacement policy
+- each cache line -> 64 bytes of data
+
+図に書くと以下。
+
+<img src="img/cache_example.svg" width="800">
+
+また、array2のキャッシュは1番目のsetに保存されるとする。
+
+#### 実験内容
+
+以下を変えて実験
+- cache の associativity (2-way, 4-way, 8-way)
+- iteration の数
+
+#### 実験結果
+
+<img src="img/litmus_result.png" width="600">
+
+2-wayの場合で考える。
+array1[idx]はcharなので1B(8bit)。
+そのうち下位6bitはブロックオフセットとして使われるので、setの選択に有効な(=indexに影響する)のは、上位2bit。
+
+したがって、array2のキャッシュが入りうるsetは4つに絞られる。
+array2のキャッシュは0番目に入るという仮定があったので、結局最初の4つに格納される。
+
+その4つを上書きするのに必要なiterationは256+4=260。
 
 ### cacheモデルの役割
 
