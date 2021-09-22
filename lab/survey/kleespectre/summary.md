@@ -6,7 +6,7 @@
 
 Spectre攻撃(cache経由)によるデータ流出を記号実行を用いて検出する手法の提案。
 
-投機的実行を記号実行で扱えるようにし、さらにキャッシュの挙動もモデル化することで、より正確にSpectre攻撃の検出が行えるようになる。
+投機的実行を記号実行で扱えるようにし、さらにキャッシュの挙動もモデル化することで、より正確にSpectre攻撃(の一種)の検出が行えるようになる。
 
 ---
 
@@ -65,7 +65,8 @@ int victim() {
   - よって、すべての分岐をVBとして扱うのは妥当。
 - 攻撃者は access-based cache side-channel attack か trace-based cache side-channel attack を行うと仮定。(ref [38])
 - 攻撃可能かどうかの判定方法
-  - プログラムの実行の最後で攻撃者が potentially secret なデータを観測できる場合に攻撃可能と判定する。
+  - プログラムの実行の最後で攻撃者が secret なデータを観測できる場合に攻撃可能と判定する。
+    - 何を秘密データとするかについては後述
 
 ---
 
@@ -125,6 +126,8 @@ uint8_t foo(uint32_t x) {
 - キャッシュのモデル化
 
 ### 投機的実行を考慮した記号実行
+
+![symbolic_path](img/symbolic_path.png)
 
 1. p_T1 : x < SIZE, b1 is correctly predicted.
 1. p_F1 : x >= SIZE, b1 is correctly predicted.
@@ -393,3 +396,27 @@ KLEEspetreはcacheのモデル化を行うことにより達成している。
   - 実際にBCB vulnerability を見つけるとこができる。
     - cacheモデルによって、false positive が少ない。
 - microarchitetural features 由来の脆弱性に関するテストの範囲を広げた
+
+---
+
+## 関連研究の調査計画
+
+arahori-sanリストを中心に調査を進めていく。
+
+> 1. 抽象解釈に基づく解析[PLDI'19]: https://dl.acm.org/doi/10.1145/3314221.3314647
+> 1. 記号実行に基づく解析（KLEESpectre以外）[PLDI'20]: https://dl.acm.org/doi/abs/10.1145/3385412.3385970
+> 1. テイント解析に基づく解析[NDSS'21]: https://www.ndss-symposium.org/ndss-paper/spectaint-speculative-taint-analysis-for-discovering-spectre-gadgets/
+> 1. 型システムに基づく解析[POPL'21]: https://dl.acm.org/doi/10.1145/3434330
+> 1. モデル検査に基づく解析[CSF'19]: https://ieeexplore.ieee.org/document/882373
+
+1. Side-channel attacksのサーベイ論文: https://dl.acm.org/doi/10.1145/3456629
+
+---
+
+TODO
+
+1. KLEEspetreの読めていない部分を読む。
+  1. 加えて、最新の状況の調査も行いたい。→ 論文調査
+  1. arahori-san リスト?
+1. 卒論テーマの問題定義
+   - まだ調査が必要
