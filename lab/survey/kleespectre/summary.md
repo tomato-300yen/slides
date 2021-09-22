@@ -213,6 +213,14 @@ KLEEspetre は cache side-channel attack の可能性のあるメモリーアク
 ## 実装
 pass
 
+- KLEE をベースとしている(名前の通り)
+  - symbolic execution engine
+- LLVM 6.0 で生成された LLVM bitcodeを食わせる
+- プログラムが外部関数を使う場合は、KLEE-uClibc とリンクさせた上で使う。
+- SMT solver として STP を使う。
+  - path制約
+  - cache の挙動
+
 ---
 
 ## 実験
