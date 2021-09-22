@@ -413,10 +413,12 @@ arahori-sanリストを中心に調査を進めていく。
 
 ---
 
-TODO
+## TODO
 
-1. KLEEspetreの読めていない部分を読む。
+1. KLEEspectreの読めていない部分を読む。
   1. 加えて、最新の状況の調査も行いたい。→ 論文調査
   1. arahori-san リスト?
 1. 卒論テーマの問題定義
    - まだ調査が必要
+1. KLEEspectreの再現実験
+   - KLEEspectre自体は公開されている。
