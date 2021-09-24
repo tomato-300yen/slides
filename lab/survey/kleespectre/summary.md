@@ -137,7 +137,7 @@ uint8_t foo(uint32_t x) {
 3つ目のパターンを検出したいというモチベーションがある。
 
 が、愚直にやると検査対象の数が指数的に爆発するのでうまく工夫する必要がある。
-KLEEspetreでは2つの工夫をおこなう。
+KLEEspectreでは2つの工夫をおこなう。
 
 1. Speculative Execution Window(SEW)によって、探索する命令数に上限を設ける。(この数に達したら当該分岐の探索は終了)
 1. 秘密データを流出し得ない命令はメモリアクセスであっても無視する。
@@ -150,7 +150,7 @@ KLEEspetreでは2つの工夫をおこなう。
 
 やりたいこと：読み込んだ秘密情報がプログラム終了時点でキャッシュに残っているかを確かめたい。
 
-KLEEspetre は cache side-channel attack の可能性のあるメモリーアクセスシークエンス(set of memory access sequences)のセットを計算する。
+KLEEspectre は cache side-channel attack の可能性のあるメモリーアクセスシークエンス(set of memory access sequences)のセットを計算する。
 
 それぞれのシークエンスは以下のように構成されている。
 
@@ -225,15 +225,23 @@ pass
 
 ## 実験
 
-### Litmus test
+### Research Questions
+
+- RQ1. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
+- RQ2. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
+- RQ3. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+
+### Litmus test (RQ1, RQ3)
 
 Kocher[28]によって作られたテストプログラムで実験を行う。
 - 15個すべてのプログラムにおいて、脆弱性を検出できた。
   - Microsoft compiler は2つしか検出できなかった。
 
-だが、このテストプログラムは secret data へのアクセスの後にノーマルのメモリアクセスがないため、提案している cache model の効果を検証できない。
+> - RQ1. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
 
-### Litmus test (追加)
+Yes.
+
+だが、このテストプログラムは secret data へのアクセスの後にノーマルのメモリアクセスがないため、提案している **cache model の効果を検証できない**。
 
 そこで、追加のテストを行った。使用するプログラムは以下。
 
@@ -291,6 +299,7 @@ array1[idx]はcharなので1B(8bit)。
 array2のキャッシュは0番目に入るという仮定があったので、結局最初の4つに格納される。
 
 その4つを上書きするのに必要なiterationは256+4=260。
+図を見ると、260で Leakage free になっていることがわかる。
 
 ### BCB Gadgets in Real Program
 
@@ -304,7 +313,7 @@ SEW=50, 100 のそれぞれで実験を行った。
 #### 実験結果
 ![table2](img/table2.png)
 
-かなり見づらいが、str2keyで一つの脆弱性を発見した。以下のようなもの。
+str2keyで一つの脆弱性を発見した。以下のようなもの。
 
 ```c
 void DES_set_odd_parity(DES_cblock *key) {
@@ -314,6 +323,8 @@ void DES_set_odd_parity(DES_cblock *key) {
   }
 }
 ```
+
+**ほとんどのプログラムでSpectre脆弱性は発見されなかった。**
 
 ### Leakage Detection with Cache Modeling
 
@@ -326,16 +337,49 @@ void DES_set_odd_parity(DES_cblock *key) {
 - N(LS) : leakage of potentially secret data
 - delta(LS) : leakage of user-marked secret
 
-上の表からわかること
+上の表より、RQ3に対して以下のことが言える。
+> - RQ3. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+
 - cache modelを導入することにより、検出件数が減る(ocb3)
-  - false positive を削っている。
+  - **false positive を削っている。**
   - 実際はcacheは上書きされるが、cacheの挙動がわからないが故に、false positiveを作っている。
 - associativity を上げると、検出数が増える。
   - associativityを上げることによって、キャッシュから追い出されづらくなる。
+  - **cache の挙動の正確な再現**
 
-### cacheモデルの役割
+### 007との比較(RQ2)
 
-False positive を減らす
+2つのプログラムに対して実験を行った。
+- `trie` from the `freeadius`
+  - 1h程度
+  - with cache : 1
+  - without cache : 1
+- `touch` from `coreutils`
+  - 12h程度
+  - with cache : 1
+  - without cache : 1
+
+> - RQ2. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
+
+efficient?
+
+---
+
+## 課題
+
+- Path Explosion
+  - 通常の記号実行よりも多くpathを探索する。(SEWによって実行する命令は限られている。)
+  - スケールしない(しにくい)
+  - 簡単な静的解析を始めにやっておくことで、探索するpathを減らすという手法は使える。
+- Precise Modeling of Program Behavior
+  - 生のbinaryを扱わないので、プログラムの挙動が正確ではない可能性がある(compiler optimization)
+  - KLEEspectreはsoundにやるので、false positiveが多くなる。
+- Explicit Modeling of Cache
+  - explicit にcacheをモデル化することで、さらなる解析が可能になる
+  - が、setやassociativityなど、外から与えるparameterが必要で、コレをミスすると解析にfalse (positive/negative)が増える。
+- The Setting of Speculative Execution Window (SEW)
+  - SEWを不正確に設定すると、解析の結果も不正確になる。
+  - 通常は Reorder Buffer(RoB) と同等程度のSEWを設定する。
 
 ---
 
@@ -348,7 +392,7 @@ False positive を減らす
 - cacheを撹乱してsensitibe dataのleakを防ぐ手法(CEASER [37], ScatterCache[42])
 
 上記手法はハードウェアに大きく依存している。
-KLEEspetreは、分岐予測をもとに投機的実行を行う任意のプロセッサの上で動く任意のアプリケーションを対象にできる。
+KLEEspectreは、分岐予測をもとに投機的実行を行う任意のプロセッサの上で動く任意のアプリケーションを対象にできる。
 
 ### Spectre攻撃に対するソフトウェアからのアプローチ
 
@@ -358,13 +402,13 @@ KLEEspetreは、分岐予測をもとに投機的実行を行う任意のプロ�
   - 上記の手法と同様、実行時オーバーヘッドがひどい
     - "potentially" vulnerable な命令すべてに対して遅延を導入するため
 
-KLEEspetreと併用することによって、実行時のオーバーヘッドを削減することができる。
+KLEEspectreと併用することによって、実行時のオーバーヘッドを削減することができる。
 
 - Microsoft Visual C/C++ コンパイラ[15]
   - オプションで"lfence"と呼ばれるコードを挿入することで防御をしているが、2/15しか防げていない(Spectre litmus test)。
 - 静的解析によって投機的実行をモデル化する手法(草分け的論文?)。(007, TSE'20)
   - conservative static analysis 由来のfalse positiveが顕著
-  - KLEEspetreのほうが優れている（らしい）
+  - KLEEspectreのほうが優れている（らしい）
 
 ### Speculative Semantics and Formal Models
 
@@ -385,7 +429,7 @@ KLEEspetreと併用することによって、実行時のオーバーヘッド�
 - speculative noninterference?を用いた記号実行(SPECTECTOR, [23])
 
 上記の手法は、speculative semantics のモデル化し、プログラム解析における脆弱性を定義しているものの、cache side-channel攻撃のモデル化とチェックは行っていない。
-KLEEspetreはcacheのモデル化を行うことにより達成している。
+KLEEspectreはcacheのモデル化を行うことにより達成している。
 
 ### Side-Channel Analysis without Cache Modeling
 
@@ -398,7 +442,7 @@ KLEEspetreはcacheのモデル化を行うことにより達成している。
 
 ## 結論
 
-- KLEEspetre という新しいテストツールの提案
+- KLEEspectre という新しいテストツールの提案
   - 投機的実行やキャッシュ(microarchitectural features)を扱うことができる記号実行のフレームワーク(?)
   - hardware でプログラムを動かす際のmicroarchitectural features由来の脆弱性を検出できるようになる
   - 実際にBCB vulnerability を見つけるとこができる。
