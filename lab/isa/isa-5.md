@@ -48,7 +48,7 @@ Sparse analysis is independent of its underlying analysis.
 That is,
 1. Design a sound analysis
 2. Add sparse analysis to improve its scalability
-  - its precision is preserved
+    - its precision is preserved
 
 ---
 
@@ -86,18 +86,18 @@ We need only <red>red</red> part.
 
 ---
 
-# Spatial Sparsity
+# Spatial Sparsity (1/3)
 
 Notation:
-- $dom(M^{\sharp})$ : $\mathbb{M}^{\sharp} \rightarrow \wp (\mathbb{A^{\sharp}})$ 
+- $dom(M^{\sharp})$ : $\mathbb{M}^{\sharp} \rightarrow \wp (\mathbb{X})$ 
   - entries of $M^{\sharp}$
-- $Access^{\sharp}(l)$ : $\mathbb{L} \rightarrow \wp (\mathbb{A^{\sharp}})$
+- $Access^{\sharp}(l)$ : $\mathbb{L} \rightarrow \wp (\mathbb{X})$
   - set of abstract locations that may be accessed by the program in label $l$
 
 
 ---
 
-# Spatial Sparsity
+# Spatial Sparsity (2/3)
 
 The abstract semantics function
 $$F^{\sharp} : (\mathbb{L} \rightarrow \mathbb{M}^{\sharp}) \rightarrow (\mathbb{L} \rightarrow \mathbb{M}^{\sharp})$$
@@ -113,7 +113,7 @@ $$\mathbb{M}^{\sharp}_{sparse} = \{ M^{\sharp} \in \mathbb{M}^{\sharp} \enspace 
 
 ---
 
-# Spatial Sparsity
+# Spatial Sparsity (3/3)
 
 Then, when $Access^{\sharp}(\cdot)$ is computed?
 - → before the main analysis starts ( so called *pre-analysis* )
@@ -491,6 +491,7 @@ $$
 
 # Backward analysis and Applications (4/4)
 
+Use case:
 - Provide *necessary condition* for a specific behavior to occur
   - = provide *sufficient condition* for a specific behavior not to occur
 - Program understanding
@@ -552,7 +553,7 @@ if (y <= x) {
   ... // ------------------- 2
     if (x <= 4) {
       ... // --------------- 3
-        if (5 <= y){
+        if (5 <= y) {
           ... // ----------- 4
         }
     }
