@@ -54,6 +54,119 @@ pre-commitを共有することで
 共同開発では`pre-commit`というツールを使うのがおすすめ。
 yamlファイルで、レポジトリごとにpre-commitを設定できる。
 
+github actionsなどが使えない環境(ex. backlogのgit)では重宝する。
+
 ## binary
+あまり面白くないので後回し。
+
+- diff生成の設定: https://git-scm.com/docs/gitattributes#_generating_diff_text
 
 ## repo size
+
+## diff
+
+- 参考文献
+  - 公式doc
+    - https://git-scm.com/docs/gitattributes#_generating_diff_text
+  - qiita
+    - https://qiita.com/yuya_presto/items/ef199e08021dea777715
+
+### 前提知識
+
+gitの(globalな)設定は`~/.gitconfig`で行うことができる。
+最低限の場合こんな感じ
+
+```
+[user]
+  name = Yusuke Uchida
+  email = hogehoge@gmail.com
+```
+
+直接`~/.gitconfig`を編集するか、以下のコマンドを実行することで設定可能。
+
+```
+git config --global user.name Yusuke Uchida
+git config --global user.email hogehoge@gmail.com
+```
+
+gitのファイルごとの設定は`~/.gitattributes`で行うことができる。
+例えば
+
+```
+*.py diff=python
+```
+
+この意味は後述。
+
+### 色をつける
+
+```
+[color]
+  ui = auto
+```
+### word単位でdiffを表示する
+
+デフォルトでは行単位でdiffが表示される。場合によっては単語単位で表示したほうが見やすい。
+
+```
+git diff --color-words
+```
+
+### 各種言語の文法を考慮し見やすくする
+
+`~/.gitattributes`でdiffの生成ルールを指定できる。
+diff生成ルールは1から指定可能だが、いくつかのファイル用にデフォルトでルールが用意されている。
+
+例えば`~/.gitattributes`に以下を追加することで
+
+```
+*.py diff=python
+```
+
+pythonファイルのdiffがかなり見やすくなる。
+
+**ここに例を追加**
+
+### そもそもdiff属性とは
+
+- Set
+  - テキストとして扱う。
+- Unset
+  - バイナリファイルとして扱う。
+- Unspecified
+  - テキストっぽいファイルはテキストとして扱う。それ以外はバイナリとして扱う。
+- String
+  - "diff driver"(後述)を指定する。"foo"が指定された場合、configの"diff.foo"で定義されたルールを使う。
+
+#### diff driver
+
+diff driverの定義方法は省略。知りたい方は[ドキュメント](https://git-scm.com/docs/gitattributes#_defining_an_external_diff_driver)を参照。
+
+git本体によっていくつかのdiff driverが用意されている。(以下に列挙)
+
+- ada
+- bash
+- bibtex
+- cpp
+- csharp
+- css
+- dts
+- elixir
+- fortran
+- fountain
+- golang
+- html
+- java
+- markdown
+- matlab
+- objc
+- pascal
+- perl
+- php
+- python
+- ruby
+- rust
+- scheme
+- tex
+
+ここに列挙されているファイルタイプに関してはデフォルトのdiff driverを使えば良い。
