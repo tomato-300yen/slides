@@ -129,12 +129,26 @@ pythonファイルのdiffがかなり見やすくなる。
 
 ### そもそもdiff属性とは
 
+gitconfigで定義し、
+```
+[diff "tex"]
+  wordRegex = "\\\\[a-zA-Z]+|[{}]|\\\\.|[^\\{}[:space:]]+"
+```
+
+gitattributesで指定できる。
+```
+*.tex diff=tex
+```
+
+pathに対して、diff(に限らずその他)属性は以下の状態を取ることができる。
+
 - Set
-  - テキストとして扱う。
+  - textとして扱う。
 - Unset
-  - バイナリファイルとして扱う。
-- Unspecified
-  - テキストっぽいファイルはテキストとして扱う。それ以外はバイナリとして扱う。
+  - binaryとして扱う。
+    - つまり`Binary files differ`をdiffの生成ルールとして使う。
+- Unspecified(default)
+  - textっぽいファイルはtextとして扱う。それ以外はbinaryとして扱う。
 - String
   - "diff driver"(後述)を指定する。"foo"が指定された場合、configの"diff.foo"で定義されたルールを使う。
 
