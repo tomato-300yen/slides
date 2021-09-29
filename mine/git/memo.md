@@ -23,6 +23,7 @@ pre-commitを共有することで
 - pep8違反コード片はそもそもcommitさせない
 - commit前にautopep8を実行
 - 巨大ファイルのcommitを防ぐ
+- awsの認証情報のcommitを防ぐ
 
 などのことができる。
 
@@ -33,10 +34,11 @@ pre-commitを共有することで
       - pre-commit, post-commit, post-checkout, ...
 
 どこにスクリプトをおくか？
-1. hookの探索対象のディレクトリ
-   - default : `$GIT_DIR/hooks/`
+1. hookの探索対象のディレクトリにおく
+   - default : `$GIT_DIR/hooks/` (ex. repo-name/.git/hooks/)
       - `git config core.hooksPath`によって変更可能。
       - 相対pathを指定した時は、$GIT_DIRからの相対pathとして扱われる。
+      - 絶対pathを指定した時は、全てのrepoにおいて共通のhookを使うことになる。
    - git はこのディレクトリ内で見つかったスクリプトを実行する
 1. `init.templatedir`におく。
    - `git init`した時に、hookスクリプトをレポジトリの`.git`以下にコピー
@@ -45,7 +47,7 @@ pre-commitを共有することで
       - `git config --global init.templatedir '~/.git_templates'`
 
 おすすめは2つ目のtemplateを使う方法。
-既存レポジトリでも`git init`を実行することで、新たに追加したtemplateをコピーしてこれる。
+既存レポジトリでも`git init`を実行することで、新たに追加したtemplateをコピーできる。
 
 ### どうやって共有するか
 
@@ -60,8 +62,6 @@ github actionsなどが使えない環境(ex. backlogのgit)では重宝する�
 あまり面白くないので後回し。
 
 - diff生成の設定: https://git-scm.com/docs/gitattributes#_generating_diff_text
-
-## repo size
 
 ## diff
 
@@ -184,3 +184,61 @@ git本体によっていくつかのdiff driverが用意されている。(以�
 - tex
 
 ここに列挙されているファイルタイプに関してはデフォルトのdiff driverを使えば良い。
+
+## repo size
+
+参考文献
+- bitbucket
+  - https://support.atlassian.com/bitbucket-cloud/docs/maintain-a-git-repository/
+- git-objects
+  - https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
+- git-gc
+  - https://git-scm.com/docs/git-gc
+- git-filter-branch
+  - https://git-scm.com/docs/git-filter-branch
+
+### Caution
+
+歴史改変コマンドを使用するため以下の注意が必要。
+- 事前にbackupを取っておく。
+  - `--mirror`オプション付きでclone
+    - `git clone --mirror https://github.com/foo/bar.git`
+- それぞれの操作には細心の注意を払うこと。
+- remoteへのpushは慎重に。
+  - `repo-dir/.git/config`でremoteのurlを消しておくのも1つの手
+
+### 実験として使うレポジトリ
+
+- SSD_OCR
+  - (重みをgitで管理していた過去があるっぽかったので)
+  - [参照](https://ai-orw4874.slack.com/archives/C01U15XN0EM/p1621785455057500)
+
+### git objects
+
+詳細はドキュメントに譲る([git-objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects))。
+
+git-objectsには**変更履歴が格納**されており、ここを参照することで**任意のタイミング**でのソースコードの状態を復元できる。
+
+= どんなファイルでも一度コミットされたものは**すべてが復元可能な形で保持**されている。
+
+= (巨大な/大量の)ファイルをcommitした場合
+- git-objectsのサイズが膨らむ
+  - **ファイルを削除するcommitだけではgit-objectsのサイズは減らない**
+
+git-objectsが巨大であることの弊害
+- cloneが遅くなる
+  - `SSD_OCR`: 3m22s
+
+
+### 状況の確認と前準備
+
+サイズの確認
+```
+~/Code/nagase/SSD_OCR master
+❯ du -sh .
+630M    .
+
+~/Code/nagase/SSD_OCR master
+❯ du -sh .git/objects
+531M    .git/objects
+```
