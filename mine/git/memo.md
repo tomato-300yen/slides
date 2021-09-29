@@ -207,12 +207,6 @@ git本体によっていくつかのdiff driverが用意されている。(以�
 - remoteへのpushは慎重に。
   - `repo-dir/.git/config`でremoteのurlを消しておくのも1つの手
 
-### 実験として使うレポジトリ
-
-- SSD_OCR
-  - (重みをgitで管理していた過去があるっぽかったので)
-  - [参照](https://ai-orw4874.slack.com/archives/C01U15XN0EM/p1621785455057500)
-
 ### git objects
 
 詳細はドキュメントに譲る([git-objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects))。
@@ -228,6 +222,12 @@ git-objectsには**変更履歴が格納**されており、ここを参照す�
 git-objectsが巨大であることの弊害
 - cloneが遅くなる
   - `SSD_OCR`: 3m22s
+
+### 実験として使うレポジトリ
+
+- SSD_OCR
+  - (重みをgitで管理していた過去があるっぽかったので)
+  - [参照](https://ai-orw4874.slack.com/archives/C01U15XN0EM/p1621785455057500)
 
 
 ### 状況の確認と前準備
