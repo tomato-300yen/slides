@@ -196,6 +196,8 @@ KLEEspectre は cache side-channel attack の可能性のあるメモリーア�
 
 ![cache_definition](img/cache_definition.png)
 
+cacheに読み込んだデータがcacheに残っているかどうかを確認するためには以下の4つの状況を考える必要がある。
+
 ![cache_conflict](img/cache_conflict.png)
 
 - (a) : conflict について
@@ -206,7 +208,36 @@ KLEEspectre は cache side-channel attack の可能性のあるメモリーア�
 
 **unique conflict の回数 < associativity** の場合、secret data は cache に残っていることになる。
 
-これらの条件を定式化することによって、cache の挙動を（より正確に？）追うことができる。
+<!-- これらの条件を定式化することによって、cache の挙動を（より正確に）追うことができる。 -->
+
+準備
+- $\operatorname{set}\left(r_{i}\right)=\left(\sigma_{i} \gg B\right) \&\left(2^{S}-1\right)$
+- $\operatorname{tag}\left(r_{i}\right)=\sigma_{i} \gg(B+S)$
+
+$r_j$が$r_i$に対してconflictする条件
+- $\psi_{c n f}\left(r_{i}, r_{j}\right) \equiv\left(\operatorname{set}\left(r_{i}\right)=\operatorname{set}\left(r_{j}\right)\right) \wedge\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{j}\right)\right)$
+
+$r_j$がuniqueなconflictである条件
+- $\psi_{\text {unq }}\left(r_{j}\right) \equiv \bigwedge_{k \in(j, N] \wedge r_{k} \in N_{t}}\left(\operatorname{set}\left(r_{j}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{j}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
+  - $N_t$: 通常実行でのメモリ関連の命令の集合
+  - 後続の$r_k \in N_t$が$r_j$と
+    - setが異なるか
+    - setが同じだったとしてもtagが異なる
+
+$r_j$の後に再び$r_i$が読まれない条件
+- $\psi_{r e l}\left(r_{i}, r_{j}\right) \equiv \bigwedge_{k \in(j, N]}\left(\operatorname{set}\left(r_{i}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
+
+上記をまとめ、「$r_i$で読んだメモリブロックの位置が$r_j$によって変更され、それが実行の最後まで打ち消されない」は以下の$cnf_{i, j}$によって判定可能
+- $\Theta_{j, i}^{+} \equiv \psi_{c n f}\left(r_{i}, r_{j}\right) \wedge \psi_{u n q}\left(r_{j}\right) \wedge \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=1\right)$
+- $\Theta_{j, i}^{-} \equiv \neg \psi_{c n f}\left(r_{i}, r_{j}\right) \vee \neg \psi_{u n q}\left(r_{j}\right) \vee \neg \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=0\right)$
+
+最終的に$r_i$で読んだメモリブロックに対してSpectre攻撃が可能かどうかは、以下の$\operatorname{spec}_i$によって判定可能
+- $\lambda_{i} \equiv\left(\sum_{j \in[i+1, N] \wedge r_{j} \in N_{t}} c n f_{i, j}<\mathcal{A}\right) \Rightarrow \operatorname{spec}_{i}$
+  - $\mathcal{A}$ : set associativity
+
+まとめると、以下のモデルを使うことによりSpectre攻撃の可能性について考察することができる。
+- $\Gamma_{\text {spectre }} \equiv \bigwedge_{r_{i} \in N_{s}}\left(\lambda_{i} \wedge\left(\bigwedge_{j \in[i+1, N] \wedge r_{j} \in N_{t}} \Theta_{j, i}^{+} \wedge \Theta_{j, i}^{-}\right)\right) \wedge\left(\sum_{r_{i} \in N_{s}} \operatorname{spec}_{i}\right)$
+  - $\Gamma_{\text {spectre }}$がTrueかつその時に限りSpectre攻撃が可能
 
 ---
 
@@ -227,9 +258,9 @@ pass
 
 ### Research Questions
 
-- RQ1. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
-- RQ2. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
-- RQ3. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+- **RQ1**. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
+- **RQ2**. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
+- **RQ3**. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
 
 ### Litmus test (RQ1, RQ3)
 
@@ -301,6 +332,10 @@ array2のキャッシュは0番目に入るという仮定があったので、�
 その4つを上書きするのに必要なiterationは256+4=260。
 図を見ると、260で Leakage free になっていることがわかる。
 
+> How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+
+cacheの動作を考慮してSpectre攻撃の可能性を見つけられる。
+
 ### BCB Gadgets in Real Program
 
 #### 使用するプログラム
@@ -325,6 +360,7 @@ void DES_set_odd_parity(DES_cblock *key) {
 ```
 
 **ほとんどのプログラムでSpectre脆弱性は発見されなかった。**
+ので、、、
 
 ### Leakage Detection with Cache Modeling
 
@@ -337,7 +373,7 @@ void DES_set_odd_parity(DES_cblock *key) {
 - N(LS) : leakage of potentially secret data
 - delta(LS) : leakage of user-marked secret
 
-上の表より、RQ3に対して以下のことが言える。
+Litmus testと上の表より、RQ3に対して以下のことが言える。
 > - RQ3. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
 
 - cache modelを導入することにより、検出件数が減る(ocb3)
