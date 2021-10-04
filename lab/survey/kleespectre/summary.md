@@ -22,7 +22,7 @@ Spectre攻撃(cache経由)によるデータ流出を記号実行を用いて検
 
 すでに輪講で扱っているので軽く。
 
-プログラムの入力を記号として扱い、pathを探索していく過程で制約を集め、その制約を解くことによりそのpathを通るような入力を生成する手法。
+プログラムの入力を記号として扱い、pathを探索していく過程で制約を集め、その制約を解くことによりあるpathを通るような入力を生成する手法。
 
 ### Bounds Check Bypass (BCB) Attack
 
@@ -94,7 +94,7 @@ uint8_t foo(uint32_t x) {
 
 ![symbolic_path](img/symbolic_path.png)
 
-- 通常の実行を行った場合、out-of-bound access はおきない。
+- 通常の実行を行った場合、out-of-bound access は起きない。
 - (b)は従来の記号実行を行った時の execution tree
 - \(c\)はこの論文でやりたいこと(以下で解説)
 
@@ -108,7 +108,7 @@ uint8_t foo(uint32_t x) {
 - array1[x] が参照される。(out-of-bound reference) (temp に代入される)
 - そのデータをもとにして、array2[temp]が参照される。
   - array1[x] が秘密データを参照していた場合、ここで得られる値も秘密データに依存していることになる。
-  - ここで読んだ値がcacheに残っている場合、攻撃者は間接的にarray1[x]の値を入手してしまう。
+  - ここで読んだ値がcacheに残っている場合、攻撃者は**間接的にarray1[x]の値を入手**してしまう。
 
 従来の記号実行ではこのデータリークは検出できない。
 これを検出するためには、
@@ -129,17 +129,17 @@ uint8_t foo(uint32_t x) {
 
 ![symbolic_path](img/symbolic_path.png)
 
-1. p_T1 : x < SIZE, b1 is correctly predicted.
-1. p_F1 : x >= SIZE, b1 is correctly predicted.
-1. sp_T1 : x >= SIZE, b1 is mis-predicted. (秘密情報をリークする可能性があるのはこのパターン)
-1. sp_F1 : x < SIZE, b1 is mis-predicted.
+1. **p_T1** : x < SIZE, b1 is correctly predicted.
+1. **p_F1** : x >= SIZE, b1 is correctly predicted.
+1. **sp_T1** : x >= SIZE, b1 is mis-predicted. (秘密情報をリークする可能性があるのはこのパターン)
+1. **sp_F1** : x < SIZE, b1 is mis-predicted.
 
 3つ目のパターンを検出したいというモチベーションがある。
 
 が、愚直にやると検査対象の数が指数的に爆発するのでうまく工夫する必要がある。
 KLEEspectreでは2つの工夫をおこなう。
 
-1. Speculative Execution Window(SEW)によって、探索する命令数に上限を設ける。(この数に達したら当該分岐の探索は終了)
+1. Speculative Execution Window(SEW)による探索命令数の上限。
 1. 秘密データを流出し得ない命令はメモリアクセスであっても無視する。
   - 何を秘密データとするか(詳しくは後述するが、大きく分けて2つの戦略がある)
     1. 範囲外参照先の値
@@ -186,15 +186,25 @@ KLEEspectre は cache side-channel attack の可能性のあるメモリーア�
 
 記号実行のアルゴリズムは省略。キャッシュのモデル化のうちキーとなる考え方の部分を紹介する。
 
-### cache conflictについて
-
-そもそもcacheってなんだったっけ？
+### cache の構造
 
 <img src="img/cache_intro.svg" width="800">
 
 この先で用いる（かもしれない）記号の定義
 
 ![cache_definition](img/cache_definition.png)
+
+### Cache Conflict とは
+- $r_i$, $r_j$: メモリ操作行う命令
+- $\zeta _i$ ($\zeta _j$, resp.) : $r_i$ ($r_j$, resp.)を実行した直後のキャッシュの状態
+
+$r_j$が次の場合にのみ **cache conflict** を発生させる。
+- $r_j$が$r_i$の後に実行される
+- $\zeta _i$と$\zeta _j$を比較し
+  - $r_i$によってキャッシュに挿入されたブロックの**相対的位置**が$r_j$によって変更される
+
+
+### データリーク検出
 
 cacheに読み込んだデータがcacheに残っているかどうかを確認するためには以下の4つの状況を考える必要がある。
 
@@ -206,27 +216,30 @@ cacheに読み込んだデータがcacheに残っているかどうかを確認�
 - (d) : unique conflict の回数が cache の associativity を超える場合、LRUに従って secret data は cache から追い出される
 
 
-**unique conflict の回数 < associativity** の場合、secret data は cache に残っていることになる。
+**(上の条件を満たす)unique conflict の回数 < associativity** の場合、secret data は cache に残っていることになる。
 
 <!-- これらの条件を定式化することによって、cache の挙動を（より正確に）追うことができる。 -->
 
-準備
+### 定式化
+
+#### 準備
 - $\operatorname{set}\left(r_{i}\right)=\left(\sigma_{i} \gg B\right) \&\left(2^{S}-1\right)$
 - $\operatorname{tag}\left(r_{i}\right)=\sigma_{i} \gg(B+S)$
 
-$r_j$が$r_i$に対してconflictする条件
+#### $r_j$が$r_i$に対してconflictする条件(a)
 - $\psi_{c n f}\left(r_{i}, r_{j}\right) \equiv\left(\operatorname{set}\left(r_{i}\right)=\operatorname{set}\left(r_{j}\right)\right) \wedge\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{j}\right)\right)$
 
-$r_j$がuniqueなconflictである条件
+#### $r_j$がuniqueなconflictである条件(b)
 - $\psi_{\text {unq }}\left(r_{j}\right) \equiv \bigwedge_{k \in(j, N] \wedge r_{k} \in N_{t}}\left(\operatorname{set}\left(r_{j}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{j}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
   - $N_t$: 通常実行でのメモリ関連の命令の集合
   - 後続の$r_k \in N_t$が$r_j$と
     - setが異なるか
     - setが同じだったとしてもtagが異なる
 
-$r_j$の後に再び$r_i$が読まれない条件
+#### $r_j$の後に再び$r_i$が読まれない条件\(c\)
 - $\psi_{r e l}\left(r_{i}, r_{j}\right) \equiv \bigwedge_{k \in(j, N]}\left(\operatorname{set}\left(r_{i}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
 
+#### まとめ
 上記をまとめ、「$r_i$で読んだメモリブロックの位置が$r_j$によって変更され、それが実行の最後まで打ち消されない」は以下の$cnf_{i, j}$によって判定可能
 - $\Theta_{j, i}^{+} \equiv \psi_{c n f}\left(r_{i}, r_{j}\right) \wedge \psi_{u n q}\left(r_{j}\right) \wedge \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=1\right)$
 - $\Theta_{j, i}^{-} \equiv \neg \psi_{c n f}\left(r_{i}, r_{j}\right) \vee \neg \psi_{u n q}\left(r_{j}\right) \vee \neg \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=0\right)$
