@@ -40,3 +40,5 @@ access(probe_array[data * 4096]);
 1. OoO実行でアクセスしたところの特定。
 
 ![flush-reload](img/flush-reload.png)
+
+どうやら84番目のページにアクセスしたらしい。
