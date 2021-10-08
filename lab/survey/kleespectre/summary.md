@@ -14,15 +14,21 @@ Spectre攻撃(cache経由)によるデータ流出を記号実行を用いて検
 
 ### 投機的実行 (Speculative execution)
 
-- プロセッサのパフォーマンス向上の観点から、分岐命令の計算結果を計算している最中に分岐先を予測して命令を実行する。(投機的実行)
+```c
+if ( ( a + b ) % 2 != 0 ) {
+  a += 1;
+}
+```
+
+- 分岐命令の計算結果を計算している最中に分岐先を予測して命令を実行する。
 - 分岐予測が間違っていた場合、実行した命令はロールバックされる
-  - 投機的実行の過程で変更されたキャッシュの状態はパフォーマンスの観点からロールバックされない。(コレがまずい)
+  - キャッシュの状態はロールバック**されない**。
 
-### 記号実行
+<!-- ### 記号実行 -->
 
-すでに輪講で扱っているので軽く。
+<!-- すでに輪講で扱っているので軽く。 -->
 
-プログラムの入力を記号として扱い、pathを探索していく過程で制約を集め、その制約を解くことによりあるpathを通るような入力を生成する手法。
+<!-- プログラムの入力を記号として扱い、pathを探索していく過程で制約を集め、その制約を解くことによりあるpathを通るような入力を生成する手法。 -->
 
 ### Bounds Check Bypass (BCB) Attack
 
@@ -39,33 +45,15 @@ if (x < array1_size) {  // VB
 - RS : Read Secret
 - LS : Leak Secret
 
-### 具体的なコードといくつかの仮定
+### 仮定
 
-```c
-int a=100, size=16;
-char array1[16];
-char array2[256*64];
-int victim() {
-  int y=0, tmep=0;
-  if (a < size) {  // VB
-    y = array1[a];
-    temp |= array2[y];
-  }
-  return temp;
-}
-```
-
-- then節はdead codeだが、投機的実行によって実行され得る。(VB)
-  - 実行されてキャッシュに読み出されたとしても、キャッシュのロールバックは行われない。
-
-仮定
-- 攻撃対象と攻撃者は同じマシン上にいることを仮定。(ref. [31])
-- プロセッサーの分岐予測器は外部から(間違った側に)訓練(mis-train)できる。(ref. [9])
-  - すべての分岐は潜在的にmis-trainedされる可能性がある。
-  - よって、すべての分岐をVBとして扱うのは妥当。
-- 攻撃者は access-based cache side-channel attack か trace-based cache side-channel attack を行うと仮定。(ref [38])
+- 攻撃対象と攻撃者は**同じマシン上**にいる(ref. [31])
+- プロセッサーの分岐予測器は**外部から訓練(操作)できる**(ref. [9])
+  - すべての分岐は潜在的にmis-trainedされる可能性がある
+    - すべての分岐をVBとして扱うのは妥当
+- 攻撃者は (access-based or trace-based) cache side-channel attack を行う(ref [38])
 - 攻撃可能かどうかの判定方法
-  - プログラムの実行の最後で攻撃者が secret なデータを観測できる場合に攻撃可能と判定する。
+  - **実行終了時点で**攻撃者が secret なデータを観測できる場合に攻撃可能と判定
     - 何を秘密データとするかについては後述
 
 ---
@@ -146,45 +134,40 @@ KLEEspectreでは2つの工夫をおこなう。
     2. 外から明示的に秘密データを指定
   - 上の例で言えば、sp_T1の場合でコード片Aを実行している場合のみを考慮する。
 
-### キャッシュのモデル化
+<!-- ### キャッシュのモデル化 -->
 
-やりたいこと：読み込んだ秘密情報がプログラム終了時点でキャッシュに残っているかを確かめたい。
+<!-- やりたいこと：読み込んだ秘密情報がプログラム終了時点でキャッシュに残っているかを確かめたい。 -->
 
-KLEEspectre は cache side-channel attack の可能性のあるメモリーアクセスシークエンス(set of memory access sequences)のセットを計算する。
+<!-- KLEEspectre は cache side-channel attack の可能性のあるメモリーアクセスシークエンス(set of memory access sequences)のセットを計算する。 -->
 
-それぞれのシークエンスは以下のように構成されている。
+<!-- それぞれのシークエンスは以下のように構成されている。 -->
 
-- 少なくとも１つの、投機実行path上のメモリアクセス
-  - secret data に関連するアクセスのみ(計算量を抑えるため)
-  - 投機実行におけるデータリークにのみ興味があるため
-- 複数の通常実行でのメモリアクセス
+<!-- - 少なくとも１つの、投機実行path上のメモリアクセス -->
+<!--   - secret data に関連するアクセスのみ(計算量を抑えるため) -->
+<!--   - 投機実行におけるデータリークにのみ興味があるため -->
+<!-- - 複数の通常実行でのメモリアクセス -->
 
-メモリアクセス単体は以下のように表せる。
+<!-- メモリアクセス単体は以下のように表せる。 -->
 
-- (A, x > SIZE, &array2[array1[x]])
-  - &array2[array1[x]] を
-  - x > SIZE という記号制約(symbolic constrain)で
-  - Aのコード片から
+<!-- - (A, x > SIZE, &array2[array1[x]]) -->
+<!--   - &array2[array1[x]] を -->
+<!--   - x > SIZE という記号制約(symbolic constrain)で -->
+<!--   - Aのコード片から -->
 
-シークエンスは以下のように表せる。
+<!-- シークエンスは以下のように表せる。 -->
 
-- ((A, x > SIZE, &array2[array1[x]]), (C, x > SIZE, &array3[8]))
-  - この例はsp_T1, p_F1の順番で実行する例
-  - sp_T1 はmis-predict
+<!-- - ((A, x > SIZE, &array2[array1[x]]), (C, x > SIZE, &array3[8])) -->
+<!--   - この例はsp_T1, p_F1の順番で実行する例 -->
+<!--   - sp_T1 はmis-predict -->
 
-このようなシークエンスを記号実行を通して集める。
+<!-- このようなシークエンスを記号実行を通して集める。 -->
 
-そして、以下の条件を考えることにより、プログラム実行終了時にキャッシュに秘密データが残っているかどうかを計算できる。(残っている場合にTrue)
+<!-- そして、以下の条件を考えることにより、プログラム実行終了時にキャッシュに秘密データが残っているかどうかを計算できる。(残っている場合にTrue) -->
 
-- (x > SIZE) and (set(array2[arra1[x]]) != set(&array3[8])) or (tag(&array2[array1[x]]) = tag(&array3[8]))
-  - orの前半：投機実行で秘密データをキャッシュに読み出して、かつ、かつ後続のメモリアクセスによって上書きされない。
-  - orの後半：投機実行では読み出されなかったものの、&array3[8]の読み出しと一緒にキャッシュに読み出された場合。
+<!-- - (x > SIZE) and (set(array2[arra1[x]]) != set(&array3[8])) or (tag(&array2[array1[x]]) = tag(&array3[8])) -->
+<!--   - orの前半：投機実行で秘密データをキャッシュに読み出して、かつ、かつ後続のメモリアクセスによって上書きされない。 -->
+<!--   - orの後半：投機実行では読み出されなかったものの、&array3[8]の読み出しと一緒にキャッシュに読み出された場合。 -->
 
----
-
-## 提案手法の詳細(アルゴリズムなど)
-
-記号実行のアルゴリズムは省略。キャッシュのモデル化のうちキーとなる考え方の部分を紹介する。
 
 ### cache の構造
 
@@ -194,7 +177,7 @@ KLEEspectre は cache side-channel attack の可能性のあるメモリーア�
 
 ![cache_definition](img/cache_definition.png)
 
-### Cache Conflict とは
+#### Cache Conflict とは
 - $r_i$, $r_j$: メモリ操作行う命令
 - $\zeta _i$ ($\zeta _j$, resp.) : $r_i$ ($r_j$, resp.)を実行した直後のキャッシュの状態
 
@@ -204,7 +187,7 @@ $r_j$が次の場合にのみ **cache conflict** を発生させる。
   - $r_i$によってキャッシュに挿入されたブロックの**相対的位置**が$r_j$によって変更される
 
 
-### データリーク検出
+#### データリーク検出
 
 cacheに読み込んだデータがcacheに残っているかどうかを確認するためには以下の4つの状況を考える必要がある。
 
@@ -220,26 +203,26 @@ cacheに読み込んだデータがcacheに残っているかどうかを確認�
 
 <!-- これらの条件を定式化することによって、cache の挙動を（より正確に）追うことができる。 -->
 
-### 定式化
+#### 定式化(発表ではスキップ)
 
-#### 準備
+##### 準備
 - $\operatorname{set}\left(r_{i}\right)=\left(\sigma_{i} \gg B\right) \&\left(2^{S}-1\right)$
 - $\operatorname{tag}\left(r_{i}\right)=\sigma_{i} \gg(B+S)$
 
-#### $r_j$が$r_i$に対してconflictする条件(a)
+##### $r_j$が$r_i$に対してconflictする条件(a)
 - $\psi_{c n f}\left(r_{i}, r_{j}\right) \equiv\left(\operatorname{set}\left(r_{i}\right)=\operatorname{set}\left(r_{j}\right)\right) \wedge\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{j}\right)\right)$
 
-#### $r_j$がuniqueなconflictである条件(b)
+##### $r_j$がuniqueなconflictである条件(b)
 - $\psi_{\text {unq }}\left(r_{j}\right) \equiv \bigwedge_{k \in(j, N] \wedge r_{k} \in N_{t}}\left(\operatorname{set}\left(r_{j}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{j}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
   - $N_t$: 通常実行でのメモリ関連の命令の集合
   - 後続の$r_k \in N_t$が$r_j$と
     - setが異なるか
     - setが同じだったとしてもtagが異なる
 
-#### $r_j$の後に再び$r_i$が読まれない条件\(c\)
+##### $r_j$の後に再び$r_i$が読まれない条件\(c\)
 - $\psi_{r e l}\left(r_{i}, r_{j}\right) \equiv \bigwedge_{k \in(j, N]}\left(\operatorname{set}\left(r_{i}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
 
-#### まとめ
+### まとめ
 上記をまとめ、「$r_i$で読んだメモリブロックの位置が$r_j$によって変更され、それが実行の最後まで打ち消されない」は以下の$cnf_{i, j}$によって判定可能
 - $\Theta_{j, i}^{+} \equiv \psi_{c n f}\left(r_{i}, r_{j}\right) \wedge \psi_{u n q}\left(r_{j}\right) \wedge \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=1\right)$
 - $\Theta_{j, i}^{-} \equiv \neg \psi_{c n f}\left(r_{i}, r_{j}\right) \vee \neg \psi_{u n q}\left(r_{j}\right) \vee \neg \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=0\right)$
@@ -300,11 +283,11 @@ char victim_fun(ind idx) {
   if (idx < array1_size) {
     temp &= array2[array1[idx]];  // RS
   }
-#define ITER N
+#define ITER N  // 1~512
   for (i = 0; i < ITER; i++) {
     temp &= array3[i * 64];       // キャッシュを上書きしていく
   }
-  return temp;
+  return temp;  // この時点でキャッシュにデータが残っているかを確認
 }
 void main() {
   int x;
@@ -323,7 +306,7 @@ void main() {
 
 <img src="img/cache_example.svg" width="800">
 
-また、array2のキャッシュは1番目のsetに保存されるとする。
+また、array2のキャッシュは0番目のsetに保存されるとする。
 
 #### 実験内容
 
