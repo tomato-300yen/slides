@@ -1,40 +1,22 @@
 # kleespectre
 
-## Attack Example
+## アプローチの分類
 
+- HWから攻める
+  - cacheに関する提案が多い
+- SWから攻める
+  - 投機実行を遅らせる系の手法はoverheadが大きい
+  - lfenceを置く手法
+- モデル検査
+- Side-channel攻撃の解析(w/ cache modeling)
+- Side-channel攻撃の検出(w/ cache modeling)
+  - abstract interpretation の手法はここに分類される
 
-```c
-if (x < array1_size) {  // VB
-  y = array1[x];  // RS
-  temp |= array2[y * 64];  // LS
-}
-```
+## 比較の観点
 
-Example of so called BCB (Bounds Check Bypass) Attack.
+- 記号実行で投機的実行を扱えるか
+- Cache のモデル化
+- Scalableかどうか
+- spectre攻撃を検出できるか
+- 対象
 
-- VB : Vulnerable Branch
-- RS : Read Secret
-- LS : Leak Secret
-
-先行研究:
-- branch predictorは攻撃者から操作できる。→ mis-predictionをするように仕向けられる。
-  - may be mis-trained by the victim process or outside the victim process
-
-## 改善点
-- 攻撃者は実行直後にメモリを観察できるという仮定をおいている。実行途中に関しては見ていない。
-
-## overview
-
-従来のsymbolic executionは branch mis-prediction 由来のリークを検出できない。
-
-## 疑問
-
-mis-predictionしたときに、現実のcpuではどうなっているのか。
-もうこの問題解決されていたりして。
-
-## 6.1
-- Kocherと呼ばれるリトマステスト群でテストした。
-  - real world で BCB vulnerability は見つかってないからKocherを使う。
-  - Kocher は秘密データへのアクセスのあとにメモリーアクセスを行っていない。
-    - この状況だとすべて検出できる。
-  - ので、ひみつデータを呼んだ後にメモリーアクセスを行ってキャッシュをいじって、その後に秘密データが確認できるかどうかを確認する。
