@@ -420,56 +420,110 @@ Litmus testと上の表より、RQ3に対して以下のことが言える。
 
 ### Spectre攻撃に対するハードウェアからのアプローチ
 
-- cache ではなく Speculative Buffer(SB) を使ってデータをロードし、ロールバックする場合はSBをスカッシュする手法(InvisiSpec, [44])
-- cache で"Undo"を行う手法(CleanupSpec, InvisiSpecの改良版, [39])
-- cacheを撹乱してsensitibe dataのleakを防ぐ手法(CEASER [37], ScatterCache[42])
+- InvisiSpec[MICRO'18] : cache ではなく Speculative Buffer(SB) を使ってデータをロードし、ロールバックする場合はSBをスカッシュする手法
+- CleanupSpec[MICRO'19] InvisiSpecの改良版 : cache で"Undo"を行う手法
+- DAWG[MICRO'18] : security domain に応じて cache の way を仕切る。
+- CEASER[MICRO'18, ref.42] : cacheを撹乱してsensitibe dataのleakを防ぐ手法
+- ScatterCache[USENIX security'19] : CEASER の改良版
 
+legacy system に対して適用できない。
 上記手法はハードウェアに大きく依存している。
 KLEEspectreは、分岐予測をもとに投機的実行を行う任意のプロセッサの上で動く任意のアプリケーションを対象にできる。
 
 ### Spectre攻撃に対するソフトウェアからのアプローチ
 
-- コンパイル時点でVBを発見し、データリークの可能性のあるpointerを無効化するコードを挿入する手法(RSを消す手法)(Speculative Load Hardening(SLH), [10])
-  - 実行時オーバーヘッドが無視できない程度に増加する(36%程度)
-- potentially vulnerable な命令の実行を遅らせることで、投機的実行を回避する手法([33])
+- Speculative Load Hardening(SLH)['18]コンパイル時点でVBを発見し、データリークの可能性のあるpointerを無効化するコードを挿入する手法(RSを消す手法)
+  - fence 命令の追加のこと？
+  - 実行時オーバーヘッドが無視できない程度に増加する(36%程度増加)
+- potentially vulnerable な命令の実行を遅らせることで、投機的実行を回避する手法([33], arXiv論文)
   - 上記の手法と同様、実行時オーバーヘッドがひどい
     - "potentially" vulnerable な命令すべてに対して遅延を導入するため
+
+上記手法はどれもすべての潜在的なRSに対して遅延を導入している。→そのためoverheadがひどくなる。
 
 KLEEspectreと併用することによって、実行時のオーバーヘッドを削減することができる。
 
 - Microsoft Visual C/C++ コンパイラ[15]
   - オプションで"lfence"と呼ばれるコードを挿入することで防御をしているが、2/15しか防げていない(Spectre litmus test)。
-- 静的解析によって投機的実行をモデル化する手法(草分け的論文?)。(007, TSE'20)
+- oo7[TSE'20] : 静的解析によって投機的実行をモデル化する手法(草分け的論文?)
+  - そもそも著者が同じだったw
   - conservative static analysis 由来のfalse positiveが顕著
-  - KLEEspectreのほうが優れている（らしい）
+  - KLEEspectreのほうが優れているのは評価のところからもわかるとおり
+  - これは static analysis
+  - binary を対象とする
 
 ### Speculative Semantics and Formal Models
 
 モデル検査
 
-- Trace property-dependent observational determinism(TPOD) というセキュリティに関する性質を用いる手法([13])
+- A formal approach to secure speculation[CSF'19, ref.13] : Trace property-dependent observational determinism(TPOD) というセキュリティに関する性質を用いる手法
+  - 脆弱性のあるプログラムはTPODを満たさないらしい
   - この論文では実装はないらしい
   - arahori-sanリスト5
     - モデル検査による解析
-- 投機的評価をモデル化するmicroarchitecturalなモデル([16])
-- model for constant-time programming([11])
+- The code that never ran[SP'19, ref.16] : 投機的評価をモデル化するmicroarchitecturalなモデル
+- [ref.11]model for constant-time programming
   - constant-time programming??
   - arahori-sanリスト2
-- out-of-order実行をモデル化するためのインフラ提供(InSpectre, [6])
+- InSpectre[SIGSAC'20, ref.6]out-of-order実行をモデル化するためのインフラ提供
   - microarchitectural featuresのsemanticsを考察
-- 投機的実行に対してfuzz testを実行することによりSpectre脆弱性を検出する(SpecFuzz, [34])
+  - single processor に対して formal に対処する感じ
+- SpecFuzz[SP'20, ref.34]投機的実行に対してfuzz testを実行することによりSpectre脆弱性を検出する
   - cacheのモデル化は行っていない。
-- speculative noninterference?を用いた記号実行(SPECTECTOR, [23])
+- Spectector[USENIX'20, ref.23]speculative noninterference?を用いた記号実行
+  - 動的なアプローチ
 
 上記の手法は、speculative semantics のモデル化し、プログラム解析における脆弱性を定義しているものの、cache side-channel攻撃のモデル化とチェックは行っていない。
 KLEEspectreはcacheのモデル化を行うことにより達成している。
 
 ### Side-Channel Analysis without Cache Modeling
 
+- THEMIS[SIGSAC'17, ref.14]
+  - 軽めの静的解析
+  - k-safety を考慮する
+    - noninterference property を考慮
+- [SIGPLAN'17, ref.5]
+  - self-decomposition でプログラムを分割する
+- DifFuzz[ICSE'19, ref.32]
+  - fuzzing
+- [SIGPLAN'17, ref.17]
+  - abstract interpretation
+  - binary を対象
+
 - キャッシュの明示的なモデル化を行わないので、false positiveが多い。
 - 投機的実行をモデル化しないので、Spectre攻撃を検出できない。
 
-<!-- ### Side-Channel Attack Identification via Cache Modeling -->
+### Side-Channel Attack Identification via Cache Modeling
+
+- Casym[SP'19, ref.7]
+  - cache-aware symbolic execution
+  - two cache model
+    - infinite cache model, infinite size and infinite associativety
+    - age model, distance from most recent memory access
+  - モデルが大ざっぱ、再現できない
+  - 投機的実行を考慮していない
+- CACHEFIX['18, ref.12]
+  - キャッシュのモデル化
+  - 投機的実行を考慮していない
+
+以下はAbstract Interpretation
+- [PLDI'19, ref.43]
+  - arahori-san list
+  - 投機的実行を考慮する
+  - キャッシュに関しても考慮する
+  - timing-based attack に対するもので、Spectreには対応していない。
+- CacheAudit[TISSEC'18, ref.18]
+  - 同様のアプローチ
+  - だが、投機的実行を考慮しない
+- CacheS[USENIX security'19, ref.41]
+  - timing-based cache side-channel attack
+  - static analysis と 記号実行のバランスを取って、scalability と precision を確保している
+    - 秘密データの依存関係しか追ってない
+    - 粗い粒度で情報を取得している
+  - 投機的実行は考慮していない
+- Specusym[ICSE'20, ref.24]
+  - 投機的実行を考慮する
+  - が、timing-based な攻撃にしか使えない
 
 ---
 
