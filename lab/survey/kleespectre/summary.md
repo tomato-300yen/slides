@@ -1,4 +1,4 @@
-# kleespectre
+# kleespectre[TOSEM'20]
 
 # 発表
 
@@ -6,7 +6,11 @@
 
 Spectre攻撃(cache経由)によるデータ流出を記号実行を用いて検出する手法の提案。
 
-投機的実行を記号実行で扱えるようにし、さらにキャッシュの挙動もモデル化することで、より正確にSpectre攻撃(の一種)の検出が行えるようになる。
+- 記号実行で投機的実行を扱えるように
+- キャッシュの挙動をモデル化
+- → Spectre攻撃の検出
+
+ただしscalabilityの観点から課題は残る。
 
 ---
 
@@ -22,7 +26,7 @@ if ( ( a + b ) % 2 != 0 ) {
 
 - 分岐命令の計算結果を計算している最中に分岐先を予測して命令を実行する。
 - 分岐予測が間違っていた場合、実行した命令はロールバックされる
-  - キャッシュの状態はロールバック**されない**。
+  - キャッシュの状態は**ロールバックされない**。
 
 <!-- ### 記号実行 -->
 
@@ -49,11 +53,10 @@ if (x < array1_size) {  // VB
 
 - 攻撃対象と攻撃者は**同じマシン上**にいる(ref. [31])
 - プロセッサーの分岐予測器は**外部から訓練(操作)できる**(ref. [9])
-  - すべての分岐は潜在的にmis-trainedされる可能性がある
+  - 同じコアの別プロセスによって
     - すべての分岐をVBとして扱うのは妥当
-- 攻撃者は (access-based or trace-based) cache side-channel attack を行う(ref [38])
 - 攻撃可能かどうかの判定方法
-  - **実行終了時点で**攻撃者が secret なデータを観測できる場合に攻撃可能と判定
+  - **実行終了時点で**攻撃者が secret なデータが cache で観測できる場合に攻撃可能と判定
     - 何を秘密データとするかについては後述
 
 ---
@@ -80,31 +83,18 @@ uint8_t foo(uint32_t x) {
 }
 ```
 
-![symbolic_path](img/symbolic_path.png)
-
-- 通常の実行を行った場合、out-of-bound access は起きない。
-- (b)は従来の記号実行を行った時の execution tree
-- \(c\)はこの論文でやりたいこと(以下で解説)
-
 ### 問題となる状況
 
 - x が x >= SIZE
 - b1 がmis-trained されている
 
-以上のような場合、投機実行によって
+この時、投機的実行によって
 
-- array1[x] が参照される。(out-of-bound reference) (temp に代入される)
-- そのデータをもとにして、array2[temp]が参照される。
-  - array1[x] が秘密データを参照していた場合、ここで得られる値も秘密データに依存していることになる。
-  - ここで読んだ値がcacheに残っている場合、攻撃者は**間接的にarray1[x]の値を入手**してしまう。
+1. array1[x] がtempに代入される。(out-of-bound reference) (A)
+1. array2[temp]が参照される。(A)
+   - array1[x] が秘密データを参照していた場合、この参照も秘密データに依存
 
-従来の記号実行ではこのデータリークは検出できない。
-これを検出するためには、
-
-- 分岐予測による投機実行
-- cache の挙動
-
-を扱える必要がある。
+この参照が cache される場合、**間接的に秘密データが流出**
 
 ---
 
@@ -117,22 +107,22 @@ uint8_t foo(uint32_t x) {
 
 ![symbolic_path](img/symbolic_path.png)
 
-1. **p_T1** : x < SIZE, b1 is correctly predicted.
-1. **p_F1** : x >= SIZE, b1 is correctly predicted.
-1. **sp_T1** : x >= SIZE, b1 is mis-predicted. (秘密情報をリークする可能性があるのはこのパターン)
-1. **sp_F1** : x < SIZE, b1 is mis-predicted.
+1. **p_T1** : x < SIZE, b1 が正しく予測
+1. **p_F1** : x >= SIZE, b1 が正しく予測
+1. **sp_T1** : x >= SIZE, b1 が誤って予測 <- **情報をリークする可能性**, これを検知したい
+1. **sp_F1** : x < SIZE, b1 が誤って予測
 
-3つ目のパターンを検出したいというモチベーションがある。
-
-が、愚直にやると検査対象の数が指数的に爆発するのでうまく工夫する必要がある。
-KLEEspectreでは2つの工夫をおこなう。
+探索対象は指数的に増えるので、それに対する対策が必要。
 
 1. Speculative Execution Window(SEW)による探索命令数の上限。
-1. 秘密データを流出し得ない命令はメモリアクセスであっても無視する。
-  - 何を秘密データとするか(詳しくは後述するが、大きく分けて2つの戦略がある)
-    1. 範囲外参照先の値
-    2. 外から明示的に秘密データを指定
-  - 上の例で言えば、sp_T1の場合でコード片Aを実行している場合のみを考慮する。
+1. 秘密データを流出し得ない(投機的に実行される)命令はメモリアクセスであっても無視。
+   - 何を秘密データとするか
+     1. 範囲外参照先の値
+     2. 外から明示的に秘密データを指定
+   - 上の例で言えば、sp_T1の場合でコード片Aを実行している場合のみを考慮する。
+
+#### 探索方法
+通常の探索pathに加えて、分岐条件を反転させたpathを追加で探索する。
 
 <!-- ### キャッシュのモデル化 -->
 
@@ -201,6 +191,8 @@ cacheに読み込んだデータがcacheに残っているかどうかを確認�
 
 **(上の条件を満たす)unique conflict の回数 < associativity** の場合、secret data は cache に残っていることになる。
 
+上の条件を考えることでimplicitにcacheをモデル化している。
+
 <!-- これらの条件を定式化することによって、cache の挙動を（より正確に）追うことができる。 -->
 
 #### 定式化(発表ではスキップ)
@@ -222,7 +214,7 @@ cacheに読み込んだデータがcacheに残っているかどうかを確認�
 ##### $r_j$の後に再び$r_i$が読まれない条件\(c\)
 - $\psi_{r e l}\left(r_{i}, r_{j}\right) \equiv \bigwedge_{k \in(j, N]}\left(\operatorname{set}\left(r_{i}\right) \neq \operatorname{set}\left(r_{k}\right)\right) \vee\left(\operatorname{tag}\left(r_{i}\right) \neq \operatorname{tag}\left(r_{k}\right)\right)$
 
-### まとめ
+#### 式のまとめ
 上記をまとめ、「$r_i$で読んだメモリブロックの位置が$r_j$によって変更され、それが実行の最後まで打ち消されない」は以下の$cnf_{i, j}$によって判定可能
 - $\Theta_{j, i}^{+} \equiv \psi_{c n f}\left(r_{i}, r_{j}\right) \wedge \psi_{u n q}\left(r_{j}\right) \wedge \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=1\right)$
 - $\Theta_{j, i}^{-} \equiv \neg \psi_{c n f}\left(r_{i}, r_{j}\right) \vee \neg \psi_{u n q}\left(r_{j}\right) \vee \neg \psi_{r e l}\left(r_{i}, r_{j}\right) \Rightarrow\left(c n f_{i, j}=0\right)$
@@ -254,23 +246,30 @@ pass
 
 ### Research Questions
 
-- **RQ1**. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
-- **RQ2**. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
-- **RQ3**. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+- **RQ1**. さまざまなBCB脆弱性を検出できるか？
+- **RQ2**. どのくらい効率的か？
+- **RQ3**. キャッシュモデルは投機的実行による cache side-channel leakage の検出において効果的か？
 
-### Litmus test (RQ1, RQ3)
+### Litmus test (RQ1, RQ3)(1/4)
 
 Kocher[28]によって作られたテストプログラムで実験を行う。
 - 15個すべてのプログラムにおいて、脆弱性を検出できた。
   - Microsoft compiler は2つしか検出できなかった。
 
-> - RQ1. Can KLEEspectre effectively detect various kinds of BCB vulnerabilities?
+> - **RQ1**. さまざまなBCB脆弱性を検出できるか？
 
 Yes.
 
-だが、このテストプログラムは secret data へのアクセスの後にノーマルのメモリアクセスがないため、提案している **cache model の効果を検証できない**。
+だが、このテストプログラムは secret data へのアクセスの後に通常メモリアクセスがないため、提案している **cache model の効果を検証できない**(RQ3)。
 
-そこで、追加のテストを行った。使用するプログラムは以下。
+#### 追加テスト(cacheモデルの効果を検証(RQ3))
+
+プログラムが少し長いが、要するに、
+
+1. secret を読む。
+   - cacheに格納される
+1. 通常のreadを行う。
+   - これにより cache 内の secret が上書きされるかどうか確認
 
 ```c
 int array1_size = 16;
@@ -306,7 +305,12 @@ void main() {
 
 <img src="img/cache_example.svg" width="800">
 
-また、array2のキャッシュは0番目のsetに保存されるとする。
+- array1[idx]はcharなので1B(8bit)
+- そのうち下位6bitはブロックオフセットとして使われる
+  - setの選択に有効な(=indexに影響する)のは、上位2bit
+  - setは特定の4つに絞られる
+- array2のキャッシュは0番目のsetに保存されるとする
+  - 結局、最初の4つのsetに格納される
 
 #### 実験内容
 
@@ -319,20 +323,19 @@ void main() {
 <img src="img/litmus_result.png" width="600">
 
 2-wayの場合で考える。
-array1[idx]はcharなので1B(8bit)。
-そのうち下位6bitはブロックオフセットとして使われるので、setの選択に有効な(=indexに影響する)のは、上位2bit。
 
-したがって、array2のキャッシュが入りうるsetは4つに絞られる。
-array2のキャッシュは0番目に入るという仮定があったので、結局最初の4つに格納される。
-
-その4つを上書きするのに必要なiterationは256+4=260。
+cacheされた4つのデータをcacheから追い出すのに必要なiterationは256+4=260。
 図を見ると、260で Leakage free になっていることがわかる。
 
-> How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+> - **RQ3**. キャッシュモデルは投機的実行による cache side-channel leakage の検出において効果的か？
 
 cacheの動作を考慮してSpectre攻撃の可能性を見つけられる。
+実世界のプログラムでも調査する。
 
-### BCB Gadgets in Real Program
+### BCB Gadgets in Real Program(2/4)
+
+#### 要旨
+実世界のプログラムで実験を行なったが、Spectre脆弱性はほとんど発見されなかった。
 
 #### 使用するプログラム
 ![program_to_use](img/program_to_use.png)
@@ -344,7 +347,7 @@ SEW=50, 100 のそれぞれで実験を行った。
 #### 実験結果
 ![table2](img/table2.png)
 
-str2keyで一つの脆弱性を発見した。以下のようなもの。
+str2keyで1つの脆弱性を発見した。以下のようなもの。
 
 ```c
 void DES_set_odd_parity(DES_cblock *key) {
@@ -358,10 +361,12 @@ void DES_set_odd_parity(DES_cblock *key) {
 **ほとんどのプログラムでSpectre脆弱性は発見されなかった。**
 ので、、、
 
-### Leakage Detection with Cache Modeling
+### Leakage Detection with Cache Modeling(3/4)
 
-現実のプログラムでは脆弱性がほとんど見つからないので、人為的に脆弱性を仕込んだ上で実験を行う。
-具体的には、ある特定のコードをstart, middle, endに入れる。
+#### 要旨
+- 人為的に脆弱性を仕込む
+  - ある特定のコードをstart, middle, endに脆弱性を仕込む
+- 上と同じ実験を行う
 
 #### 実験結果
 ![table3](img/table3.png)
@@ -370,45 +375,41 @@ void DES_set_odd_parity(DES_cblock *key) {
 - delta(LS) : leakage of user-marked secret
 
 Litmus testと上の表より、RQ3に対して以下のことが言える。
-> - RQ3. How effective is out cache model in detecting cache side-channel leakage though speculative paths?
+> - **RQ3**. キャッシュモデルは投機的実行による cache side-channel leakage の検出において効果的か？
 
 - cache modelを導入することにより、検出件数が減る(ocb3)
-  - **false positive を削っている。**
-  - 実際はcacheは上書きされるが、cacheの挙動がわからないが故に、false positiveを作っている。
-- associativity を上げると、検出数が増える。
-  - associativityを上げることによって、キャッシュから追い出されづらくなる。
+  - **false positive を削っている**
+  - 「実はキャッシュから追い出されている」場合を検出できる
+- associativity を上げると、検出数が増える。(encoder, des)
+  - associativityを上げることによって、キャッシュから追い出されづらくなる
   - **cache の挙動の正確な再現**
 
-### 007との比較(RQ2)
+### RQ2に関して(4/4)
 
 2つのプログラムに対して実験を行った。
-- `trie` from the `freeadius`
-  - 1h程度
-  - with cache : 1
-  - without cache : 1
-- `touch` from `coreutils`
-  - 12h程度
-  - with cache : 1
-  - without cache : 1
 
-> - RQ2. How efficient is KLEEspectre in detecting the BCB vulnerabilities?
+![table4](img/table4.png)
+![table5](img/table5.png)
 
-efficient?
+> - **RQ2**. どのくらい効率的か？
+
+- 10K程度のpathの探索なら1h程度でできるが、1Mくらいになると12h程度かかる
+- スケーラビリティに課題あり
 
 ---
 
 ## 課題
 
 - Path Explosion
-  - 通常の記号実行よりも多くpathを探索する。(SEWによって実行する命令は限られている。)
-  - スケールしない(しにくい)
-  - 簡単な静的解析を始めにやっておくことで、探索するpathを減らすという手法は使える。
+  - 通常の記号実行よりも多くpathを探索する。(SEWによって実行する命令を絞っている)
+  - **スケールしない(しにくい)**
+  - 静的解析による探索pathの削減は可能(本文で言及あり)
 - Precise Modeling of Program Behavior
-  - 生のbinaryを扱わないので、プログラムの挙動が正確ではない可能性がある(compiler optimization)
-  - KLEEspectreはsoundにやるので、false positiveが多くなる。
+  - 生のbinaryを扱わないので、**プログラムの挙動が正確ではない可能性**がある(compiler optimization)
+  - KLEEspectreはsoundにやるので、**false positive**が多くなる。
 - Explicit Modeling of Cache
   - explicit にcacheをモデル化することで、さらなる解析が可能になる
-  - が、setやassociativityなど、外から与えるparameterが必要で、コレをミスすると解析にfalse (positive/negative)が増える。
+  - が、setやassociativityなど、外から与えるparameterが必要で、これをミスすると解析にfalse (positive/negative)が増える。
 - The Setting of Speculative Execution Window (SEW)
   - SEWを不正確に設定すると、解析の結果も不正確になる。
   - 通常は Reorder Buffer(RoB) と同等程度のSEWを設定する。
@@ -468,7 +469,7 @@ KLEEspectreはcacheのモデル化を行うことにより達成している。
 - キャッシュの明示的なモデル化を行わないので、false positiveが多い。
 - 投機的実行をモデル化しないので、Spectre攻撃を検出できない。
 
-### Side-Channel Attack Identification via Cache Modeling
+<!-- ### Side-Channel Attack Identification via Cache Modeling -->
 
 ---
 
@@ -493,16 +494,18 @@ arahori-sanリストを中心に調査を進めていく。
 > 1. 型システムに基づく解析[POPL'21]: https://dl.acm.org/doi/10.1145/3434330
 > 1. モデル検査に基づく解析[CSF'19]: https://ieeexplore.ieee.org/document/882373
 
+1. Meltdown, Spectre: https://spectreattack.com/
 1. Side-channel attacksのサーベイ論文: https://dl.acm.org/doi/10.1145/3456629
+   - 保留
 
----
+<!-- --- -->
 
-## TODO
+<!-- ## TODO -->
 
-1. KLEEspectreの読めていない部分を読む。
-  1. 加えて、最新の状況の調査も行いたい。→ 論文調査
-  1. arahori-san リスト?
-1. 卒論テーマの問題定義
-   - まだ調査が必要
-1. KLEEspectreの再現実験
-   - KLEEspectre自体は公開されている。
+<!-- 1. KLEEspectreの読めていない部分を読む。 -->
+<!--   1. 加えて、最新の状況の調査も行いたい。→ 論文調査 -->
+<!--   1. arahori-san リスト? -->
+<!-- 1. 卒論テーマの問題定義 -->
+<!--    - まだ調査が必要 -->
+<!-- 1. KLEEspectreの再現実験 -->
+<!--    - KLEEspectre自体は公開されている。 -->
