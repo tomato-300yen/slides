@@ -420,11 +420,16 @@ Litmus testと上の表より、RQ3に対して以下のことが言える。
 
 ### Spectre攻撃に対するハードウェアからのアプローチ
 
-- InvisiSpec[MICRO'18] : cache ではなく Speculative Buffer(SB) を使ってデータをロードし、ロールバックする場合はSBをスカッシュする手法
-- CleanupSpec[MICRO'19] InvisiSpecの改良版 : cache で"Undo"を行う手法
-- DAWG[MICRO'18] : security domain に応じて cache の way を仕切る。
-- CEASER[MICRO'18, ref.42] : cacheを撹乱してsensitibe dataのleakを防ぐ手法
-- ScatterCache[USENIX security'19] : CEASER の改良版
+- InvisiSpec[MICRO'18]
+  - cache ではなく Speculative Buffer(SB) を使ってデータをロードし、ロールバックする場合はSBをスカッシュする手法
+- CleanupSpec[MICRO'19] InvisiSpecの改良版
+  - cache で"Undo"を行う手法
+- DAWG[MICRO'18]
+  - security domain に応じて cache の way を仕切る。
+- CEASER[MICRO'18, ref.42]
+  - cacheを撹乱してsensitibe dataのleakを防ぐ手法
+- ScatterCache[USENIX security'19]
+  - CEASER の改良版
 
 legacy system に対して適用できない。
 上記手法はハードウェアに大きく依存している。
@@ -432,12 +437,15 @@ KLEEspectreは、分岐予測をもとに投機的実行を行う任意のプロ
 
 ### Spectre攻撃に対するソフトウェアからのアプローチ
 
-- Speculative Load Hardening(SLH)['18]コンパイル時点でVBを発見し、データリークの可能性のあるpointerを無効化するコードを挿入する手法(RSを消す手法)
-  - fence 命令の追加のこと？
-  - 実行時オーバーヘッドが無視できない程度に増加する(36%程度増加)
-- potentially vulnerable な命令の実行を遅らせることで、投機的実行を回避する手法([33], arXiv論文)
-  - 上記の手法と同様、実行時オーバーヘッドがひどい
-    - "potentially" vulnerable な命令すべてに対して遅延を導入するため
+- Speculative Load Hardening(SLH)['18]
+  - コンパイル時点でVBを発見し、データリークの可能性のあるpointerを無効化するコードを挿入する手法
+    - これによりRSが消える
+    - fence 命令の追加のこと？
+    - 実行時オーバーヘッドが無視できない程度に増加する(36%程度増加)
+- [arxiv, ref.33]
+  - potentially vulnerable な命令の実行を遅らせることで、投機的実行を回避する手法([33], arXiv論文)
+    - 上記の手法と同様、実行時オーバーヘッドがひどい
+      - "potentially" vulnerable な命令すべてに対して遅延を導入するため
 
 上記手法はどれもすべての潜在的なRSに対して遅延を導入している。→そのためoverheadがひどくなる。
 
@@ -445,7 +453,8 @@ KLEEspectreと併用することによって、実行時のオーバーヘッド
 
 - Microsoft Visual C/C++ コンパイラ[15]
   - オプションで"lfence"と呼ばれるコードを挿入することで防御をしているが、2/15しか防げていない(Spectre litmus test)。
-- oo7[TSE'20] : 静的解析によって投機的実行をモデル化する手法(草分け的論文?)
+- oo7[TSE'20, ref.40]
+  - 静的解析によって投機的実行をモデル化する手法(草分け的論文?)
   - そもそも著者が同じだったw
   - conservative static analysis 由来のfalse positiveが顕著
   - KLEEspectreのほうが優れているのは評価のところからもわかるとおり
