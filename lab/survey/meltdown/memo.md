@@ -17,12 +17,12 @@
 - Kernel空間に Physical Memory 全体がmapされている(!!)
   - kernelは user page に対する操作も行う必要がある
 
-## A Toy Example
+## Example
 
 ```
 raise_exception();
 // the line below is never reached
-access(probe_array[data * 4096]);
+access(probe_array[data * 4096]);  // OoO的に実行されキャッシュの状態を変える
 ```
 
 - OoO実行により、次の命令をすでに実行している可能性がある。
@@ -42,3 +42,20 @@ access(probe_array[data * 4096]);
 ![flush-reload](img/flush-reload.png)
 
 どうやら84番目のページにアクセスしたらしい。
+
+## 進捗
+
+- KLEEspectreの Dockerfile が公開されていたのでそれを使ったコンテナの構築
+  - 再現テストは行っていない
+  - が、実行コマンドがREADMEに書かれているので、やるだけ
+- Meltdown と Spectre の調査
+  - Meltdown を途中まで
+- x86の`clflush`命令
+  - 知らなかった
+
+## これから
+
+- Meltdown and Spectre
+  - https://spectreattack.com/
+- ASLR, KISER など？
+- arahori-san リスト
