@@ -96,10 +96,10 @@ int main(void) {
   return 0;
 }
 ```
+
 - a: 100
 - b: 200
 - c: 0
-
 
 ## 3. メモリを変更する命令を計装
 
@@ -182,9 +182,15 @@ int main(void) {
 
 ## SpecX の終了条件
 
-- `fence`命令に遭遇したら
+- シリアライズ命令に遭遇したら
 - 所定の命令数を実行したら
-  - ReorderBufferのサイズを真似て250
+  - ReorderBuffer のサイズを真似て 250
+
+## SpecX 中の例外
+
+- SpecFuzz では例外が発生した段階で、SpecX を中止
+- ほとんどの CPU のモデルでは(?)、例外が発生しても SpecX を中止しないとされている
+- → 例外が発生しても SpecX を中止しない
 
 # Spectre の検出
 
