@@ -8,16 +8,18 @@
 # 概要
 
 - 解きたい問題
-  - Spectre を塞ぎたい
-  - Spectre を検出(特に Spectre V1, V1.1)し、
-    - 検出箇所に fence 命令を置く
+  <!-- - Spectre を塞ぎたい -->
+  - Spectre の検出(特に Spectre V1, V1.1)
+    - 検出箇所にシリアライズ命令を置く
 - 既存手法の問題点
   - SPECTECTOR : 精度は良いがスケールしない。
     - 記号実行ベース
   - SpecFuzz : スケールするが recall/precision ともにそこそこ
     - SpecX のロジックを静的に組み込み Fuzzing
+  - oo7 : スケールするが、FP が多い
+    - 静的テイント解析、SpecX を考慮しない
 - 提案手法
-  - 動的テイント解析 + SpecX のシミュレート + (Fuzzing)
+  - (Fuzzing +) 動的テイント解析 + SpecX のシミュレート
   - 既存の動的テイント解析で SpecX のシミュレートできるようにした
 - 結果
   - 精度を保ちつつ Scale する
@@ -194,11 +196,28 @@ int main(void) {
 
 # Spectre の検出
 
+- G スライドを参照する
+- Spectre のコード
+- 検出方法
+
 # 実験と評価
 
-# データセット
+- accuracy (recall/precision)
+- scalability
+
+## データセット
+
+- Kocher らによる 15 個の Spectre サンプル
+- SpecFuzz の評価で用いられたデータセット
+- 人工的に脆弱性を注入したデータセット
+
+## 実験環境
+
+## 実験
 
 # 関連研究
+
+- スプシを参照のこと
 
 # 結論
 
