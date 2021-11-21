@@ -26,6 +26,14 @@
 
 # Spectre V1
 
+```
+i = input[0];         // <1>
+if (i < size) {       // <2>
+  secret = foo[i];    // <3>
+  baz = bar[secret];  // <4>
+}
+```
+
 # SpecX のシミュレート
 
 サンプルコード:
